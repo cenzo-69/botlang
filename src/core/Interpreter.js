@@ -4,7 +4,7 @@ const { FrameworkError, RuntimeError } = require('./errors');
 
 class Interpreter {
   constructor(functions) {
-    this.functions = functions; // Map<string, fn | { execute, lazy, ... }>
+    this.functions = functions; // Map<string, fn | { execute, lazy }>
   }
 
   async execute(ast, context) {
@@ -32,31 +32,44 @@ class Interpreter {
     const { name, originalName, args } = node;
     const fn = this.functions.get(name);
 
-    // Unknown function — emit as literal text so unrecognized $words pass through
+    // Unknown function — pass through as literal text
     if (!fn) {
       if (args === null) return `$${originalName}`;
       const flat = await this.resolveArgs(args, [], context);
       return `$${originalName}[${flat.join(';')}]`;
     }
 
-    const execute = typeof fn === 'function' ? fn : fn.execute;
+    const execute     = typeof fn === 'function' ? fn : fn.execute;
     const lazyIndices = (typeof fn === 'object' && fn.lazy) ? fn.lazy : [];
 
-    // Build resolved arg list; lazy indices receive raw node arrays
-    const resolvedArgs = args ? await this.resolveArgs(args, lazyIndices, context) : [];
+    // Resolve args BEFORE creating child context —
+    // args are evaluated in the caller's scope, not the function's scope.
+    const resolvedArgs = args
+      ? await this.resolveArgs(args, lazyIndices, context)
+      : [];
 
-    const childCtx = context.child();
+    // Create child context; push this function onto the call stack for tracing.
+    const childCtx        = context.child();
     childCtx.functionName = originalName;
+    childCtx.callStack    = [...context.callStack, originalName];
 
     try {
       const result = await execute(childCtx, resolvedArgs);
+
       // Propagate stop signal from child back to caller
       if (childCtx.stopped) context.stop();
+
       if (result === null || result === undefined) return '';
       return String(result);
     } catch (err) {
-      if (err instanceof FrameworkError || err instanceof RuntimeError) throw err;
-      throw new RuntimeError(err.message, originalName);
+      // Enrich the error with call stack information before re-throwing
+      if (err instanceof FrameworkError || err instanceof RuntimeError) {
+        if (!err.callStack || err.callStack.length === 0) {
+          err.callStack = childCtx.callStack;
+        }
+        throw err;
+      }
+      throw new RuntimeError(err.message, originalName, childCtx.callStack);
     }
   }
 
@@ -64,7 +77,7 @@ class Interpreter {
     const resolved = [];
     for (let i = 0; i < argNodes.length; i++) {
       if (lazyIndices.includes(i)) {
-        // Pass raw node array — the function will execute them itself
+        // Pass raw node array — the function controls when/if it runs
         resolved.push(argNodes[i]);
       } else {
         resolved.push(await this.executeNodes(argNodes[i], context));

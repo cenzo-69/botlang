@@ -18,6 +18,9 @@ const client = new Client({
 
 const runtime = new Runtime();
 
+// ── Optional: uncomment to enable JS eval for bot owner debugging ──
+// runtime.register('evalDJS', require('./src/dev/evalDJS'));
+
 // ─── Command loader ───────────────────────────────────────────────────────────
 
 const fs   = require('fs');
@@ -48,17 +51,19 @@ client.on(Events.MessageCreate, async (message) => {
   if (message.author.bot) return;
   if (!message.content.startsWith(PREFIX)) return;
 
-  const input   = message.content.slice(PREFIX.length).trim();
-  const cmdName = input.split(/\s+/)[0].toLowerCase();
+  const raw     = message.content.slice(PREFIX.length).trim();
+  const cmdName = (raw.match(/\S+/) || [''])[0].toLowerCase();
   const cmd     = commands.get(cmdName);
   if (!cmd) return;
 
   try {
-    const output = await runtime.runForMessage(cmd.code, message);
-    if (output.trim()) await message.channel.send(output);
+    // runForCommand parses commandInput, commandArgs, noMentionInput automatically
+    const output = await runtime.runForCommand(cmd.code, message, PREFIX);
+    if (output && output.trim()) await message.channel.send(output);
   } catch (err) {
-    console.error(`[Runtime Error] ${err.message}`);
-    await message.channel.send(`❌ Runtime error: ${err.message}`).catch(() => {});
+    const msg = err.format ? err.format() : err.message;
+    console.error(`[Runtime Error] ${msg}`);
+    await message.channel.send(`❌ ${err.message}`).catch(() => {});
   }
 });
 
