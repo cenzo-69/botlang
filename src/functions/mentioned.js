@@ -1,19 +1,21 @@
-module.exports = async (message, args) => {
-  const index = (Number(args[0]) || 1) - 1;
+'use strict';
 
-  const fallbackAuthor = args[1] === "true";
+// $mentioned[index;fallbackToAuthor]
+// index: 1-based (default 1)
+// fallbackToAuthor: true/false (default false)
+module.exports = async (context, args) => {
+  if (!context.message) return '[no message]';
 
-  const mentions = [...message.mentions.users.values()];
+  const index = Math.max(0, (parseInt(args[0]) || 1) - 1);
+  const fallback = String(args[1]).toLowerCase() === 'true';
 
-  const member = mentions[index];
+  const mentions = [...context.message.mentions.users.values()];
+  const user = mentions[index];
 
-  if (!member) {
-    if (fallbackAuthor) {
-      return message.author.id;
-    }
-
-    return "❌❌ Mention not found";
+  if (!user) {
+    if (fallback) return context.message.author.id;
+    return '[no mention]';
   }
 
-  return member.id;
+  return user.id;
 };

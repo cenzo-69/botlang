@@ -1,0 +1,1017 @@
+{
+  "meta": {
+    "framework": "CenzoJS",
+    "version": "1.0.0",
+    "description": "Complete reference of all built-in functions. Intended for code editor autocomplete, linting, and documentation generation.",
+    "syntax_rules": {
+      "prefix": "$",
+      "arg_open": "[",
+      "arg_close": "]",
+      "arg_separator": ";",
+      "escape_char": "\\",
+      "escapable": ["$", ";", "[", "]", "\\"]
+    }
+  },
+  "categories": [
+    { "id": "discord",   "label": "Discord",          "description": "Functions that interact with Discord objects (user, guild, channel, message)" },
+    { "id": "message",   "label": "Message Actions",   "description": "Functions that send, reply to, or delete messages" },
+    { "id": "variables", "label": "Variables",         "description": "Session-scoped key-value store for the current execution" },
+    { "id": "control",   "label": "Control Flow",      "description": "Conditionals, loops, and execution control" },
+    { "id": "logic",     "label": "Logic",             "description": "Boolean and comparison operations" },
+    { "id": "math",      "label": "Math",              "description": "Arithmetic, random numbers, and numeric evaluation" },
+    { "id": "strings",   "label": "Strings",           "description": "Text transformation and inspection" },
+    { "id": "misc",      "label": "Miscellaneous",     "description": "Utility functions: time, whitespace, eval" }
+  ],
+  "functions": [
+
+    {
+      "name": "$username",
+      "key": "username",
+      "category": "discord",
+      "description": "Returns the username of the message author.",
+      "syntax": "$username",
+      "args": [],
+      "returns": "string",
+      "lazy": [],
+      "examples": [
+        { "code": "Hello, $username!", "output": "Hello, TestUser!" }
+      ]
+    },
+
+    {
+      "name": "$userID",
+      "key": "userid",
+      "category": "discord",
+      "description": "Returns the Discord user ID of the message author.",
+      "syntax": "$userID",
+      "args": [],
+      "returns": "string",
+      "lazy": [],
+      "examples": [
+        { "code": "Your ID: $userID", "output": "Your ID: 123456789" }
+      ]
+    },
+
+    {
+      "name": "$userTag",
+      "key": "usertag",
+      "category": "discord",
+      "description": "Returns the full username tag. On new Discord accounts this is just the username; on legacy accounts it includes the discriminator (e.g. User#1234).",
+      "syntax": "$userTag",
+      "args": [],
+      "returns": "string",
+      "lazy": [],
+      "examples": [
+        { "code": "Tag: $userTag", "output": "Tag: TestUser" }
+      ]
+    },
+
+    {
+      "name": "$avatar",
+      "key": "avatar",
+      "category": "discord",
+      "description": "Returns the avatar URL of a user. If no userID is provided, returns the message author's avatar.",
+      "syntax": "$avatar[userID?]",
+      "args": [
+        {
+          "name": "userID",
+          "type": "snowflake",
+          "required": false,
+          "lazy": false,
+          "description": "Discord user ID. Defaults to the message author's ID."
+        }
+      ],
+      "returns": "string (URL)",
+      "lazy": [],
+      "examples": [
+        { "code": "$avatar", "output": "https://cdn.discordapp.com/avatars/.../..." },
+        { "code": "$avatar[$userID]", "output": "https://cdn.discordapp.com/avatars/.../..." },
+        { "code": "$avatar[$mentioned[1;true]]", "output": "https://cdn.discordapp.com/avatars/mentioned-user/..." }
+      ]
+    },
+
+    {
+      "name": "$mentioned",
+      "key": "mentioned",
+      "category": "discord",
+      "description": "Returns the user ID of the Nth mentioned user in the message.",
+      "syntax": "$mentioned[index?;fallbackToAuthor?]",
+      "args": [
+        {
+          "name": "index",
+          "type": "number",
+          "required": false,
+          "lazy": false,
+          "description": "1-based position of the mention (default: 1)."
+        },
+        {
+          "name": "fallbackToAuthor",
+          "type": "boolean",
+          "required": false,
+          "lazy": false,
+          "description": "If true and no mention is found, returns the author's ID instead of an error message. (default: false)"
+        }
+      ],
+      "returns": "string (user ID)",
+      "lazy": [],
+      "examples": [
+        { "code": "$mentioned[1;true]", "output": "123456789" },
+        { "code": "$avatar[$mentioned[1;true]]", "output": "https://cdn.discordapp.com/..." }
+      ]
+    },
+
+    {
+      "name": "$channelID",
+      "key": "channelid",
+      "category": "discord",
+      "description": "Returns the ID of the channel where the message was sent.",
+      "syntax": "$channelID",
+      "args": [],
+      "returns": "string",
+      "lazy": [],
+      "examples": [
+        { "code": "Channel: $channelID", "output": "Channel: 111222333" }
+      ]
+    },
+
+    {
+      "name": "$channelName",
+      "key": "channelname",
+      "category": "discord",
+      "description": "Returns the name of the channel where the message was sent.",
+      "syntax": "$channelName",
+      "args": [],
+      "returns": "string",
+      "lazy": [],
+      "examples": [
+        { "code": "You are in #$channelName", "output": "You are in #general" }
+      ]
+    },
+
+    {
+      "name": "$guildID",
+      "key": "guildid",
+      "category": "discord",
+      "description": "Returns the ID of the current guild (server).",
+      "syntax": "$guildID",
+      "args": [],
+      "returns": "string",
+      "lazy": [],
+      "examples": [
+        { "code": "Guild ID: $guildID", "output": "Guild ID: 987654321" }
+      ]
+    },
+
+    {
+      "name": "$guildName",
+      "key": "guildname",
+      "category": "discord",
+      "description": "Returns the name of the current guild (server).",
+      "syntax": "$guildName",
+      "args": [],
+      "returns": "string",
+      "lazy": [],
+      "examples": [
+        { "code": "Server: $guildName", "output": "Server: My Discord Server" }
+      ]
+    },
+
+    {
+      "name": "$memberCount",
+      "key": "membercount",
+      "category": "discord",
+      "description": "Returns the total number of members in the current guild.",
+      "syntax": "$memberCount",
+      "args": [],
+      "returns": "string (number)",
+      "lazy": [],
+      "examples": [
+        { "code": "Members: $memberCount", "output": "Members: 1042" }
+      ]
+    },
+
+    {
+      "name": "$sendMessage",
+      "key": "sendmessage",
+      "category": "message",
+      "description": "Sends a message to the current channel or a specified channel. Returns empty string.",
+      "syntax": "$sendMessage[content;channelID?]",
+      "args": [
+        {
+          "name": "content",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "The text content to send."
+        },
+        {
+          "name": "channelID",
+          "type": "snowflake",
+          "required": false,
+          "lazy": false,
+          "description": "Target channel ID. Defaults to the current channel."
+        }
+      ],
+      "returns": "empty",
+      "lazy": [],
+      "examples": [
+        { "code": "$sendMessage[Hello world!]", "output": "" },
+        { "code": "$sendMessage[Cross-post!;987654321]", "output": "" }
+      ]
+    },
+
+    {
+      "name": "$reply",
+      "key": "reply",
+      "category": "message",
+      "description": "Replies to the trigger message with the given content. Returns empty string.",
+      "syntax": "$reply[content]",
+      "args": [
+        {
+          "name": "content",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "The reply content."
+        }
+      ],
+      "returns": "empty",
+      "lazy": [],
+      "examples": [
+        { "code": "$reply[Got it!]", "output": "" }
+      ]
+    },
+
+    {
+      "name": "$deleteMessage",
+      "key": "deletemessage",
+      "category": "message",
+      "description": "Deletes the trigger message. Optionally after a delay in milliseconds.",
+      "syntax": "$deleteMessage[delayMs?]",
+      "args": [
+        {
+          "name": "delayMs",
+          "type": "number",
+          "required": false,
+          "lazy": false,
+          "description": "Delay before deletion in milliseconds (max 60000). Defaults to 0 (immediate)."
+        }
+      ],
+      "returns": "empty",
+      "lazy": [],
+      "examples": [
+        { "code": "$deleteMessage", "output": "" },
+        { "code": "$deleteMessage[3000]", "output": "" }
+      ]
+    },
+
+    {
+      "name": "$var",
+      "key": "var",
+      "category": "variables",
+      "description": "Sets a session variable. Variables are shared across the entire execution of one command run and reset on the next invocation.",
+      "syntax": "$var[name;value]",
+      "args": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "Variable name (case-insensitive)."
+        },
+        {
+          "name": "value",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "Value to store."
+        }
+      ],
+      "returns": "empty",
+      "lazy": [],
+      "examples": [
+        { "code": "$var[score;100]", "output": "" },
+        { "code": "$var[name;$username]", "output": "" }
+      ]
+    },
+
+    {
+      "name": "$getVar",
+      "key": "getvar",
+      "category": "variables",
+      "description": "Retrieves the value of a session variable. Returns the default value (or empty string) if the variable is not set.",
+      "syntax": "$getVar[name;default?]",
+      "args": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "Variable name (case-insensitive)."
+        },
+        {
+          "name": "default",
+          "type": "string",
+          "required": false,
+          "lazy": false,
+          "description": "Fallback value if the variable is not set. Defaults to empty string."
+        }
+      ],
+      "returns": "string",
+      "lazy": [],
+      "examples": [
+        { "code": "$getVar[score]", "output": "100" },
+        { "code": "$getVar[missing;N/A]", "output": "N/A" }
+      ]
+    },
+
+    {
+      "name": "$deleteVar",
+      "key": "deletevar",
+      "category": "variables",
+      "description": "Removes a session variable.",
+      "syntax": "$deleteVar[name]",
+      "args": [
+        {
+          "name": "name",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "Variable name to delete (case-insensitive)."
+        }
+      ],
+      "returns": "empty",
+      "lazy": [],
+      "examples": [
+        { "code": "$deleteVar[score]", "output": "" }
+      ]
+    },
+
+    {
+      "name": "$stop",
+      "key": "stop",
+      "category": "control",
+      "description": "Immediately halts execution of the current script. Any code after $stop is not evaluated.",
+      "syntax": "$stop",
+      "args": [],
+      "returns": "empty",
+      "lazy": [],
+      "examples": [
+        { "code": "before\n$stop\nafter", "output": "before\n" }
+      ]
+    },
+
+    {
+      "name": "$if",
+      "key": "if",
+      "category": "control",
+      "description": "Evaluates a condition and executes either the then-branch or the else-branch. Only the matching branch is executed (lazy evaluation). Supported operators: == != > < >= <=",
+      "syntax": "$if[condition;thenCode;elseCode?]",
+      "args": [
+        {
+          "name": "condition",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "Condition string. Supports: value==value, value!=value, value>value, value<value, value>=value, value<=value, or a plain truthy check."
+        },
+        {
+          "name": "thenCode",
+          "type": "code",
+          "required": true,
+          "lazy": true,
+          "description": "Executed only when condition is true."
+        },
+        {
+          "name": "elseCode",
+          "type": "code",
+          "required": false,
+          "lazy": true,
+          "description": "Executed only when condition is false."
+        }
+      ],
+      "returns": "string (result of executed branch, or empty)",
+      "lazy": [1, 2],
+      "examples": [
+        { "code": "$if[5>3;YES;NO]", "output": "YES" },
+        { "code": "$if[$username==Admin;Welcome back!;Access denied]", "output": "Access denied" },
+        { "code": "$if[$getVar[score]>=100;High score!;Keep trying]", "output": "Keep trying" }
+      ]
+    },
+
+    {
+      "name": "$equals",
+      "key": "equals",
+      "category": "control",
+      "description": "Checks strict string equality between two values. Without branch args returns 'true'/'false'. With branch args, executes the matching branch lazily.",
+      "syntax": "$equals[a;b;thenCode?;elseCode?]",
+      "args": [
+        {
+          "name": "a",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "Left-hand value."
+        },
+        {
+          "name": "b",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "Right-hand value."
+        },
+        {
+          "name": "thenCode",
+          "type": "code",
+          "required": false,
+          "lazy": true,
+          "description": "Executed only when a === b."
+        },
+        {
+          "name": "elseCode",
+          "type": "code",
+          "required": false,
+          "lazy": true,
+          "description": "Executed only when a !== b."
+        }
+      ],
+      "returns": "string ('true'/'false' or branch result)",
+      "lazy": [2, 3],
+      "examples": [
+        { "code": "$equals[hello;hello]", "output": "true" },
+        { "code": "$equals[a;b]", "output": "false" },
+        { "code": "$equals[$username;Admin;Welcome!;Denied]", "output": "Denied" }
+      ]
+    },
+
+    {
+      "name": "$loop",
+      "key": "loop",
+      "category": "control",
+      "description": "Repeats a block of code N times (max 1000). Inside the body, use $loopIndex (0-based) and $loopNumber (1-based) to access the current iteration.",
+      "syntax": "$loop[count;code]",
+      "args": [
+        {
+          "name": "count",
+          "type": "number",
+          "required": true,
+          "lazy": false,
+          "description": "Number of iterations (1–1000)."
+        },
+        {
+          "name": "code",
+          "type": "code",
+          "required": true,
+          "lazy": true,
+          "description": "The code block to repeat. Re-executed each iteration."
+        }
+      ],
+      "returns": "string (concatenated output of all iterations)",
+      "lazy": [1],
+      "examples": [
+        { "code": "$loop[3;Item $loopNumber\n]", "output": "Item 1\nItem 2\nItem 3\n" },
+        { "code": "$loop[5;$math[$loopNumber * 2] ]", "output": "2 4 6 8 10 " }
+      ]
+    },
+
+    {
+      "name": "$loopIndex",
+      "key": "loopindex",
+      "category": "control",
+      "description": "Returns the current 0-based loop iteration index. Only valid inside a $loop body.",
+      "syntax": "$loopIndex",
+      "args": [],
+      "returns": "string (number)",
+      "lazy": [],
+      "examples": [
+        { "code": "$loop[3;index=$loopIndex\n]", "output": "index=0\nindex=1\nindex=2\n" }
+      ]
+    },
+
+    {
+      "name": "$loopNumber",
+      "key": "loopnumber",
+      "category": "control",
+      "description": "Returns the current 1-based loop iteration number. Only valid inside a $loop body.",
+      "syntax": "$loopNumber",
+      "args": [],
+      "returns": "string (number)",
+      "lazy": [],
+      "examples": [
+        { "code": "$loop[3;#$loopNumber\n]", "output": "#1\n#2\n#3\n" }
+      ]
+    },
+
+    {
+      "name": "$and",
+      "key": "and",
+      "category": "logic",
+      "description": "Returns 'true' if ALL provided conditions are truthy, otherwise 'false'. A value is falsy if it is empty, '0', or 'false'.",
+      "syntax": "$and[cond1;cond2;...condN]",
+      "args": [
+        {
+          "name": "conditions",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "variadic": true,
+          "description": "One or more conditions to evaluate."
+        }
+      ],
+      "returns": "string ('true' or 'false')",
+      "lazy": [],
+      "examples": [
+        { "code": "$and[true;true]", "output": "true" },
+        { "code": "$and[true;false]", "output": "false" },
+        { "code": "$and[$equals[a;a];$equals[b;b]]", "output": "true" }
+      ]
+    },
+
+    {
+      "name": "$or",
+      "key": "or",
+      "category": "logic",
+      "description": "Returns 'true' if ANY provided condition is truthy, otherwise 'false'.",
+      "syntax": "$or[cond1;cond2;...condN]",
+      "args": [
+        {
+          "name": "conditions",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "variadic": true,
+          "description": "One or more conditions to evaluate."
+        }
+      ],
+      "returns": "string ('true' or 'false')",
+      "lazy": [],
+      "examples": [
+        { "code": "$or[false;true]", "output": "true" },
+        { "code": "$or[false;false]", "output": "false" }
+      ]
+    },
+
+    {
+      "name": "$not",
+      "key": "not",
+      "category": "logic",
+      "description": "Inverts a boolean value. Returns 'true' if the value is falsy, 'false' if truthy.",
+      "syntax": "$not[value]",
+      "args": [
+        {
+          "name": "value",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "A value to negate. Falsy: empty, '0', 'false'."
+        }
+      ],
+      "returns": "string ('true' or 'false')",
+      "lazy": [],
+      "examples": [
+        { "code": "$not[true]", "output": "false" },
+        { "code": "$not[false]", "output": "true" },
+        { "code": "$not[$equals[a;b]]", "output": "true" }
+      ]
+    },
+
+    {
+      "name": "$math",
+      "key": "math",
+      "category": "math",
+      "description": "Evaluates a mathematical expression using a safe built-in parser. Supports: + - * / % ^ () with correct operator precedence. ^ is right-associative exponentiation.",
+      "syntax": "$math[expression]",
+      "args": [
+        {
+          "name": "expression",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "A mathematical expression. Allowed characters: digits, . + - * / % ^ ( ) and whitespace."
+        }
+      ],
+      "returns": "string (number)",
+      "lazy": [],
+      "examples": [
+        { "code": "$math[2+2]", "output": "4" },
+        { "code": "$math[2^10]", "output": "1024" },
+        { "code": "$math[(3+4)*2]", "output": "14" },
+        { "code": "$math[100/3]", "output": "3.3333333333" },
+        { "code": "$math[17%5]", "output": "2" }
+      ]
+    },
+
+    {
+      "name": "$random",
+      "key": "random",
+      "category": "math",
+      "description": "Returns a random integer between min and max (inclusive). When only one argument is given, min defaults to 1.",
+      "syntax": "$random[min;max] or $random[max]",
+      "args": [
+        {
+          "name": "min",
+          "type": "number",
+          "required": false,
+          "lazy": false,
+          "description": "Minimum value (inclusive). Defaults to 1 when only max is provided."
+        },
+        {
+          "name": "max",
+          "type": "number",
+          "required": true,
+          "lazy": false,
+          "description": "Maximum value (inclusive)."
+        }
+      ],
+      "returns": "string (integer)",
+      "lazy": [],
+      "examples": [
+        { "code": "$random[6]", "output": "4" },
+        { "code": "$random[1;100]", "output": "73" },
+        { "code": "$random[50;100]", "output": "82" }
+      ]
+    },
+
+    {
+      "name": "$eval",
+      "key": "eval",
+      "category": "misc",
+      "description": "Evaluates a JavaScript expression inside a sandboxed VM. Has access to: Math, parseInt, parseFloat, String, Number, Boolean, Array, Object, JSON, Date. No network, no require, no file system.",
+      "syntax": "$eval[expression]",
+      "args": [
+        {
+          "name": "expression",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "A JavaScript expression to evaluate."
+        }
+      ],
+      "returns": "string (result of expression)",
+      "lazy": [],
+      "examples": [
+        { "code": "$eval[1+1]", "output": "2" },
+        { "code": "$eval[Math.sqrt(144)]", "output": "12" },
+        { "code": "$eval[Math.PI.toFixed(4)]", "output": "3.1416" },
+        { "code": "$eval[\"hello\".toUpperCase()]", "output": "HELLO" }
+      ]
+    },
+
+    {
+      "name": "$evalDJS",
+      "key": "evaldjs",
+      "category": "misc",
+      "description": "Evaluates JavaScript with full discord.js context access including message, client, channel, guild, author. Supports async/await. Dangerous — restrict to bot owners.",
+      "syntax": "$evalDJS[code]",
+      "args": [
+        {
+          "name": "code",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "JavaScript code to execute. Has access to: message, client, channel, guild, author, require, console."
+        }
+      ],
+      "returns": "string (return value of code, or empty)",
+      "lazy": [],
+      "danger": true,
+      "examples": [
+        { "code": "$evalDJS[return guild.name]", "output": "My Server" },
+        { "code": "$evalDJS[return client.users.cache.size]", "output": "150" }
+      ]
+    },
+
+    {
+      "name": "$upper",
+      "key": "upper",
+      "category": "strings",
+      "description": "Converts text to UPPERCASE.",
+      "syntax": "$upper[text]",
+      "args": [
+        {
+          "name": "text",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "The text to transform."
+        }
+      ],
+      "returns": "string",
+      "lazy": [],
+      "examples": [
+        { "code": "$upper[hello world]", "output": "HELLO WORLD" },
+        { "code": "$upper[$username]", "output": "TESTUSER" }
+      ]
+    },
+
+    {
+      "name": "$lower",
+      "key": "lower",
+      "category": "strings",
+      "description": "Converts text to lowercase.",
+      "syntax": "$lower[text]",
+      "args": [
+        {
+          "name": "text",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "The text to transform."
+        }
+      ],
+      "returns": "string",
+      "lazy": [],
+      "examples": [
+        { "code": "$lower[HELLO WORLD]", "output": "hello world" }
+      ]
+    },
+
+    {
+      "name": "$length",
+      "key": "length",
+      "category": "strings",
+      "description": "Returns the character count of the given text.",
+      "syntax": "$length[text]",
+      "args": [
+        {
+          "name": "text",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "The text to measure."
+        }
+      ],
+      "returns": "string (number)",
+      "lazy": [],
+      "examples": [
+        { "code": "$length[hello]", "output": "5" },
+        { "code": "$length[$username]", "output": "8" }
+      ]
+    },
+
+    {
+      "name": "$trim",
+      "key": "trim",
+      "category": "strings",
+      "description": "Removes leading and trailing whitespace from text.",
+      "syntax": "$trim[text]",
+      "args": [
+        {
+          "name": "text",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "The text to trim."
+        }
+      ],
+      "returns": "string",
+      "lazy": [],
+      "examples": [
+        { "code": "$trim[  hello  ]", "output": "hello" }
+      ]
+    },
+
+    {
+      "name": "$replace",
+      "key": "replace",
+      "category": "strings",
+      "description": "Replaces all occurrences of a search string with a replacement string.",
+      "syntax": "$replace[text;search;replacement]",
+      "args": [
+        {
+          "name": "text",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "The source text."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "The substring to find and replace."
+        },
+        {
+          "name": "replacement",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "The replacement string."
+        }
+      ],
+      "returns": "string",
+      "lazy": [],
+      "examples": [
+        { "code": "$replace[hello world;world;everyone]", "output": "hello everyone" },
+        { "code": "$replace[a-b-c;-;_]", "output": "a_b_c" }
+      ]
+    },
+
+    {
+      "name": "$includes",
+      "key": "includes",
+      "category": "strings",
+      "description": "Checks whether text contains the search string. Returns 'true' or 'false'.",
+      "syntax": "$includes[text;search]",
+      "args": [
+        {
+          "name": "text",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "The text to search within."
+        },
+        {
+          "name": "search",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "The substring to look for."
+        }
+      ],
+      "returns": "string ('true' or 'false')",
+      "lazy": [],
+      "examples": [
+        { "code": "$includes[hello world;world]", "output": "true" },
+        { "code": "$includes[hello world;xyz]", "output": "false" }
+      ]
+    },
+
+    {
+      "name": "$slice",
+      "key": "slice",
+      "category": "strings",
+      "description": "Extracts a portion of text. Uses 0-based indexing. If end is omitted, slices to the end of the string.",
+      "syntax": "$slice[text;start;end?]",
+      "args": [
+        {
+          "name": "text",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "The source text."
+        },
+        {
+          "name": "start",
+          "type": "number",
+          "required": true,
+          "lazy": false,
+          "description": "Start index (0-based, inclusive)."
+        },
+        {
+          "name": "end",
+          "type": "number",
+          "required": false,
+          "lazy": false,
+          "description": "End index (0-based, exclusive). Defaults to end of string."
+        }
+      ],
+      "returns": "string",
+      "lazy": [],
+      "examples": [
+        { "code": "$slice[hello world;6]", "output": "world" },
+        { "code": "$slice[hello world;0;5]", "output": "hello" }
+      ]
+    },
+
+    {
+      "name": "$split",
+      "key": "split",
+      "category": "strings",
+      "description": "Splits text by a separator. With only 2 args returns the number of parts. With 3 args returns the element at the 1-based index.",
+      "syntax": "$split[text;separator;index?]",
+      "args": [
+        {
+          "name": "text",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "The text to split."
+        },
+        {
+          "name": "separator",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "The delimiter string."
+        },
+        {
+          "name": "index",
+          "type": "number",
+          "required": false,
+          "lazy": false,
+          "description": "1-based index of the element to return. If omitted, returns the total number of parts."
+        }
+      ],
+      "returns": "string",
+      "lazy": [],
+      "examples": [
+        { "code": "$split[a,b,c;,]", "output": "3" },
+        { "code": "$split[a,b,c;,;2]", "output": "b" },
+        { "code": "$split[hello world; ;1]", "output": "hello" }
+      ]
+    },
+
+    {
+      "name": "$repeat",
+      "key": "repeat",
+      "category": "strings",
+      "description": "Repeats a text N times. Optionally joined by a separator. Max 1000 repetitions.",
+      "syntax": "$repeat[text;count;separator?]",
+      "args": [
+        {
+          "name": "text",
+          "type": "string",
+          "required": true,
+          "lazy": false,
+          "description": "The text to repeat."
+        },
+        {
+          "name": "count",
+          "type": "number",
+          "required": true,
+          "lazy": false,
+          "description": "Number of repetitions (0–1000)."
+        },
+        {
+          "name": "separator",
+          "type": "string",
+          "required": false,
+          "lazy": false,
+          "description": "String placed between each repetition. Defaults to empty string."
+        }
+      ],
+      "returns": "string",
+      "lazy": [],
+      "examples": [
+        { "code": "$repeat[ab;3]", "output": "ababab" },
+        { "code": "$repeat[ha;3;-]", "output": "ha-ha-ha" }
+      ]
+    },
+
+    {
+      "name": "$newline",
+      "key": "newline",
+      "category": "strings",
+      "description": "Inserts a literal newline character (\\n). Useful when writing multi-line output in a single string.",
+      "syntax": "$newline",
+      "args": [],
+      "returns": "string ('\\n')",
+      "lazy": [],
+      "note": "Must be followed by a space or non-identifier character. '$newlinetext' will be parsed as function '$newlinetext'.",
+      "examples": [
+        { "code": "line1$newline line2", "output": "line1\n line2" }
+      ]
+    },
+
+    {
+      "name": "$space",
+      "key": "space",
+      "category": "strings",
+      "description": "Inserts one or more space characters.",
+      "syntax": "$space[count?]",
+      "args": [
+        {
+          "name": "count",
+          "type": "number",
+          "required": false,
+          "lazy": false,
+          "description": "Number of spaces (1–100). Defaults to 1."
+        }
+      ],
+      "returns": "string",
+      "lazy": [],
+      "examples": [
+        { "code": "a$spaceb", "output": "a b" },
+        { "code": "a$space[4]b", "output": "a    b" }
+      ]
+    },
+
+    {
+      "name": "$time",
+      "key": "time",
+      "category": "misc",
+      "description": "Returns the current time. Without arguments, returns a Unix timestamp in seconds. With a format string, returns a formatted date using tokens: YYYY MM DD HH mm ss.",
+      "syntax": "$time[format?]",
+      "args": [
+        {
+          "name": "format",
+          "type": "string",
+          "required": false,
+          "lazy": false,
+          "description": "Format string. Supported tokens: YYYY (year), MM (month), DD (day), HH (24h hour), mm (minute), ss (second)."
+        }
+      ],
+      "returns": "string",
+      "lazy": [],
+      "examples": [
+        { "code": "$time", "output": "1778426211" },
+        { "code": "$time[YYYY-MM-DD]", "output": "2026-05-10" },
+        { "code": "$time[HH:mm:ss]", "output": "14:35:22" },
+        { "code": "$time[YYYY-MM-DD HH:mm]", "output": "2026-05-10 14:35" }
+      ]
+    }
+
+  ]
+}
