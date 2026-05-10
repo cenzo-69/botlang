@@ -1,0 +1,22 @@
+entrypoint = "index.js"
+modules = ["nodejs-22"]
+hidden = [".config", "package-lock.json"]
+
+[gitHubImport]
+requiredFiles = [".replit", "replit.nix", "package.json", "package-lock.json"]
+
+[nix]
+channel = "stable-24_11"
+
+[deployment]
+run = ["node", "index.js"]
+deploymentTarget = "autoscale"
+ignorePorts = false
+
+[agent]
+expertMode = true
+
+[userenv]
+
+[userenv.shared]
+TOKEN = "MTUwMzAyMjcwMjA0NTI5ODg2MA.GRb6lL.4im8WxCGJ86KsjgvTzyoHMts_cWZ02ot1R_9hU"
