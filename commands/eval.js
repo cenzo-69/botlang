@@ -3,6 +3,6 @@ module.exports = {
   description: 'Evaluate framework syntax. Usage: !eval <code>',
   code: [
     '$onlyIf[$argsCount>=1]',
-    '$eval[$message]',
+    '$eval[$message[0]]',
   ].join('\n'),
 };
