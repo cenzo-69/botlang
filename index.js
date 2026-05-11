@@ -57,9 +57,16 @@ client.on(Events.MessageCreate, async (message) => {
   if (!cmd) return;
 
   try {
-    // runForCommand parses commandInput, commandArgs, noMentionInput automatically
-    const output = await runtime.runForCommand(cmd.code, message, PREFIX);
-    if (output && output.trim()) await message.channel.send(output);
+    // runForCommandFull returns { text, embed } so text and embeds send together
+    const { text, embed } = await runtime.runForCommandFull(cmd.code, message, PREFIX);
+
+    const payload = {};
+    if (text && text.trim())  payload.content = text.trim();
+    if (embed)                payload.embeds  = [embed];
+
+    if (payload.content || payload.embeds) {
+      await message.channel.send(payload);
+    }
   } catch (err) {
     const msg = err.format ? err.format() : err.message;
     console.error(`[Runtime Error] ${msg}`);

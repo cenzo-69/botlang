@@ -9,8 +9,13 @@ const MAX_DEPTH = 128;
  *   Discord          message, client
  *   Command parsing  commandName, commandInput, commandArgs, noMentionInput
  *   State            variables (shared Map), depth, stopped
+ *   Embed            embed (shared object — mutated by $title, $color, etc.)
  *   Loop             loopIndex (0-based), loopNumber (1-based), loopCount
  *   Debug            callStack (array of function names), functionName
+ *
+ * The `variables` Map and `embed` object are SHARED BY REFERENCE across all
+ * child contexts so mutations (e.g. $var, $title) are visible to every caller
+ * in the same execution tree.
  */
 class Context {
   constructor({
@@ -26,6 +31,8 @@ class Context {
     variables,
     depth,
     runtime,
+    // Embed state — shared object across the whole execution tree
+    embed,
     // Loop state
     loopIndex,
     loopNumber,
@@ -38,9 +45,6 @@ class Context {
     this.client  = client  || message?.client || null;
 
     // ── Command parsing context ───────────────────────────────────────────
-    // commandInput   = everything after the command name  ("hello world")
-    // commandArgs    = split array                        (["hello","world"])
-    // noMentionInput = commandInput with mentions removed ("hello world")
     this.commandName    = commandName    || null;
     this.commandInput   = commandInput   || '';
     this.commandArgs    = commandArgs    || [];
@@ -51,6 +55,23 @@ class Context {
     this.depth     = depth     || 0;
     this.runtime   = runtime   || null;
     this.stopped   = false;
+
+    // ── Embed state (shared across all child contexts by reference) ────────
+    // Functions like $title, $color, $addField mutate this object directly.
+    // Because child() passes the same reference, mutations propagate up the
+    // call tree and are visible to runForCommandFull after execution.
+    this.embed = embed || {
+      title:       null,
+      url:         null,
+      description: null,
+      color:       null,
+      footer:      { text: null, iconURL: null },
+      author:      { name: null, iconURL: null },
+      thumbnail:   null,
+      image:       null,
+      timestamp:   null,
+      fields:      [],    // array of { name, value, inline }
+    };
 
     // ── Loop state (set by $loop; inherited by child contexts) ────────────
     this.loopIndex  = loopIndex  !== undefined ? loopIndex  : null;
@@ -64,8 +85,10 @@ class Context {
 
   // ── Child context ─────────────────────────────────────────────────────────
   // Creates a new Context inheriting all fields from this one.
-  // The variables Map is SHARED (not cloned) so variable writes are visible
-  // to the whole execution tree.
+  //
+  // Shared by reference  → variables Map, embed object
+  // Cloned               → callStack array (for accurate per-branch tracing)
+  // Incremented          → depth
   child() {
     if (this.depth >= MAX_DEPTH) {
       const { FrameworkError } = require('./errors');
@@ -83,13 +106,14 @@ class Context {
       commandInput:    this.commandInput,
       commandArgs:     this.commandArgs,
       noMentionInput:  this.noMentionInput,
-      variables:       this.variables,       // shared Map
+      variables:       this.variables,     // shared Map
+      embed:           this.embed,         // shared embed object
       depth:           this.depth + 1,
       runtime:         this.runtime,
       loopIndex:       this.loopIndex,
       loopNumber:      this.loopNumber,
       loopCount:       this.loopCount,
-      callStack:       [...this.callStack],  // snapshot for tracing
+      callStack:       [...this.callStack], // snapshot for tracing
     });
   }
 

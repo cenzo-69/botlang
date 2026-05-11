@@ -6,12 +6,15 @@ const { ParseError } = require('./errors');
  * Recursive descent parser.
  *
  * Grammar:
- *   Program   := Segment*
- *   Segment   := FunctionCall | Text
+ *   Program      := Segment*
+ *   Segment      := FunctionCall | Text
  *   FunctionCall := '$' Identifier ('[' ArgList ']')?
- *   ArgList   := Arg (';' Arg)*
- *   Arg       := Segment*          (stops at ';' or ']')
- *   Text      := any chars not '$' (and not ';'/']' when inside an arg)
+ *   ArgList      := Arg (';' Arg)*
+ *   Arg          := Segment*          (stops at ';' or ']')
+ *   Text         := any chars not '$' (and not ';'/']' when inside an arg)
+ *
+ * Identifier characters: [a-zA-Z0-9_.] — the dot allows namespaced functions
+ * like $db.set, $db.get, $db.has, $db.delete.
  *
  * Escape sequences:
  *   \$ \; \] \[ \\  — produce the literal character
@@ -69,11 +72,14 @@ class Parser {
   parseFunction() {
     this.pos++; // consume '$'
 
-    // Read identifier
+    // Read identifier — letters, digits, underscores, and dots (for $db.set etc.)
     let name = '';
-    while (this.pos < this.length && /[a-zA-Z0-9_]/.test(this.source[this.pos])) {
+    while (this.pos < this.length && /[a-zA-Z0-9_.]/.test(this.source[this.pos])) {
       name += this.source[this.pos++];
     }
+
+    // Strip any trailing dots (e.g. a stray "$foo." becomes "$foo")
+    name = name.replace(/\.+$/, '');
 
     // Bare '$' with no identifier — treat as literal text
     if (!name) return { type: 'text', value: '$' };

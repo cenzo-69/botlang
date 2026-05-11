@@ -3,69 +3,109 @@
 // ─── Documentation database ───────────────────────────────────────────────────
 const DOCS = [
   // ── Discord ──────────────────────────────────────────────────────────────
-  { name:'username',         cat:'discord',   syntax:'$username',                        desc:'Username of the message author',                          ex:'Hi $username!  →  Hi TestUser!' },
-  { name:'userid',           cat:'discord',   syntax:'$userID',                          desc:'User ID of the message author',                           ex:'$userID  →  123456789' },
-  { name:'authorid',         cat:'discord',   syntax:'$authorID',                        desc:'User ID of the author — alias for $userID',               ex:'$onlyIf[$authorID==123456789]' },
-  { name:'usertag',          cat:'discord',   syntax:'$userTag',                         desc:'Author display name / tag',                               ex:'$userTag  →  TestUser' },
-  { name:'channelid',        cat:'discord',   syntax:'$channelID',                       desc:'ID of the current channel',                               ex:'$channelID  →  111222333' },
-  { name:'channelname',      cat:'discord',   syntax:'$channelName',                     desc:'Name of the current channel',                             ex:'You are in #$channelName' },
-  { name:'guildid',          cat:'discord',   syntax:'$guildID',                         desc:'ID of the current server',                                ex:'$guildID  →  987654321' },
-  { name:'guildname',        cat:'discord',   syntax:'$guildName',                       desc:'Name of the current server',                              ex:'Server: $guildName' },
-  { name:'membercount',      cat:'discord',   syntax:'$memberCount',                     desc:'Total member count of the server',                        ex:'$memberCount  →  1042' },
-  { name:'avatar',           cat:'discord',   syntax:'$avatar[userID?]',                 desc:'Avatar URL — defaults to author if no userID given',      ex:'$avatar[$mentioned[1;true]]' },
-  { name:'mentioned',        cat:'discord',   syntax:'$mentioned[index;fallback]',       desc:'User ID of the nth mention. fallback=true → author ID',   ex:'$mentioned[1;true]  →  123456789' },
-  { name:'sendmessage',      cat:'discord',   syntax:'$sendMessage[text;channelID?]',    desc:'Send a message to the current (or a specific) channel',   ex:'$sendMessage[Hello $username!]' },
-  { name:'reply',            cat:'discord',   syntax:'$reply[text]',                     desc:'Reply to the triggering message',                         ex:'$reply[Done!]' },
-  { name:'deletemessage',    cat:'discord',   syntax:'$deleteMessage[delayMs?]',         desc:'Delete the triggering message after optional ms delay',   ex:'$deleteMessage[2000]' },
+  { name:'username',          cat:'discord',  syntax:'$username',                            desc:'Username of the message author',                                     ex:'Hi $username!  →  Hi TestUser!' },
+  { name:'userid',            cat:'discord',  syntax:'$userID',                              desc:'User ID of the message author',                                      ex:'$userID  →  123456789' },
+  { name:'authorid',          cat:'discord',  syntax:'$authorID',                            desc:'User ID of the author — alias for $userID',                          ex:'$onlyIf[$authorID==123456789]' },
+  { name:'usertag',           cat:'discord',  syntax:'$userTag',                             desc:'Author display name / tag',                                          ex:'$userTag  →  TestUser' },
+  { name:'channelid',         cat:'discord',  syntax:'$channelID',                           desc:'ID of the current channel',                                          ex:'$channelID  →  111222333' },
+  { name:'channelname',       cat:'discord',  syntax:'$channelName',                         desc:'Name of the current channel',                                        ex:'You are in #$channelName' },
+  { name:'guildid',           cat:'discord',  syntax:'$guildID',                             desc:'ID of the current server',                                           ex:'$guildID  →  987654321' },
+  { name:'guildname',         cat:'discord',  syntax:'$guildName',                           desc:'Name of the current server',                                         ex:'Server: $guildName' },
+  { name:'membercount',       cat:'discord',  syntax:'$memberCount',                         desc:'Total member count of the server',                                   ex:'$memberCount  →  1042' },
+  { name:'avatar',            cat:'discord',  syntax:'$avatar[userID?]',                     desc:'Avatar URL — defaults to author if no userID given',                 ex:'$avatar[$mentioned[1;true]]' },
+  { name:'mentioned',         cat:'discord',  syntax:'$mentioned[index;fallback]',           desc:'User ID of the nth mention. fallback=true → author ID',              ex:'$mentioned[1;true]  →  123456789' },
+  { name:'sendmessage',       cat:'discord',  syntax:'$sendMessage[text;channelID?]',        desc:'Send a message to the current (or a specific) channel',              ex:'$sendMessage[Hello $username!]' },
+  { name:'reply',             cat:'discord',  syntax:'$reply[text]',                         desc:'Reply to the triggering message',                                    ex:'$reply[Done!]' },
+  { name:'deletemessage',     cat:'discord',  syntax:'$deleteMessage[delayMs?]',             desc:'Delete the triggering message after optional ms delay',              ex:'$deleteMessage[2000]' },
+  { name:'allmemberids',      cat:'discord',  syntax:'$allMemberIDs[separator?]',            desc:'All member IDs joined by separator (force-fetches — needs GuildMembers intent)', ex:'$allMemberIDs[, ]  →  123, 456, 789' },
+  { name:'ping',              cat:'discord',  syntax:'$ping',                                desc:'Bot WebSocket latency in milliseconds',                              ex:'Ping: $ping ms' },
+  { name:'botid',             cat:'discord',  syntax:'$botID',                               desc:'The bot\'s own Discord user ID',                                     ex:'$botID  →  999000999' },
+  { name:'botusername',       cat:'discord',  syntax:'$botUsername',                         desc:'The bot\'s display name',                                            ex:'Powered by $botUsername' },
+  { name:'botavatar',         cat:'discord',  syntax:'$botAvatar',                           desc:'The bot\'s avatar URL',                                              ex:'$thumbnail[$botAvatar]' },
+  { name:'servericon',        cat:'discord',  syntax:'$serverIcon',                          desc:'Server icon URL (empty string if the server has no icon)',           ex:'$thumbnail[$serverIcon]' },
+  { name:'serverbanner',      cat:'discord',  syntax:'$serverBanner',                        desc:'Server banner URL (empty string if none)',                           ex:'$image[$serverBanner]' },
+  { name:'channeltopic',      cat:'discord',  syntax:'$channelTopic',                        desc:'Topic of the current channel (empty if not set)',                    ex:'Topic: $channelTopic' },
+  { name:'rolecount',         cat:'discord',  syntax:'$roleCount',                           desc:'Number of roles in the server (includes @everyone)',                 ex:'Roles: $roleCount' },
+  { name:'emojicount',        cat:'discord',  syntax:'$emojiCount',                          desc:'Number of custom emojis in the server',                              ex:'Emojis: $emojiCount' },
+  { name:'humancount',        cat:'discord',  syntax:'$humanCount',                          desc:'Number of non-bot members (force-fetches member list)',              ex:'Humans: $humanCount' },
+  { name:'botcount',          cat:'discord',  syntax:'$botCount',                            desc:'Number of bot members (force-fetches member list)',                  ex:'Bots: $botCount' },
+  { name:'randommemberid',    cat:'discord',  syntax:'$randomMemberID',                      desc:'Random member ID from the cached guild member list',                 ex:'Chosen: <@$randomMemberID>' },
+  { name:'randomchannelid',   cat:'discord',  syntax:'$randomChannelID',                     desc:'Random channel ID from the cached guild channel list',               ex:'Go to <#$randomChannelID>' },
+  { name:'randomroleid',      cat:'discord',  syntax:'$randomRoleID',                        desc:'Random role ID from the cached guild role list',                     ex:'Role: <@&$randomRoleID>' },
+  { name:'channelsendmessage',cat:'discord',  syntax:'$channelSendMessage[channelID;text]',  desc:'Send a message to any channel by ID',                                ex:'$channelSendMessage[123456;Hello there!]' },
+  { name:'sendembedmessage',  cat:'discord',  syntax:'$sendEmbedMessage[channelID;content;title;titleURL;desc;color;author;authorIcon;footer;footerIcon;thumb;image;timestamp?;returnID?]', desc:'Send a fully-configured embed to any channel. All fields are optional except channelID', ex:'$sendEmbedMessage[123456;;My Title;;Hello world;#5865F2;Bot;;Footer;;]' },
 
   // ── Message parsing ───────────────────────────────────────────────────────
-  { name:'message',          cat:'message',   syntax:'$message  /  $message[n]',         desc:'Full input after the command, or the nth word (1-based)', ex:'!say hi world → $message[1] = hi' },
-  { name:'nomentionmessage', cat:'message',   syntax:'$noMentionMessage[n?]',            desc:'Command input with all Discord mentions stripped',        ex:'!say @x hi there → $noMentionMessage = hi there' },
-  { name:'argscount',        cat:'message',   syntax:'$argsCount',                       desc:'Number of space-separated words in the command input',    ex:'!cmd a b c → $argsCount = 3' },
-  { name:'arg',              cat:'message',   syntax:'$arg[n]',                          desc:'Nth word of input — alias for $message[n]',               ex:'$arg[2]  →  second word' },
-  { name:'commandname',      cat:'message',   syntax:'$commandName',                     desc:'The triggered command name without prefix',               ex:'!ping  →  $commandName = ping' },
+  { name:'message',           cat:'message',  syntax:'$message  /  $message[n]',            desc:'Full input after the command, or the nth word (1-based)',            ex:'!say hi world → $message[1] = hi' },
+  { name:'nomentionmessage',  cat:'message',  syntax:'$noMentionMessage[n?]',               desc:'Command input with all Discord mentions stripped',                   ex:'!say @x hi there → $noMentionMessage = hi there' },
+  { name:'argscount',         cat:'message',  syntax:'$argsCount',                          desc:'Number of space-separated words in the command input',               ex:'!cmd a b c → $argsCount = 3' },
+  { name:'arg',               cat:'message',  syntax:'$arg[n]',                             desc:'Nth word of input — alias for $message[n]',                         ex:'$arg[2]  →  second word' },
+  { name:'commandname',       cat:'message',  syntax:'$commandName',                        desc:'The triggered command name without prefix',                          ex:'!ping  →  $commandName = ping' },
 
   // ── Variables ─────────────────────────────────────────────────────────────
-  { name:'var',              cat:'variables', syntax:'$var[name;value]',                 desc:'Set a session-scoped variable. Returns empty string',     ex:'$var[score;10]$getVar[score]  →  10' },
-  { name:'setvar',           cat:'variables', syntax:'$setVar[name;value]',              desc:'Set a session variable — explicit alias for $var',        ex:'$setVar[hp;100]' },
-  { name:'getvar',           cat:'variables', syntax:'$getVar[name;default?]',           desc:'Read a variable. Returns default if not set',             ex:'$getVar[score;0]  →  10' },
-  { name:'deletevar',        cat:'variables', syntax:'$deleteVar[name]',                 desc:'Remove a variable from the session scope',                ex:'$deleteVar[score]' },
+  { name:'var',               cat:'variables',syntax:'$var[name;value]',                    desc:'Set a session-scoped variable. Returns empty string',                ex:'$var[score;10]$getVar[score]  →  10' },
+  { name:'setvar',            cat:'variables',syntax:'$setVar[name;value]',                 desc:'Set a session variable — explicit alias for $var',                   ex:'$setVar[hp;100]' },
+  { name:'getvar',            cat:'variables',syntax:'$getVar[name;default?]',              desc:'Read a variable. Returns default if not set',                        ex:'$getVar[score;0]  →  10' },
+  { name:'deletevar',         cat:'variables',syntax:'$deleteVar[name]',                    desc:'Remove a variable from the session scope',                           ex:'$deleteVar[score]' },
+
+  // ── Database ──────────────────────────────────────────────────────────────
+  { name:'db.set',            cat:'database', syntax:'$db.set[key;value]',                  desc:'Persist a value to disk under key (survives restarts)',              ex:'$db.set[coins_123;500]' },
+  { name:'db.get',            cat:'database', syntax:'$db.get[key;default?]',               desc:'Read a persisted value; returns default if key missing',             ex:'$db.get[coins_123;0]  →  500' },
+  { name:'db.delete',         cat:'database', syntax:'$db.delete[key]',                     desc:'Remove a key from persistent storage',                              ex:'$db.delete[coins_123]' },
+  { name:'db.has',            cat:'database', syntax:'$db.has[key]',                        desc:'Returns "true" if key exists in persistent storage, else "false"',   ex:'$db.has[coins_123]  →  true' },
 
   // ── Control flow ──────────────────────────────────────────────────────────
-  { name:'if',               cat:'control',   syntax:'$if[condition;then;else?]',        desc:'Run then or else branch — only the matched branch runs',  ex:'$if[5>3;YES;NO]  →  YES' },
-  { name:'onlyif',           cat:'control',   syntax:'$onlyIf[condition]',               desc:'Silently halt execution if condition is false',           ex:'$onlyIf[$argsCount>=1]' },
-  { name:'equals',           cat:'control',   syntax:'$equals[a;b;then?;else?]',         desc:'String equality — returns true/false or branches',        ex:'$equals[hi;hi;match;no]  →  match' },
-  { name:'loop',             cat:'control',   syntax:'$loop[count;body]',                desc:'Repeat body N times (max 1000). Body is lazy-evaluated',  ex:'$loop[3;Item $loopNumber\n]' },
-  { name:'loopindex',        cat:'control',   syntax:'$loopIndex',                       desc:'Current loop iteration — 0-based',                        ex:'$loop[3;[$loopIndex]]  →  [0][1][2]' },
-  { name:'loopnumber',       cat:'control',   syntax:'$loopNumber',                      desc:'Current loop iteration — 1-based',                        ex:'$loop[3;$loopNumber. ]  →  1. 2. 3.' },
-  { name:'stop',             cat:'control',   syntax:'$stop',                            desc:'Immediately halt execution, no further output added',     ex:'hi$stopnever runs  →  hi' },
+  { name:'if',                cat:'control',  syntax:'$if[condition;then;else?]',           desc:'Run then or else branch — only the matched branch runs',             ex:'$if[5>3;YES;NO]  →  YES' },
+  { name:'onlyif',            cat:'control',  syntax:'$onlyIf[condition]',                  desc:'Silently halt execution if condition is false',                      ex:'$onlyIf[$argsCount>=1]' },
+  { name:'equals',            cat:'control',  syntax:'$equals[a;b;then?;else?]',            desc:'String equality — returns true/false or branches',                   ex:'$equals[hi;hi;match;no]  →  match' },
+  { name:'loop',              cat:'control',  syntax:'$loop[count;body]',                   desc:'Repeat body N times (max 1000). Body is lazy-evaluated',             ex:'$loop[3;Item $loopNumber\n]' },
+  { name:'loopindex',         cat:'control',  syntax:'$loopIndex',                          desc:'Current loop iteration — 0-based',                                   ex:'$loop[3;[$loopIndex]]  →  [0][1][2]' },
+  { name:'loopnumber',        cat:'control',  syntax:'$loopNumber',                         desc:'Current loop iteration — 1-based',                                   ex:'$loop[3;$loopNumber. ]  →  1. 2. 3.' },
+  { name:'stop',              cat:'control',  syntax:'$stop',                               desc:'Immediately halt execution, no further output added',                ex:'hi$stopnever runs  →  hi' },
 
   // ── Logic ─────────────────────────────────────────────────────────────────
-  { name:'and',              cat:'logic',     syntax:'$and[v1;v2;...]',                  desc:'Returns true only if ALL values are truthy',              ex:'$and[true;true]  →  true' },
-  { name:'or',               cat:'logic',     syntax:'$or[v1;v2;...]',                   desc:'Returns true if ANY value is truthy',                     ex:'$or[false;true]  →  true' },
-  { name:'not',              cat:'logic',     syntax:'$not[value]',                      desc:'Inverts a boolean — true→false, false→true',              ex:'$not[$equals[a;b]]  →  true' },
+  { name:'and',               cat:'logic',    syntax:'$and[v1;v2;...]',                     desc:'Returns true only if ALL values are truthy',                         ex:'$and[true;true]  →  true' },
+  { name:'or',                cat:'logic',    syntax:'$or[v1;v2;...]',                      desc:'Returns true if ANY value is truthy',                                ex:'$or[false;true]  →  true' },
+  { name:'not',               cat:'logic',    syntax:'$not[value]',                         desc:'Inverts a boolean — true→false, false→true',                         ex:'$not[$equals[a;b]]  →  true' },
 
   // ── Math ──────────────────────────────────────────────────────────────────
-  { name:'math',             cat:'math',      syntax:'$math[expression]',                desc:'Safe arithmetic: + − × / % ^ () — no JavaScript eval',   ex:'$math[(2+3)*4^2]  →  80' },
-  { name:'random',           cat:'math',      syntax:'$random[min;max]  /  $random[max]',desc:'Random integer. One arg = 0–max, two args = min–max',     ex:'$random[1;6]  →  4' },
+  { name:'math',              cat:'math',     syntax:'$math[expression]',                   desc:'Safe arithmetic: + − × / % ^ () — no JavaScript eval',              ex:'$math[(2+3)*4^2]  →  80' },
+  { name:'random',            cat:'math',     syntax:'$random[min;max]  /  $random[max]',   desc:'Random integer. One arg = 0–max, two args = min–max',                ex:'$random[1;6]  →  4' },
 
   // ── Strings ───────────────────────────────────────────────────────────────
-  { name:'upper',            cat:'strings',   syntax:'$upper[text]',                     desc:'Convert text to UPPERCASE',                               ex:'$upper[hello]  →  HELLO' },
-  { name:'lower',            cat:'strings',   syntax:'$lower[text]',                     desc:'Convert text to lowercase',                               ex:'$lower[HELLO]  →  hello' },
-  { name:'length',           cat:'strings',   syntax:'$length[text]',                    desc:'Number of characters in text',                            ex:'$length[hello]  →  5' },
-  { name:'trim',             cat:'strings',   syntax:'$trim[text]',                      desc:'Strip leading and trailing whitespace',                   ex:'$trim[  hi  ]  →  hi' },
-  { name:'replace',          cat:'strings',   syntax:'$replace[text;find;replacement]',  desc:'Replace the first occurrence of find in text',            ex:'$replace[hi world;world;there]  →  hi there' },
-  { name:'includes',         cat:'strings',   syntax:'$includes[text;search]',           desc:'Returns true if text contains search string',             ex:'$includes[hello;ell]  →  true' },
-  { name:'slice',            cat:'strings',   syntax:'$slice[text;start;end?]',          desc:'Extract a substring by 0-based character index',          ex:'$slice[hello;1;4]  →  ell' },
-  { name:'split',            cat:'strings',   syntax:'$split[text;sep;index?]',          desc:'Split by separator. No index = word count, index = word', ex:'$split[a,b,c;,;2]  →  b' },
-  { name:'repeat',           cat:'strings',   syntax:'$repeat[text;n;sep?]',             desc:'Repeat text n times with an optional separator',          ex:'$repeat[ha;3;-]  →  ha-ha-ha' },
-  { name:'newline',          cat:'strings',   syntax:'$newline',                         desc:'Inserts a literal newline character (\\n)',                ex:'line1$newlineline2  →  two lines' },
-  { name:'space',            cat:'strings',   syntax:'$space[n?]',                       desc:'Insert n spaces (default 1)',                             ex:'a$space[3]b  →  a   b' },
+  { name:'upper',             cat:'strings',  syntax:'$upper[text]',                        desc:'Convert text to UPPERCASE',                                          ex:'$upper[hello]  →  HELLO' },
+  { name:'lower',             cat:'strings',  syntax:'$lower[text]',                        desc:'Convert text to lowercase',                                          ex:'$lower[HELLO]  →  hello' },
+  { name:'length',            cat:'strings',  syntax:'$length[text]',                       desc:'Number of characters in text',                                       ex:'$length[hello]  →  5' },
+  { name:'trim',              cat:'strings',  syntax:'$trim[text]',                         desc:'Strip leading and trailing whitespace',                              ex:'$trim[  hi  ]  →  hi' },
+  { name:'replace',           cat:'strings',  syntax:'$replace[text;find;replacement]',     desc:'Replace the first occurrence of find in text',                       ex:'$replace[hi world;world;there]  →  hi there' },
+  { name:'includes',          cat:'strings',  syntax:'$includes[text;search]',              desc:'Returns true if text contains search string',                        ex:'$includes[hello;ell]  →  true' },
+  { name:'slice',             cat:'strings',  syntax:'$slice[text;start;end?]',             desc:'Extract a substring by 0-based character index',                    ex:'$slice[hello;1;4]  →  ell' },
+  { name:'split',             cat:'strings',  syntax:'$split[text;sep;index?]',             desc:'Split by separator. No index = word count, index = word',           ex:'$split[a,b,c;,;2]  →  b' },
+  { name:'repeat',            cat:'strings',  syntax:'$repeat[text;n;sep?]',                desc:'Repeat text n times with an optional separator',                     ex:'$repeat[ha;3;-]  →  ha-ha-ha' },
+  { name:'newline',           cat:'strings',  syntax:'$newline',                            desc:'Inserts a literal newline character (\\n)',                           ex:'line1$newlineline2  →  two lines' },
+  { name:'space',             cat:'strings',  syntax:'$space[n?]',                          desc:'Insert n spaces (default 1)',                                        ex:'a$space[3]b  →  a   b' },
+
+  // ── Embed ─────────────────────────────────────────────────────────────────
+  { name:'title',             cat:'embed',    syntax:'$title[text]',                        desc:'Set the embed title. Combine with $description, $color, etc.',       ex:'$title[Server Stats]' },
+  { name:'description',       cat:'embed',    syntax:'$description[text]',                  desc:'Set the embed description (main body text)',                         ex:'$description[Welcome to $guildName!]' },
+  { name:'color',             cat:'embed',    syntax:'$color[#hex]',                        desc:'Set the embed accent color using a hex code',                        ex:'$color[#5865F2]' },
+  { name:'footer',            cat:'embed',    syntax:'$footer[text]',                       desc:'Set the embed footer text',                                          ex:'$footer[Requested by $username]' },
+  { name:'footericon',        cat:'embed',    syntax:'$footerIcon[url]',                    desc:'Set the embed footer icon URL (shown next to footer text)',          ex:'$footerIcon[$avatar]' },
+  { name:'author',            cat:'embed',    syntax:'$author[name]',                       desc:'Set the embed author name shown above the title',                    ex:'$author[$botUsername]' },
+  { name:'authoricon',        cat:'embed',    syntax:'$authorIcon[url]',                    desc:'Set the embed author icon URL',                                      ex:'$authorIcon[$botAvatar]' },
+  { name:'thumbnail',         cat:'embed',    syntax:'$thumbnail[url]',                     desc:'Set the small image displayed at the top-right of the embed',        ex:'$thumbnail[$serverIcon]' },
+  { name:'image',             cat:'embed',    syntax:'$image[url]',                         desc:'Set the large image displayed at the bottom of the embed',           ex:'$image[$serverBanner]' },
+  { name:'timestamp',         cat:'embed',    syntax:'$timestamp',                          desc:'Add the current date/time to the embed footer area',                 ex:'$timestamp' },
+  { name:'addfield',          cat:'embed',    syntax:'$addField[name;value;inline?]',       desc:'Add a field to the embed. inline=true places fields side-by-side',   ex:'$addField[Score;$db.get[score;0];true]' },
 
   // ── Misc ──────────────────────────────────────────────────────────────────
-  { name:'time',             cat:'misc',      syntax:'$time  /  $time[format]',          desc:'Unix timestamp, or formatted date. Tokens: YYYY MM DD HH mm ss', ex:'$time[YYYY-MM-DD]  →  2026-05-10' },
-  { name:'eval',             cat:'misc',      syntax:'$eval[code]',                      desc:'Re-run code as framework syntax — NOT JavaScript',        ex:'$eval[$message]  →  executes user input as code' },
-  { name:'evaldjs',          cat:'misc',      syntax:'$evalDJS[code]',                   desc:'JS eval — DISABLED by default. Opt-in via runtime.register', ex:'See src/dev/evalDJS.js' },
+  { name:'time',              cat:'misc',     syntax:'$time  /  $time[format]',             desc:'Unix timestamp, or formatted date. Tokens: YYYY MM DD HH mm ss',     ex:'$time[YYYY-MM-DD]  →  2026-05-11' },
+  { name:'randomtext',        cat:'misc',     syntax:'$randomText[opt1;opt2;...]',          desc:'Return one of the provided options at random',                       ex:'$randomText[heads;tails]  →  heads' },
+  { name:'choose',            cat:'misc',     syntax:'$choose[opt1;opt2;...]',              desc:'Alias for $randomText — returns one option at random',               ex:'$choose[rock;paper;scissors]  →  paper' },
+  { name:'jsonparse',         cat:'misc',     syntax:'$jsonParse[json;key?]',               desc:'Parse JSON. key uses dot-path notation to drill into nested objects', ex:'$jsonParse[{"name":"Bob"};name]  →  Bob' },
+  { name:'jsonstringify',     cat:'misc',     syntax:'$jsonStringify[k1;v1;k2;v2;...]',    desc:'Build a JSON object from alternating key-value argument pairs',       ex:'$jsonStringify[x;1;y;2]  →  {"x":"1","y":"2"}' },
+  { name:'eval',              cat:'misc',     syntax:'$eval[code]',                         desc:'Re-run code as framework syntax — NOT JavaScript',                   ex:'$eval[$message]  →  executes user input as code' },
+  { name:'evaldjs',           cat:'misc',     syntax:'$evalDJS[code]',                      desc:'JS eval — DISABLED by default. Opt-in via runtime.register',         ex:'See src/dev/evalDJS.js' },
 ];
 
 // ─── Category metadata ────────────────────────────────────────────────────────
@@ -73,23 +113,22 @@ const CAT_EMOJI = {
   discord:   '🔵',
   message:   '📨',
   variables: '📦',
+  database:  '🗄️',
   control:   '🔀',
   logic:     '🔣',
   math:      '🔢',
   strings:   '🔤',
+  embed:     '🖼️',
   misc:      '⚙️',
 };
-const CAT_ORDER = ['discord','message','variables','control','logic','math','strings','misc'];
+const CAT_ORDER = ['discord','message','variables','database','control','logic','math','strings','embed','misc'];
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-// Strip $ prefix so both "!find $loop" and "!find loop" work identically
 function normalise(raw) {
   return raw.trim().replace(/^\$/, '').toLowerCase();
 }
 
-// Extract properly-cased display name from the syntax field
-// "$userID[...]"  →  "userID"    "$time  /  $time[...]"  →  "time"
 function displayName(doc) {
   return doc.syntax.split(/[\[\/\s]/)[0].slice(1);
 }
@@ -111,8 +150,7 @@ function formatFull(doc) {
 }
 
 function formatCompact(doc) {
-  const pad = 36;
-  return `\`${doc.syntax.padEnd(pad)}\` ${doc.desc}`;
+  return `\`${doc.syntax.padEnd(40)}\` ${doc.desc}`;
 }
 
 function formatCategoryList() {
@@ -131,7 +169,6 @@ function formatCategoryList() {
 // ─── $find[query?] ────────────────────────────────────────────────────────────
 
 module.exports = async (context, args) => {
-  // Strip leading $ so both "!find $loop" and "!find loop" work
   const query = normalise(args[0] || '');
 
   // ── No query: full overview ────────────────────────────────────────────────
@@ -159,9 +196,9 @@ module.exports = async (context, args) => {
 
   if (!matches.length) {
     return [
-      `❌ **No functions found for \`$${args[0] ? normalise(args[0]) : ''}\`**`,
+      `❌ **No functions found for \`$${normalise(args[0] || '')}\`**`,
       '',
-      'Try a category: `!find discord` `!find math` `!find strings` `!find control`',
+      'Try a category: `!find discord` `!find embed` `!find database` `!find math`',
       'Or browse everything with `!find`',
     ].join('\n');
   }
@@ -170,6 +207,5 @@ module.exports = async (context, args) => {
 
   const header = `🔍 **${matches.length} results for \`$${query}\`:**\n`;
   const body   = matches.map(formatCompact).join('\n');
-  const tip    = matches.length > 6 ? `\n_Tip: \`!find $${query}\` on the exact name for full details_` : '';
-  return header + body + tip;
+  return header + body;
 };
