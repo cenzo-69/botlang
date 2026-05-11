@@ -112,7 +112,9 @@ class Parser {
     while (this.pos < this.length && /[a-zA-Z0-9_.]/.test(this.source[this.pos])) {
       name += this.source[this.pos++];
     }
+    const nameBefore = name.length;
     name = name.replace(/\.+$/, ''); // strip trailing dots
+    this.pos -= (nameBefore - name.length); // rewind past stripped dots so they remain as literal text
 
     // Bare '$' with no identifier → literal text
     if (!name) return { type: 'text', value: '$' };

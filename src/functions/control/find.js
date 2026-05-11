@@ -238,31 +238,96 @@ const DOCS = [
   // ── Misc ──────────────────────────────────────────────────────────────────
   { name:'eval',                  cat:'misc',       syntax:'$eval[code]',                                  desc:'Re-run code as framework syntax — NOT JavaScript',                     ex:'$eval[$message]  →  executes user input' },
   { name:'evaldjs',               cat:'misc',       syntax:'$evalDJS[code]',                               desc:'JS eval with full discord.js access — disabled by default',            ex:'See src/dev/evalDJS.js' },
+  { name:'raw',                   cat:'misc',       syntax:'$raw[code]',                                   desc:'Return the source text of code WITHOUT evaluating $functions',         ex:'$raw[$username]  →  $username (literal)' },
+  { name:'escape',                cat:'misc',       syntax:'$escape[text]',                                desc:'Escape $ and ; so they are safe to pass into $eval',                   ex:'$escape[$username]  →  \\$username' },
+  { name:'comment',               cat:'misc',       syntax:'$comment[...text...]',                         desc:'A comment — always returns empty string, content is ignored',          ex:'$comment[TODO: add more logic]  →  ' },
   { name:'jsonparse',             cat:'misc',       syntax:'$jsonParse[json;key?]',                        desc:'Parse JSON. key uses dot-path notation',                               ex:'$jsonParse[{"name":"Bob"};name]  →  Bob' },
   { name:'jsonstringify',         cat:'misc',       syntax:'$jsonStringify[k1;v1;k2;v2;...]',              desc:'Build a JSON object from alternating key-value pairs',                 ex:'$jsonStringify[x;1;y;2]  →  {"x":"1","y":"2"}' },
+  { name:'jsonget',               cat:'misc',       syntax:'$jsonGet[json;path]',                          desc:'Get a nested value from a JSON string using dot-path notation',        ex:'$jsonGet[{"user":{"name":"Alice"}};user.name]  →  Alice' },
+  { name:'jsonset',               cat:'misc',       syntax:'$jsonSet[json;path;value]',                    desc:'Set a nested value in a JSON string and return updated JSON',          ex:'$jsonSet[{"x":1};x;99]  →  {"x":"99"}' },
+
+  // ── Control — loops ───────────────────────────────────────────────────────
+  { name:'while',                 cat:'control',    syntax:'$while[condition;body]',                       desc:'Repeat body while condition is truthy (max 1000 iterations)',          ex:'$var[i;0]$while[$getVar[i]<5;$var[i;$math[$getVar[i]+1]]]' },
+  { name:'foreach',               cat:'control',    syntax:'$forEach[items;separator;body]',               desc:'Loop over a delimited list. Body is lazy, repeats once per item',     ex:'$forEach[a,b,c;,;Item: $forEachValue\n]' },
+  { name:'foreachvalue',          cat:'control',    syntax:'$forEachValue',                                desc:'Current element value inside a $forEach body',                         ex:'$forEach[x;y;,;$forEachValue]  →  x then y' },
+  { name:'foreachindex',          cat:'control',    syntax:'$forEachIndex',                                desc:'0-based iteration index inside a $forEach body',                       ex:'$forEachIndex  →  0, 1, 2...' },
+  { name:'foreachnumber',         cat:'control',    syntax:'$forEachNumber',                               desc:'1-based iteration number inside a $forEach body',                      ex:'$forEachNumber  →  1, 2, 3...' },
+  { name:'break',                 cat:'control',    syntax:'$break',                                       desc:'Exit the innermost $while or $forEach loop immediately',               ex:'$while[true;$if[$x>10;$break]]' },
+  { name:'continue',              cat:'control',    syntax:'$continue',                                    desc:'Skip the rest of the current iteration and move to the next',          ex:'$forEach[1,2,3;,;$if[$forEachValue==2;$continue]...]' },
+
+  // ── Strings — text split ──────────────────────────────────────────────────
+  { name:'textsplit',             cat:'strings',    syntax:'$textSplit[text;separator]',                   desc:'Split text and store result for indexed access via $getTextSplitIndex', ex:'$textSplit[a,b,c;,]$getTextSplitIndex[2]  →  b' },
+  { name:'gettextsplitindex',     cat:'strings',    syntax:'$getTextSplitIndex[index]',                    desc:'Get the 1-based element from the last $textSplit result',               ex:'$textSplit[x;y;z; ]$getTextSplitIndex[1]  →  x' },
+
+  // ── HTTP ──────────────────────────────────────────────────────────────────
+  { name:'httpget',               cat:'http',       syntax:'$httpGet[url;headers?]',                       desc:'Send an HTTP GET request and return the response body',                ex:'$httpGet[https://api.example.com/data]' },
+  { name:'httppost',              cat:'http',       syntax:'$httpPost[url;body;headers?]',                 desc:'Send an HTTP POST request with a body, return response',               ex:'$httpPost[https://api.example.com;{"key":"val"}]' },
+  { name:'httpput',               cat:'http',       syntax:'$httpPut[url;body;headers?]',                  desc:'Send an HTTP PUT request with a body, return response',                ex:'$httpPut[https://api.example.com/1;{"x":"2"}]' },
+  { name:'httpdelete',            cat:'http',       syntax:'$httpDelete[url;headers?]',                    desc:'Send an HTTP DELETE request and return the response body',             ex:'$httpDelete[https://api.example.com/item/1]' },
+
+  // ── Webhooks ──────────────────────────────────────────────────────────────
+  { name:'createwebhook',         cat:'webhooks',   syntax:'$createWebhook[channelID;name;avatarURL?]',    desc:'Create a webhook in a channel. Returns JSON with id and token',        ex:'$createWebhook[$channelID;My Bot]' },
+  { name:'deletewebhook',         cat:'webhooks',   syntax:'$deleteWebhook[webhookID;token]',              desc:'Delete a webhook by ID and token',                                     ex:'$deleteWebhook[123456;abc_token]' },
+  { name:'webhooksend',           cat:'webhooks',   syntax:'$webhookSend[id;token;content;username?;avatarURL?]', desc:'Send a message via webhook with optional custom name/avatar',   ex:'$webhookSend[id;token;Hello from webhook!]' },
+
+  // ── Threads ───────────────────────────────────────────────────────────────
+  { name:'createthread',          cat:'threads',    syntax:'$createThread[name;messageID?;channelID?;autoArchiveMinutes?]', desc:'Create a thread (from a message or standalone). Returns thread ID', ex:'$createThread[Help Thread;;$channelID]' },
+  { name:'archivethread',         cat:'threads',    syntax:'$archiveThread[threadID]',                     desc:'Archive a thread channel by ID',                                       ex:'$archiveThread[123456789]' },
+  { name:'lockthread',            cat:'threads',    syntax:'$lockThread[threadID]',                        desc:'Lock a thread so only moderators can post in it',                      ex:'$lockThread[123456789]' },
+
+  // ── Permissions ───────────────────────────────────────────────────────────
+  { name:'hasperms',              cat:'permissions',syntax:'$hasPerms[userID;perm1;perm2;...]',             desc:'Returns "true" if the user has ALL listed Discord permissions',        ex:'$hasPerms[$userID;Administrator]  →  true' },
+  { name:'bothasperms',           cat:'permissions',syntax:'$botHasPerms[perm1;perm2;...]',                desc:'Returns "true" if the bot has ALL listed permissions in this channel', ex:'$botHasPerms[SendMessages;EmbedLinks]  →  true' },
+
+  // ── Error Handling ────────────────────────────────────────────────────────
+  { name:'try',                   cat:'errorhandling', syntax:'$try[code;fallback]',                       desc:'Run code lazily; if it errors, run fallback instead',                  ex:'$try[$httpGet[url];Request failed!]' },
+  { name:'throw',                 cat:'errorhandling', syntax:'$throw[message]',                           desc:'Produce an [error: message] and stop execution — useful inside $try',  ex:'$if[$x==bad;$throw[Invalid input]]' },
+  { name:'suppresserrors',        cat:'errorhandling', syntax:'$suppressErrors[code]',                     desc:'Run code and silently remove any [error:...] strings from output',     ex:'$suppressErrors[$httpGet[bad-url]]  →  (empty)' },
+
+  // ── Blacklist ─────────────────────────────────────────────────────────────
+  { name:'blacklistuser',         cat:'blacklist',  syntax:'$blacklistUser[userID;guildID?]',               desc:'Add a user to the persistent guild blacklist',                         ex:'$blacklistUser[$mentioned[1;true]]' },
+  { name:'unblacklistuser',       cat:'blacklist',  syntax:'$unblacklistUser[userID;guildID?]',             desc:'Remove a user from the guild blacklist',                               ex:'$unblacklistUser[$mentioned[1;true]]' },
+  { name:'isblacklisted',         cat:'blacklist',  syntax:'$isBlacklisted[userID?;guildID?]',              desc:'Returns "true" if the user is blacklisted, otherwise "false"',         ex:'$onlyIf[$not[$isBlacklisted]]' },
+
+  // ── Moderation (additions) ────────────────────────────────────────────────
+  { name:'mute',                  cat:'moderation', syntax:'$mute[userID;durationMs;reason?]',              desc:'Timeout (mute) a member for a duration in milliseconds',               ex:'$mute[$mentioned[1;true];600000;Spamming]' },
+  { name:'warn',                  cat:'moderation', syntax:'$warn[userID;reason?;guildID?]',                desc:'Add a persistent warning to a user. Returns new warning count',        ex:'$warn[$mentioned[1;true];Bad language]  →  1' },
+
+  // ── Discord (additions) ───────────────────────────────────────────────────
+  { name:'uptime',                cat:'discord',    syntax:'$uptime[format?]',                             desc:'Bot uptime. format: human (default) | seconds | ms',                   ex:'$uptime  →  2d 3h 15m 4s' },
+
+  // ── Components (additions) ────────────────────────────────────────────────
+  { name:'linkbutton',            cat:'components', syntax:'$linkButton[label;url;emoji?;disabled?]',       desc:'Add a link button that opens a URL in the browser',                    ex:'$linkButton[Visit site;https://example.com]' },
+  { name:'actionrow',             cat:'components', syntax:'$actionRow',                                    desc:'Force-close the current action row and start a new one (max 5 rows)',  ex:'$button[A;a]$actionRow$button[B;b]' },
 ];
 
 // ─── Category metadata ────────────────────────────────────────────────────────
 const CAT_EMOJI = {
-  discord:    '🔵',
-  message:    '📨',
-  moderation: '🔨',
-  roles:      '🎭',
-  channels:   '📢',
-  variables:  '📦',
-  database:   '🗄️',
-  control:    '🔀',
-  logic:      '🔣',
-  math:       '🔢',
-  strings:    '🔤',
-  embeds:     '🖼️',
-  components: '🧩',
-  time:       '🕐',
-  cooldown:   '⏳',
-  reactions:  '😀',
-  emojis:     '✨',
-  random:     '🎲',
-  misc:       '⚙️',
+  discord:      '🔵',
+  message:      '📨',
+  moderation:   '🔨',
+  roles:        '🎭',
+  channels:     '📢',
+  variables:    '📦',
+  database:     '🗄️',
+  control:      '🔀',
+  logic:        '🔣',
+  math:         '🔢',
+  strings:      '🔤',
+  embeds:       '🖼️',
+  components:   '🧩',
+  time:         '🕐',
+  cooldown:     '⏳',
+  reactions:    '😀',
+  emojis:       '✨',
+  random:       '🎲',
+  http:         '🌐',
+  webhooks:     '🪝',
+  threads:      '🧵',
+  permissions:  '🔐',
+  errorhandling:'🛡️',
+  blacklist:    '🚫',
+  misc:         '⚙️',
 };
 
 const CAT_ORDER = [
@@ -271,6 +336,7 @@ const CAT_ORDER = [
   'control','logic',
   'math','strings','embeds','components',
   'time','cooldown','reactions','emojis','random',
+  'http','webhooks','threads','permissions','errorhandling','blacklist',
   'misc',
 ];
 

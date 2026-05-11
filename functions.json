@@ -31,7 +31,13 @@
     { "id": "reactions",  "label": "Reactions",      "description": "Add, get, and manage message reactions" },
     { "id": "emojis",     "label": "Emojis",         "description": "Create, remove, and inspect custom emojis" },
     { "id": "random",     "label": "Random",         "description": "Random picks, strings, users, and channels" },
-    { "id": "misc",       "label": "Miscellaneous",  "description": "Eval, JSON, and utility functions" }
+    { "id": "misc",          "label": "Miscellaneous",   "description": "Eval, JSON, raw, escape, comment, and utility functions" },
+    { "id": "http",          "label": "HTTP",            "description": "HTTP GET/POST/PUT/DELETE requests using built-in fetch" },
+    { "id": "webhooks",      "label": "Webhooks",        "description": "Create, delete, and send messages via Discord webhooks" },
+    { "id": "threads",       "label": "Threads",         "description": "Create, archive, and lock Discord thread channels" },
+    { "id": "permissions",   "label": "Permissions",     "description": "Check user and bot Discord permissions" },
+    { "id": "errorhandling", "label": "Error Handling",  "description": "Try/catch, throw, and suppress errors in scripts" },
+    { "id": "blacklist",     "label": "Blacklist",       "description": "Per-guild user blacklisting backed by persistent storage" }
   ],
   "functions": [
 
@@ -1756,6 +1762,387 @@
       "args": [{ "name": "pairs", "type": "string", "required": true, "lazy": false, "variadic": true, "description": "Alternating key and value arguments." }],
       "returns": "string (JSON)", "lazy": [],
       "examples": [{ "code": "$jsonStringify[x;1;y;2]", "output": "{\"x\":\"1\",\"y\":\"2\"}" }]
+    },
+
+    {
+      "name": "$jsonGet", "key": "jsonget", "category": "misc",
+      "description": "Gets a nested value from a JSON string using dot-path notation.",
+      "syntax": "$jsonGet[json;path]",
+      "args": [
+        { "name": "json", "type": "string", "required": true,  "lazy": false, "description": "JSON string to read from." },
+        { "name": "path", "type": "string", "required": true,  "lazy": false, "description": "Dot-path key e.g. 'user.name'." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$jsonGet[{\"user\":{\"name\":\"Alice\"}};user.name]", "output": "Alice" }]
+    },
+
+    {
+      "name": "$jsonSet", "key": "jsonset", "category": "misc",
+      "description": "Sets a nested value in a JSON string and returns the updated JSON.",
+      "syntax": "$jsonSet[json;path;value]",
+      "args": [
+        { "name": "json",  "type": "string", "required": true,  "lazy": false, "description": "JSON string to update." },
+        { "name": "path",  "type": "string", "required": true,  "lazy": false, "description": "Dot-path key e.g. 'user.name'." },
+        { "name": "value", "type": "string", "required": true,  "lazy": false, "description": "Value to write." }
+      ],
+      "returns": "string (JSON)", "lazy": [],
+      "examples": [{ "code": "$jsonSet[{\"x\":1};x;99]", "output": "{\"x\":\"99\"}" }]
+    },
+
+    {
+      "name": "$textSplit", "key": "textsplit", "category": "strings",
+      "description": "Splits text by a separator and stores the result for indexed access via $getTextSplitIndex.",
+      "syntax": "$textSplit[text;separator]",
+      "args": [
+        { "name": "text",      "type": "string", "required": true,  "lazy": false, "description": "Text to split." },
+        { "name": "separator", "type": "string", "required": true,  "lazy": false, "description": "Delimiter character(s)." }
+      ],
+      "returns": "empty string (stores split result)", "lazy": [],
+      "examples": [{ "code": "$textSplit[a,b,c;,]$getTextSplitIndex[2]", "output": "b" }]
+    },
+
+    {
+      "name": "$getTextSplitIndex", "key": "gettextsplitindex", "category": "strings",
+      "description": "Returns the element at the given 1-based index from the last $textSplit result.",
+      "syntax": "$getTextSplitIndex[index]",
+      "args": [
+        { "name": "index", "type": "number", "required": true, "lazy": false, "description": "1-based position to retrieve." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$textSplit[x y z; ]$getTextSplitIndex[3]", "output": "z" }]
+    },
+
+    {
+      "name": "$while", "key": "while", "category": "control",
+      "description": "Repeats body while condition is truthy. Max 1000 iterations. Both args are lazy.",
+      "syntax": "$while[condition;body]",
+      "args": [
+        { "name": "condition", "type": "string", "required": true, "lazy": true,  "description": "Re-evaluated each iteration." },
+        { "name": "body",      "type": "string", "required": true, "lazy": true,  "description": "Code to run each iteration." }
+      ],
+      "returns": "string", "lazy": [0, 1],
+      "examples": [{ "code": "$var[i;0]$while[$getVar[i]<3;$var[i;$math[$getVar[i]+1]]($getVar[i])]", "output": "(1)(2)(3)" }]
+    },
+
+    {
+      "name": "$forEach", "key": "foreach", "category": "control",
+      "description": "Loops over a delimited list executing body for each element. Use $forEachValue, $forEachIndex, $forEachNumber inside.",
+      "syntax": "$forEach[items;separator;body]",
+      "args": [
+        { "name": "items",     "type": "string", "required": true, "lazy": false, "description": "Delimited list of items." },
+        { "name": "separator", "type": "string", "required": true, "lazy": false, "description": "Delimiter to split items by." },
+        { "name": "body",      "type": "string", "required": true, "lazy": true,  "description": "Code run for each element." }
+      ],
+      "returns": "string", "lazy": [2],
+      "examples": [{ "code": "$forEach[a,b,c;,;$forEachNumber. $forEachValue\n]", "output": "1. a\n2. b\n3. c\n" }]
+    },
+
+    {
+      "name": "$forEachValue",  "key": "foreachvalue",  "category": "control",
+      "description": "Current element string inside a $forEach body.", "syntax": "$forEachValue",
+      "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "$forEach[x;y;,;$forEachValue ]", "output": "x y " }]
+    },
+    {
+      "name": "$forEachIndex",  "key": "foreachindex",  "category": "control",
+      "description": "0-based iteration index inside a $forEach body.", "syntax": "$forEachIndex",
+      "args": [], "returns": "number", "lazy": [],
+      "examples": [{ "code": "$forEach[a;b;,;$forEachIndex ]", "output": "0 1 " }]
+    },
+    {
+      "name": "$forEachNumber", "key": "foreachnumber", "category": "control",
+      "description": "1-based iteration number inside a $forEach body.", "syntax": "$forEachNumber",
+      "args": [], "returns": "number", "lazy": [],
+      "examples": [{ "code": "$forEach[a;b;,;$forEachNumber ]", "output": "1 2 " }]
+    },
+    {
+      "name": "$break", "key": "break", "category": "control",
+      "description": "Exits the innermost $while or $forEach loop immediately.", "syntax": "$break",
+      "args": [], "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$forEach[1,2,3;,;$if[$forEachValue==2;$break]$forEachValue ]", "output": "1 " }]
+    },
+    {
+      "name": "$continue", "key": "continue", "category": "control",
+      "description": "Skips the rest of the current loop iteration and moves to the next.", "syntax": "$continue",
+      "args": [], "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$forEach[1,2,3;,;$if[$forEachValue==2;$continue]$forEachValue ]", "output": "1 3 " }]
+    },
+
+    {
+      "name": "$raw", "key": "raw", "category": "misc",
+      "description": "Returns the source text of the argument WITHOUT evaluating any $functions. Arg is lazy.",
+      "syntax": "$raw[code]",
+      "args": [{ "name": "code", "type": "string", "required": true, "lazy": true, "description": "Framework code to return as literal text." }],
+      "returns": "string (source text)", "lazy": [0],
+      "examples": [{ "code": "$raw[$username]", "output": "$username" }]
+    },
+    {
+      "name": "$escape", "key": "escape", "category": "misc",
+      "description": "Escapes $ and ; characters so text is safe to pass into $eval.",
+      "syntax": "$escape[text]",
+      "args": [{ "name": "text", "type": "string", "required": true, "lazy": false, "description": "Text to escape." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$escape[$username]", "output": "\\$username" }]
+    },
+    {
+      "name": "$comment", "key": "comment", "category": "misc",
+      "description": "A comment block — always returns empty string. Content is completely ignored.",
+      "syntax": "$comment[...text...]",
+      "args": [{ "name": "text", "type": "string", "required": false, "lazy": false, "description": "Any text — ignored." }],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$comment[This is a note]", "output": "" }]
+    },
+
+    {
+      "name": "$httpGet", "key": "httpget", "category": "http",
+      "description": "Sends an HTTP GET request and returns the response body as a string.",
+      "syntax": "$httpGet[url;headers?]",
+      "args": [
+        { "name": "url",     "type": "string", "required": true,  "lazy": false, "description": "URL to request." },
+        { "name": "headers", "type": "string", "required": false, "lazy": false, "description": "Optional JSON object of request headers." }
+      ],
+      "returns": "string (response body)", "lazy": [],
+      "examples": [{ "code": "$httpGet[https://api.example.com/data]", "output": "{\"result\":\"ok\"}" }]
+    },
+    {
+      "name": "$httpPost", "key": "httppost", "category": "http",
+      "description": "Sends an HTTP POST request with a body and returns the response.",
+      "syntax": "$httpPost[url;body;headers?]",
+      "args": [
+        { "name": "url",     "type": "string", "required": true,  "lazy": false, "description": "URL to POST to." },
+        { "name": "body",    "type": "string", "required": true,  "lazy": false, "description": "Request body string." },
+        { "name": "headers", "type": "string", "required": false, "lazy": false, "description": "Optional JSON headers object." }
+      ],
+      "returns": "string (response body)", "lazy": [],
+      "examples": [{ "code": "$httpPost[https://api.example.com;{\"key\":\"val\"}]", "output": "{\"success\":true}" }]
+    },
+    {
+      "name": "$httpPut", "key": "httpput", "category": "http",
+      "description": "Sends an HTTP PUT request with a body and returns the response.",
+      "syntax": "$httpPut[url;body;headers?]",
+      "args": [
+        { "name": "url",     "type": "string", "required": true,  "lazy": false, "description": "URL to PUT to." },
+        { "name": "body",    "type": "string", "required": true,  "lazy": false, "description": "Request body string." },
+        { "name": "headers", "type": "string", "required": false, "lazy": false, "description": "Optional JSON headers object." }
+      ],
+      "returns": "string (response body)", "lazy": [],
+      "examples": [{ "code": "$httpPut[https://api.example.com/1;{\"x\":\"2\"}]", "output": "{\"updated\":true}" }]
+    },
+    {
+      "name": "$httpDelete", "key": "httpdelete", "category": "http",
+      "description": "Sends an HTTP DELETE request and returns the response body.",
+      "syntax": "$httpDelete[url;headers?]",
+      "args": [
+        { "name": "url",     "type": "string", "required": true,  "lazy": false, "description": "URL to DELETE." },
+        { "name": "headers", "type": "string", "required": false, "lazy": false, "description": "Optional JSON headers object." }
+      ],
+      "returns": "string (response body)", "lazy": [],
+      "examples": [{ "code": "$httpDelete[https://api.example.com/item/1]", "output": "{\"deleted\":true}" }]
+    },
+
+    {
+      "name": "$createWebhook", "key": "createwebhook", "category": "webhooks",
+      "description": "Creates a webhook in a channel. Returns JSON with id and token fields.",
+      "syntax": "$createWebhook[channelID;name;avatarURL?]",
+      "args": [
+        { "name": "channelID",  "type": "snowflake", "required": true,  "lazy": false, "description": "Channel to create the webhook in." },
+        { "name": "name",       "type": "string",    "required": true,  "lazy": false, "description": "Webhook display name." },
+        { "name": "avatarURL",  "type": "string",    "required": false, "lazy": false, "description": "Optional avatar image URL." }
+      ],
+      "returns": "string (JSON: {id, token})", "lazy": [],
+      "examples": [{ "code": "$createWebhook[$channelID;My Bot]", "output": "{\"id\":\"...\",\"token\":\"...\"}" }]
+    },
+    {
+      "name": "$deleteWebhook", "key": "deletewebhook", "category": "webhooks",
+      "description": "Deletes a webhook by its ID and token.",
+      "syntax": "$deleteWebhook[webhookID;token]",
+      "args": [
+        { "name": "webhookID", "type": "snowflake", "required": true, "lazy": false, "description": "Webhook ID." },
+        { "name": "token",     "type": "string",    "required": true, "lazy": false, "description": "Webhook token." }
+      ],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$deleteWebhook[123456789;abc_token]", "output": "" }]
+    },
+    {
+      "name": "$webhookSend", "key": "webhooksend", "category": "webhooks",
+      "description": "Sends a message through a webhook with optional custom username and avatar.",
+      "syntax": "$webhookSend[id;token;content;username?;avatarURL?]",
+      "args": [
+        { "name": "id",         "type": "snowflake", "required": true,  "lazy": false, "description": "Webhook ID." },
+        { "name": "token",      "type": "string",    "required": true,  "lazy": false, "description": "Webhook token." },
+        { "name": "content",    "type": "string",    "required": true,  "lazy": false, "description": "Message content." },
+        { "name": "username",   "type": "string",    "required": false, "lazy": false, "description": "Override display name." },
+        { "name": "avatarURL",  "type": "string",    "required": false, "lazy": false, "description": "Override avatar URL." }
+      ],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$webhookSend[id;token;Hello from webhook!;MyBot]", "output": "" }]
+    },
+
+    {
+      "name": "$createThread", "key": "createthread", "category": "threads",
+      "description": "Creates a thread from a message or standalone in a text/forum channel. Returns the thread ID.",
+      "syntax": "$createThread[name;messageID?;channelID?;autoArchiveMinutes?]",
+      "args": [
+        { "name": "name",               "type": "string",    "required": true,  "lazy": false, "description": "Thread name." },
+        { "name": "messageID",          "type": "snowflake", "required": false, "lazy": false, "description": "Message to attach the thread to (optional)." },
+        { "name": "channelID",          "type": "snowflake", "required": false, "lazy": false, "description": "Channel ID (defaults to current channel)." },
+        { "name": "autoArchiveMinutes", "type": "number",    "required": false, "lazy": false, "description": "60 | 1440 | 4320 | 10080. Default: 1440." }
+      ],
+      "returns": "string (thread ID)", "lazy": [],
+      "examples": [{ "code": "$createThread[Help Thread]", "output": "1234567890" }]
+    },
+    {
+      "name": "$archiveThread", "key": "archivethread", "category": "threads",
+      "description": "Archives a thread channel by ID.",
+      "syntax": "$archiveThread[threadID]",
+      "args": [{ "name": "threadID", "type": "snowflake", "required": true, "lazy": false, "description": "Thread channel ID to archive." }],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$archiveThread[123456789]", "output": "" }]
+    },
+    {
+      "name": "$lockThread", "key": "lockthread", "category": "threads",
+      "description": "Locks a thread so only moderators can send messages in it.",
+      "syntax": "$lockThread[threadID]",
+      "args": [{ "name": "threadID", "type": "snowflake", "required": true, "lazy": false, "description": "Thread channel ID to lock." }],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$lockThread[123456789]", "output": "" }]
+    },
+
+    {
+      "name": "$hasPerms", "key": "hasperms", "category": "permissions",
+      "description": "Returns \"true\" if the user has ALL listed Discord permissions in the current guild, otherwise \"false\".",
+      "syntax": "$hasPerms[userID;perm1;perm2;...]",
+      "args": [
+        { "name": "userID", "type": "snowflake", "required": true, "lazy": false, "description": "Member to check." },
+        { "name": "perms",  "type": "string",    "required": true, "lazy": false, "variadic": true, "description": "PermissionFlagsBits names e.g. Administrator, BanMembers." }
+      ],
+      "returns": "\"true\" or \"false\"", "lazy": [],
+      "examples": [{ "code": "$hasPerms[$userID;Administrator]", "output": "true" }]
+    },
+    {
+      "name": "$botHasPerms", "key": "bothasperms", "category": "permissions",
+      "description": "Returns \"true\" if the bot has ALL listed permissions in the current channel.",
+      "syntax": "$botHasPerms[perm1;perm2;...]",
+      "args": [{ "name": "perms", "type": "string", "required": true, "lazy": false, "variadic": true, "description": "PermissionFlagsBits names." }],
+      "returns": "\"true\" or \"false\"", "lazy": [],
+      "examples": [{ "code": "$botHasPerms[SendMessages;EmbedLinks]", "output": "true" }]
+    },
+
+    {
+      "name": "$try", "key": "try", "category": "errorhandling",
+      "description": "Executes code lazily. If it throws or returns [error:...], executes fallback instead. Both args are lazy.",
+      "syntax": "$try[code;fallback]",
+      "args": [
+        { "name": "code",     "type": "string", "required": true,  "lazy": true, "description": "Code to attempt." },
+        { "name": "fallback", "type": "string", "required": false, "lazy": true, "description": "Code to run on error." }
+      ],
+      "returns": "string", "lazy": [0, 1],
+      "examples": [{ "code": "$try[$httpGet[https://bad-url];Request failed!]", "output": "Request failed!" }]
+    },
+    {
+      "name": "$throw", "key": "throw", "category": "errorhandling",
+      "description": "Produces an [error: message] string and stops execution. Intended for use inside $try blocks.",
+      "syntax": "$throw[message]",
+      "args": [{ "name": "message", "type": "string", "required": true, "lazy": false, "description": "Error message." }],
+      "returns": "[error: message]", "lazy": [],
+      "examples": [{ "code": "$if[$x==bad;$throw[Invalid input]]", "output": "[error: Invalid input]" }]
+    },
+    {
+      "name": "$suppressErrors", "key": "suppresserrors", "category": "errorhandling",
+      "description": "Runs code and silently removes any [error:...] strings from the output. Exceptions are also swallowed.",
+      "syntax": "$suppressErrors[code]",
+      "args": [{ "name": "code", "type": "string", "required": true, "lazy": true, "description": "Code to run silently." }],
+      "returns": "string (errors stripped)", "lazy": [0],
+      "examples": [{ "code": "$suppressErrors[$httpGet[bad-url]]", "output": "" }]
+    },
+
+    {
+      "name": "$blacklistUser", "key": "blacklistuser", "category": "blacklist",
+      "description": "Adds a user to the persistent guild blacklist.",
+      "syntax": "$blacklistUser[userID;guildID?]",
+      "args": [
+        { "name": "userID",  "type": "snowflake", "required": true,  "lazy": false, "description": "User to blacklist." },
+        { "name": "guildID", "type": "snowflake", "required": false, "lazy": false, "description": "Guild scope. Defaults to current guild." }
+      ],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$blacklistUser[$mentioned[1;true]]", "output": "" }]
+    },
+    {
+      "name": "$unblacklistUser", "key": "unblacklistuser", "category": "blacklist",
+      "description": "Removes a user from the guild blacklist.",
+      "syntax": "$unblacklistUser[userID;guildID?]",
+      "args": [
+        { "name": "userID",  "type": "snowflake", "required": true,  "lazy": false, "description": "User to remove." },
+        { "name": "guildID", "type": "snowflake", "required": false, "lazy": false, "description": "Guild scope. Defaults to current guild." }
+      ],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$unblacklistUser[$mentioned[1;true]]", "output": "" }]
+    },
+    {
+      "name": "$isBlacklisted", "key": "isblacklisted", "category": "blacklist",
+      "description": "Returns \"true\" if the user is blacklisted in this guild, otherwise \"false\".",
+      "syntax": "$isBlacklisted[userID?;guildID?]",
+      "args": [
+        { "name": "userID",  "type": "snowflake", "required": false, "lazy": false, "description": "Defaults to message author." },
+        { "name": "guildID", "type": "snowflake", "required": false, "lazy": false, "description": "Guild scope. Defaults to current guild." }
+      ],
+      "returns": "\"true\" or \"false\"", "lazy": [],
+      "examples": [{ "code": "$onlyIf[$isBlacklisted==false;You are blacklisted!]", "output": "" }]
+    },
+
+    {
+      "name": "$mute", "key": "mute", "category": "moderation",
+      "description": "Applies a Discord timeout (mute) to a member for a specified duration in milliseconds.",
+      "syntax": "$mute[userID;durationMs;reason?]",
+      "args": [
+        { "name": "userID",     "type": "snowflake", "required": true,  "lazy": false, "description": "Member to mute." },
+        { "name": "durationMs", "type": "number",    "required": true,  "lazy": false, "description": "Duration in milliseconds." },
+        { "name": "reason",     "type": "string",    "required": false, "lazy": false, "description": "Audit log reason." }
+      ],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$mute[$mentioned[1;true];600000;Spamming]", "output": "" }]
+    },
+    {
+      "name": "$warn", "key": "warn", "category": "moderation",
+      "description": "Adds a persistent warning to a user and returns their new total warning count.",
+      "syntax": "$warn[userID;reason?;guildID?]",
+      "args": [
+        { "name": "userID",  "type": "snowflake", "required": true,  "lazy": false, "description": "User to warn." },
+        { "name": "reason",  "type": "string",    "required": false, "lazy": false, "description": "Warning reason." },
+        { "name": "guildID", "type": "snowflake", "required": false, "lazy": false, "description": "Guild scope. Defaults to current guild." }
+      ],
+      "returns": "number (total warnings)", "lazy": [],
+      "examples": [{ "code": "$warn[$mentioned[1;true];Rude behaviour]", "output": "1" }]
+    },
+
+    {
+      "name": "$uptime", "key": "uptime", "category": "discord",
+      "description": "Returns the bot's uptime. format: human (default) | seconds | ms.",
+      "syntax": "$uptime[format?]",
+      "args": [{ "name": "format", "type": "string", "required": false, "lazy": false, "description": "human | seconds | ms" }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$uptime", "output": "2d 3h 15m 4s" }]
+    },
+
+    {
+      "name": "$linkButton", "key": "linkbutton", "category": "components",
+      "description": "Adds a link-style button that opens a URL when clicked. Does not fire interaction events.",
+      "syntax": "$linkButton[label;url;emoji?;disabled?]",
+      "args": [
+        { "name": "label",    "type": "string",  "required": true,  "lazy": false, "description": "Button label text." },
+        { "name": "url",      "type": "string",  "required": true,  "lazy": false, "description": "URL to open on click." },
+        { "name": "emoji",    "type": "string",  "required": false, "lazy": false, "description": "Optional emoji." },
+        { "name": "disabled", "type": "boolean", "required": false, "lazy": false, "description": "\"true\" to disable the button." }
+      ],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$linkButton[Visit;https://example.com]", "output": "" }]
+    },
+    {
+      "name": "$actionRow", "key": "actionrow", "category": "components",
+      "description": "Force-closes the current action row and starts a new one. Discord allows up to 5 rows per message.",
+      "syntax": "$actionRow",
+      "args": [], "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$button[A;a]$actionRow$button[B;b]", "output": "(2 rows of buttons)" }]
     }
 
   ]

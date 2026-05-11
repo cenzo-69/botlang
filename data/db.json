@@ -2,5 +2,7 @@
   "_t_score": "999",
   "_t_user": "TESTUSER",
   "skara": "yes he’s pookie",
-  "hello": "hello!"
+  "hello": "hello!",
+  "__warn_wg_wu9": "[{\"reason\":\"bad\",\"timestamp\":1778510999418},{\"reason\":\"worse\",\"timestamp\":1778510999419}]",
+  "stest": "42"
 }

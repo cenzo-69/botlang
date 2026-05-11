@@ -1,0 +1,79 @@
+Add the remaining CenzoJS categories using proper modular architecture.
+
+IMPORTANT:
+- before creating any function, check if it already exists
+- if it exists, leave it alone
+- do NOT overwrite working systems
+- do NOT break parser/runtime/interpreter
+- keep AST execution and lazy execution intact
+
+Use proper folders like:
+txt id="m7v2x4" src/functions/components/ src/functions/http/ src/functions/moderation/ src/functions/server/ 
+
+Make FunctionLoader recursively load all subfolders automatically.
+
+━━━━━━━━━━━━━━━━━━━━
+CATEGORIES TO ADD
+━━━━━━━━━━━━━━━━━━━━
+
+txt id="q4m8x2" components compv2 json textsplit loops http conditions webhooks threads permissions errorHandling blacklists moderation server bot user channel roles alternativeParsing 
+
+━━━━━━━━━━━━━━━━━━━━
+EXAMPLES OF FUNCTIONS
+━━━━━━━━━━━━━━━━━━━━
+
+COMPONENTS
+txt id="v1m7q8" $button[] $linkButton[] $selectMenu[] $textInput[] $modal[] $actionRow[] 
+
+JSON
+txt id="x8m2q4" $jsonParse[] $jsonStringify[] $jsonGet[] $jsonSet[] 
+
+TEXTSPLIT
+txt id="r2m7v1" $textSplit[] $splitText[] $getTextSplitIndex[] 
+
+LOOPS
+txt id="n5x8m2" $loop[] $while[] $forEach[] $break $continue 
+
+HTTP
+txt id="j4m7q9" $httpGet[] $httpPost[] $httpDelete[] $httpPut[] 
+
+CONDITIONS
+txt id="k8v2m5" $if[] $elseif[] $else $endif $onlyIf[] $checkCondition[] 
+
+WEBHOOKS
+txt id="w2m8q4" $createWebhook[] $deleteWebhook[] $webhookSend[] 
+
+THREADS
+txt id="f7m2q1" $createThread[] $archiveThread[] $lockThread[] 
+
+PERMISSIONS
+txt id="t4m7q2" $onlyPerms[] $hasPerms[] $botHasPerms[] 
+
+ERROR HANDLING
+txt id="y1m8q4" $try[] $catch[] $throw[] $suppressErrors[] 
+
+BLACKLISTS
+txt id="u7x2m1" $blacklistUser[] $unblacklistUser[] $isBlacklisted[] 
+
+MODERATION
+txt id="p9m2x4" $ban[] $kick[] $timeout[] $mute[] $warn[] $purge[] 
+
+SERVER
+txt id="a1v8q7" $serverName $serverID $serverIcon $serverOwnerID $memberCount 
+
+BOT
+txt id="b4m7q2" $botID $botUsername $botAvatar $botPing $uptime 
+
+USER
+txt id="c8m2x1" $username $userID $userAvatar $userBanner $userRoles 
+
+CHANNEL
+txt id="d7v2m4" $channelID $channelName $createChannel[] $deleteChannel[] 
+
+ROLES
+txt id="e1m8q2" $createRole[] $deleteRole[] $addRole[] $removeRole[] 
+
+ALTERNATIVE PARSING
+txt id="f4v7q8" $eval[] $evalDJS[] $raw[] $escape[] $comment[] 
+
+Keep everything scalable, modular, and future-proof.
