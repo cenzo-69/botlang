@@ -43,3 +43,5 @@ module.exports = async (context, args) => {
   cooldowns.set(key, now + ms);
   return '';
 };
+
+module.exports._store = cooldowns;

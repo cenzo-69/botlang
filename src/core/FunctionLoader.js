@@ -14,23 +14,29 @@ class FunctionLoader {
       return this;
     }
 
-    const files = fs.readdirSync(dir).filter(f => f.endsWith('.js'));
+    this._loadDir(dir);
+    return this;
+  }
 
-    for (const file of files) {
-      const filePath = path.join(dir, file);
-      const key = path.basename(file, '.js').toLowerCase();
+  _loadDir(dir) {
+    const entries = fs.readdirSync(dir, { withFileTypes: true });
 
-      try {
-        // Clear require cache on re-load for hot-reload support
-        delete require.cache[require.resolve(filePath)];
-        const mod = require(filePath);
-        this.register(key, mod);
-      } catch (err) {
-        console.error(`[FunctionLoader] Failed to load ${file}: ${err.message}`);
+    for (const entry of entries) {
+      const fullPath = path.join(dir, entry.name);
+
+      if (entry.isDirectory()) {
+        this._loadDir(fullPath);
+      } else if (entry.isFile() && entry.name.endsWith('.js')) {
+        const key = path.basename(entry.name, '.js').toLowerCase();
+        try {
+          delete require.cache[require.resolve(fullPath)];
+          const mod = require(fullPath);
+          this.register(key, mod);
+        } catch (err) {
+          console.error(`[FunctionLoader] Failed to load ${entry.name}: ${err.message}`);
+        }
       }
     }
-
-    return this;
   }
 
   register(name, fn) {

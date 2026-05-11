@@ -32,3 +32,8 @@ outputType = "console"
 [deployment]
 deploymentTarget = "vm"
 run = ["node", "index.js"]
+
+[userenv]
+
+[userenv.shared]
+TOKEN = "MTUwMzAyMjcwMjA0NTI5ODg2MA.G45_lj.CeKUGfhvfi57cs4yJtLae835VVMXtTVRp-WpuU"

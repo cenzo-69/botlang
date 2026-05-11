@@ -40,3 +40,5 @@ module.exports = async (context, args) => {
   globalCooldowns.set(cmdName, now + ms);
   return '';
 };
+
+module.exports._store = globalCooldowns;
