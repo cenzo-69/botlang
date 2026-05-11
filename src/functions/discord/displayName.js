@@ -1,6 +1,6 @@
 'use strict';
 
-const { resolveMember } = require('../core/resolveUser');
+const { resolveMember } = require('../../core/resolveUser');
 
 // $displayName[userID?]  — guild display name (nickname if set, else username)
 module.exports = async (context, args) => {

@@ -1,6 +1,6 @@
 'use strict';
 
-const db = require('../core/db');
+const db = require('../../core/db');
 
 // $db.delete[key]  — remove a key from persistent storage
 module.exports = async (context, args) => {

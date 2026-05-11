@@ -1,6 +1,6 @@
 'use strict';
 
-const { resolveMember } = require('../core/resolveUser');
+const { resolveMember } = require('../../core/resolveUser');
 
 // $userRoles[userID?;separator?]
 // Returns a separated list of role IDs the user holds (excluding @everyone).

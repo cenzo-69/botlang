@@ -1,6 +1,6 @@
 'use strict';
 
-const db = require('../core/db');
+const db = require('../../core/db');
 
 // $db.get[key;default?]  — read a persisted value; returns default if key is missing
 module.exports = async (context, args) => {

@@ -1,6 +1,6 @@
 'use strict';
 
-const db = require('../core/db');
+const db = require('../../core/db');
 
 // $db.set[key;value]  — persist a value under key
 module.exports = async (context, args) => {

@@ -1,6 +1,6 @@
 'use strict';
 
-const { resolveUser } = require('../core/resolveUser');
+const { resolveUser } = require('../../core/resolveUser');
 
 // $userCreated[userID?]  — ISO 8601 account creation date
 // The creation time is derived from the Discord snowflake ID.

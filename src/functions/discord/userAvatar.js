@@ -1,6 +1,6 @@
 'use strict';
 
-const { resolveUser } = require('../core/resolveUser');
+const { resolveUser } = require('../../core/resolveUser');
 
 // $userAvatar[userID?]  — avatar URL (defaults to author)
 // Equivalent to $avatar but uses the resolveUser utility for consistency.

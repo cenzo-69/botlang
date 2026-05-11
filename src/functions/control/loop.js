@@ -1,6 +1,6 @@
 'use strict';
 
-const { FrameworkError } = require('../core/errors');
+const { FrameworkError } = require('../../core/errors');
 
 const MAX_ITERATIONS = 1000;
 

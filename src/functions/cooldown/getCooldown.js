@@ -14,7 +14,7 @@ module.exports = async (context, args) => {
   if (type === 'global') {
     // Read from globalCooldown module's store
     let store;
-    try { store = require('../globalCooldown')._store; } catch { return '0'; }
+    try { store = require('./globalCooldown')._store; } catch { return '0'; }
     if (!store) return '0';
     const expiry = store.get(cmdName) || 0;
     const rem    = Math.max(0, expiry - now);
@@ -33,7 +33,7 @@ module.exports = async (context, args) => {
 
   // default: per-user
   let store;
-  try { store = require('../cooldown')._store; } catch { return '0'; }
+  try { store = require('./cooldown')._store; } catch { return '0'; }
   if (!store) return '0';
   const userID = args[1] || context.message?.author?.id || '';
   const expiry = store.get(`${cmdName}:${userID}`) || 0;

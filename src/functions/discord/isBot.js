@@ -1,6 +1,6 @@
 'use strict';
 
-const { resolveMember } = require('../core/resolveUser');
+const { resolveMember } = require('../../core/resolveUser');
 
 // $isBot[userID?]  — returns "true" if the user is a bot, "false" otherwise
 module.exports = async (context, args) => {

@@ -1,6 +1,6 @@
 'use strict';
 
-const evaluateCondition = require('../core/evaluateCondition');
+const evaluateCondition = require('../../core/evaluateCondition');
 
 // $if[condition;thenCode;elseCode?]
 //
