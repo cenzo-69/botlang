@@ -1,0 +1,21 @@
+'use strict';
+
+// $setRoleHoist[roleID;true/false;reason?]
+// Sets whether a role is displayed separately in the member list.
+module.exports = async (context, args) => {
+  const roleID = String(args[0] !== undefined ? args[0] : '').trim();
+  const hoist  = String(args[1] !== undefined ? args[1] : '').trim().toLowerCase() === 'true';
+  const reason = String(args[2] !== undefined ? args[2] : '').trim() || 'No reason provided';
+
+  if (!roleID) return '[error: $setRoleHoist requires a roleID]';
+  if (!context.message?.guild) return '[error: $setRoleHoist — not in a guild]';
+
+  try {
+    const role = await context.message.guild.roles.fetch(roleID);
+    if (!role) return '[error: $setRoleHoist — role not found]';
+    await role.setHoist(hoist, reason);
+    return '';
+  } catch (err) {
+    return `[error: $setRoleHoist — ${err.message}]`;
+  }
+};

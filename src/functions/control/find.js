@@ -290,15 +290,73 @@ const DOCS = [
   { name:'isblacklisted',         cat:'blacklist',  syntax:'$isBlacklisted[userID?;guildID?]',              desc:'Returns "true" if the user is blacklisted, otherwise "false"',         ex:'$onlyIf[$not[$isBlacklisted]]' },
 
   // ── Moderation (additions) ────────────────────────────────────────────────
-  { name:'mute',                  cat:'moderation', syntax:'$mute[userID;durationMs;reason?]',              desc:'Timeout (mute) a member for a duration in milliseconds',               ex:'$mute[$mentioned[1;true];600000;Spamming]' },
-  { name:'warn',                  cat:'moderation', syntax:'$warn[userID;reason?;guildID?]',                desc:'Add a persistent warning to a user. Returns new warning count',        ex:'$warn[$mentioned[1;true];Bad language]  →  1' },
+  { name:'isBanned',              cat:'moderation', syntax:'$isBanned[userID]',                             desc:'Returns "true" if the user is currently banned from the server',       ex:'$isBanned[$mentioned[1;true]]  →  true' },
+  { name:'unban',                 cat:'moderation', syntax:'$unban[userID;reason?]',                        desc:'Removes a ban so the user can rejoin the server',                      ex:'$unban[$mentioned[1;true];Appealed]' },
+  { name:'setNick',               cat:'moderation', syntax:'$setNick[userID;nickname;reason?]',             desc:'Sets a member\'s server nickname. Pass empty string to clear it',      ex:'$setNick[$userID;Cool Guy]' },
 
   // ── Discord (additions) ───────────────────────────────────────────────────
   { name:'uptime',                cat:'discord',    syntax:'$uptime[format?]',                             desc:'Bot uptime. format: human (default) | seconds | ms',                   ex:'$uptime  →  2d 3h 15m 4s' },
+  { name:'discordtimestamp',      cat:'discord',    syntax:'$discordTimestamp[unixMs?;format?]',           desc:'Returns a Discord <t:...> timestamp tag. format: t T d D f F R',       ex:'$discordTimestamp[$timestamp;R]  →  <t:1747000000:R>' },
+  { name:'snowflaketime',         cat:'discord',    syntax:'$snowflakeTime[id;format?]',                   desc:'Converts a snowflake ID to a timestamp. format: discord|ms|s',         ex:'$snowflakeTime[$userID;discord]  →  <t:...:f>' },
+  { name:'stagestart',            cat:'discord',    syntax:'$stageStart[channelID;topic]',                 desc:'Starts a stage instance in a Stage channel. Returns instance ID',      ex:'$stageStart[$channelID;Ask Me Anything]' },
+  { name:'stageend',              cat:'discord',    syntax:'$stageEnd[channelID]',                         desc:'Ends the active stage instance in a Stage channel',                    ex:'$stageEnd[$channelID]' },
 
   // ── Components (additions) ────────────────────────────────────────────────
   { name:'linkbutton',            cat:'components', syntax:'$linkButton[label;url;emoji?;disabled?]',       desc:'Add a link button that opens a URL in the browser',                    ex:'$linkButton[Visit site;https://example.com]' },
   { name:'actionrow',             cat:'components', syntax:'$actionRow',                                    desc:'Force-close the current action row and start a new one (max 5 rows)',  ex:'$button[A;a]$actionRow$button[B;b]' },
+
+  // ── Message (additions) ───────────────────────────────────────────────────
+  { name:'pinmessage',            cat:'message',    syntax:'$pinMessage[messageID?;channelID?;reason?]',   desc:'Pins a message. Defaults to the current message',                      ex:'$pinMessage[$message]' },
+  { name:'unpinmessage',          cat:'message',    syntax:'$unpinMessage[messageID;channelID?;reason?]',  desc:'Unpins a message by ID',                                               ex:'$unpinMessage[$message]' },
+  { name:'crosspost',             cat:'message',    syntax:'$crosspost[messageID?;channelID?]',            desc:'Publishes a message in an Announcement channel to all followers',      ex:'$crosspost[$message]' },
+  { name:'messageurl',            cat:'message',    syntax:'$messageURL[messageID?]',                      desc:'Returns the direct Discord jump URL of a message',                     ex:'$messageURL  →  https://discord.com/channels/...' },
+
+  // ── Roles (additions) ─────────────────────────────────────────────────────
+  { name:'setrolecolor',          cat:'roles',      syntax:'$setRoleColor[roleID;color;reason?]',          desc:'Sets a role\'s color. Accepts hex (#FF0000), decimal, or color name',  ex:'$setRoleColor[$roleID;#FF0000]' },
+  { name:'setrolename',           cat:'roles',      syntax:'$setRoleName[roleID;name;reason?]',            desc:'Renames a role',                                                       ex:'$setRoleName[$roleID;Members]' },
+  { name:'setrolehoist',          cat:'roles',      syntax:'$setRoleHoist[roleID;true/false;reason?]',     desc:'Sets whether a role appears separately in the member list',             ex:'$setRoleHoist[$roleID;true]' },
+  { name:'setrolementionable',    cat:'roles',      syntax:'$setRoleMentionable[roleID;true/false;reason?]', desc:'Sets whether regular users can @mention the role',                  ex:'$setRoleMentionable[$roleID;false]' },
+
+  // ── Channels (additions) ──────────────────────────────────────────────────
+  { name:'setchanneltopic',       cat:'channels',   syntax:'$setChannelTopic[topic;channelID?;reason?]',   desc:'Sets the topic of a text channel. Empty string to clear it',           ex:'$setChannelTopic[Welcome to #general!]' },
+  { name:'setchannelnsfw',        cat:'channels',   syntax:'$setChannelNSFW[true/false;channelID?;reason?]', desc:'Marks or unmarks a channel as age-restricted',                      ex:'$setChannelNSFW[true]' },
+
+  // ── Voice Channels (VC) ───────────────────────────────────────────────────
+  { name:'vcusercount',           cat:'vc',         syntax:'$vcUserCount[channelID?]',                     desc:'Returns the number of members currently in a voice channel',           ex:'$vcUserCount[$userVC]  →  4' },
+  { name:'vcusers',               cat:'vc',         syntax:'$vcUsers[channelID?;separator?]',              desc:'Returns a separated list of user IDs in a voice channel',              ex:'$vcUsers[$userVC;, ]' },
+  { name:'vcname',                cat:'vc',         syntax:'$vcName[channelID?]',                          desc:'Returns the name of a voice channel. Defaults to author\'s VC',        ex:'$vcName  →  General' },
+  { name:'vcbitrate',             cat:'vc',         syntax:'$vcBitrate[channelID?]',                       desc:'Returns the bitrate in kbps of a voice channel',                       ex:'$vcBitrate  →  64' },
+  { name:'vcuserlimit',           cat:'vc',         syntax:'$vcUserLimit[channelID?]',                     desc:'Returns the user limit of a voice channel. 0 = unlimited',             ex:'$vcUserLimit  →  10' },
+  { name:'vcmuteuser',            cat:'vc',         syntax:'$vcMuteUser[userID;reason?]',                  desc:'Server-mutes a member in their current voice channel',                 ex:'$vcMuteUser[$mentioned[1;true]]' },
+  { name:'vcunmuteuser',          cat:'vc',         syntax:'$vcUnmuteUser[userID;reason?]',                desc:'Removes server-mute from a member',                                    ex:'$vcUnmuteUser[$mentioned[1;true]]' },
+  { name:'vcdeafenuser',          cat:'vc',         syntax:'$vcDeafenUser[userID;reason?]',                desc:'Server-deafens a member in their voice channel',                       ex:'$vcDeafenUser[$mentioned[1;true]]' },
+  { name:'vcundeafenuser',        cat:'vc',         syntax:'$vcUndeafenUser[userID;reason?]',              desc:'Removes server-deafen from a member',                                  ex:'$vcUndeafenUser[$mentioned[1;true]]' },
+  { name:'vckickuser',            cat:'vc',         syntax:'$vcKickUser[userID;reason?]',                  desc:'Disconnects a member from their current voice channel',                ex:'$vcKickUser[$mentioned[1;true]]' },
+  { name:'vcmoveuser',            cat:'vc',         syntax:'$vcMoveUser[userID;channelID;reason?]',        desc:'Moves a member to a different voice channel',                          ex:'$vcMoveUser[$mentioned[1;true];$channelID]' },
+  { name:'isinvc',                cat:'vc',         syntax:'$isInVC[userID?]',                             desc:'Returns "true" if the user is currently in any voice channel',         ex:'$isInVC  →  true' },
+  { name:'uservc',                cat:'vc',         syntax:'$userVC[userID?]',                             desc:'Returns the ID of the voice channel the user is currently in',        ex:'$userVC  →  1234567890' },
+  { name:'uservcname',            cat:'vc',         syntax:'$userVCName[userID?]',                         desc:'Returns the name of the voice channel the user is currently in',      ex:'$userVCName  →  General' },
+  { name:'vcregion',              cat:'vc',         syntax:'$vcRegion[channelID?]',                        desc:'Returns the RTC region of a voice channel',                            ex:'$vcRegion  →  automatic' },
+
+  // ── Giveaways ─────────────────────────────────────────────────────────────
+  { name:'giveawaycreate',        cat:'giveaway',   syntax:'$giveawayCreate[prize;durationMs;winnerCount;channelID?]', desc:'Creates a 🎉 giveaway embed. Returns the message ID',       ex:'$giveawayCreate[Nitro;86400000;1]' },
+  { name:'giveawayend',           cat:'giveaway',   syntax:'$giveawayEnd[messageID;channelID?]',           desc:'Ends a giveaway early, picks winners from 🎉 reactors. Returns mentions', ex:'$giveawayEnd[$msgID]' },
+  { name:'giveawayreroll',        cat:'giveaway',   syntax:'$giveawayReroll[messageID;channelID?;winnerCount?]', desc:'Re-picks winners from existing reactions, excluding prior winners', ex:'$giveawayReroll[$msgID]' },
+  { name:'giveawaylist',          cat:'giveaway',   syntax:'$giveawayList[guildID?;separator?]',           desc:'Returns a list of active giveaway message IDs in the server',          ex:'$giveawayList  →  12345, 67890' },
+  { name:'giveawayinfo',          cat:'giveaway',   syntax:'$giveawayInfo[messageID;field]',               desc:'Returns a specific field of a giveaway (prize|winnerCount|endsAt|active)', ex:'$giveawayInfo[$msgID;prize]' },
+  { name:'giveawaywinners',       cat:'giveaway',   syntax:'$giveawayWinners[messageID;separator?]',       desc:'Returns the list of winner user IDs from a concluded giveaway',        ex:'$giveawayWinners[$msgID;, ]' },
+
+  // ── Invites ───────────────────────────────────────────────────────────────
+  { name:'createinvite',          cat:'invites',    syntax:'$createInvite[channelID?;maxAge?;maxUses?;temporary?]', desc:'Creates an invite. maxAge in seconds (0=permanent). Returns URL', ex:'$createInvite[;0;0]' },
+  { name:'deleteinvite',          cat:'invites',    syntax:'$deleteInvite[code;reason?]',                  desc:'Deletes an invite by its code',                                        ex:'$deleteInvite[abc123]' },
+  { name:'inviteuses',            cat:'invites',    syntax:'$inviteUses[code]',                            desc:'Returns the number of times an invite has been used',                  ex:'$inviteUses[abc123]  →  42' },
+  { name:'serverinvites',         cat:'invites',    syntax:'$serverInvites[separator?]',                   desc:'Returns a separated list of all active invite codes in the server',    ex:'$serverInvites[, ]' },
+
+  // ── Scheduled Events ──────────────────────────────────────────────────────
+  { name:'createevent',           cat:'events',     syntax:'$createEvent[name;startMs;endMs;description?;channelID?]', desc:'Creates a Discord scheduled event. Returns event ID',        ex:'$createEvent[Movie Night;1747000000000;1747003600000]' },
+  { name:'deleteevent',           cat:'events',     syntax:'$deleteEvent[eventID;reason?]',               desc:'Cancels and deletes a scheduled guild event',                          ex:'$deleteEvent[123456789]' },
+  { name:'listevents',            cat:'events',     syntax:'$listEvents[separator?;format?]',             desc:'Lists upcoming events. format: id (default)|name|both',                ex:'$listEvents[, ;name]' },
+  { name:'eventusercount',        cat:'events',     syntax:'$eventUserCount[eventID]',                    desc:'Returns the number of users interested in a scheduled event',          ex:'$eventUserCount[123456789]  →  27' },
 ];
 
 // ─── Category metadata ────────────────────────────────────────────────────────
@@ -327,6 +385,10 @@ const CAT_EMOJI = {
   permissions:  '🔐',
   errorhandling:'🛡️',
   blacklist:    '🚫',
+  vc:           '🔊',
+  giveaway:     '🎉',
+  invites:      '✉️',
+  events:       '📅',
   misc:         '⚙️',
 };
 
@@ -337,6 +399,7 @@ const CAT_ORDER = [
   'math','strings','embeds','components',
   'time','cooldown','reactions','emojis','random',
   'http','webhooks','threads','permissions','errorhandling','blacklist',
+  'vc','giveaway','invites','events',
   'misc',
 ];
 
