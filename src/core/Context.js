@@ -5,24 +5,24 @@ const MAX_DEPTH = 128;
 /**
  * Execution context — the single object threaded through every function call.
  *
- * Fields:
- *   Discord          message, client
- *   Command parsing  commandName, commandInput, commandArgs, noMentionInput
- *   State            variables (shared Map), depth, stopped
- *   Embed            embed (shared object — mutated by $title, $color, etc.)
- *   Loop             loopIndex (0-based), loopNumber (1-based), loopCount
- *   Debug            callStack (array of function names), functionName
+ * Shared by reference across the whole execution tree (same as variables/embed):
+ *   _out        — output-control container  { stopMessage: null | string }
+ *   variables   — session variable Map
+ *   embed       — embed builder state
+ *   components  — Discord component state (buttons, select menus)
  *
- * The `variables` Map and `embed` object are SHARED BY REFERENCE across all
- * child contexts so mutations (e.g. $var, $title) are visible to every caller
- * in the same execution tree.
+ * Cloned per child:
+ *   callStack   — for accurate per-branch tracing
+ *
+ * Incremented per child:
+ *   depth       — recursion guard (max 128)
  */
 class Context {
   constructor({
     // Discord
     message,
     client,
-    // Command parsing (populated by Runtime.runForCommand)
+    // Command parsing
     commandName,
     commandInput,
     commandArgs,
@@ -31,8 +31,12 @@ class Context {
     variables,
     depth,
     runtime,
-    // Embed state — shared object across the whole execution tree
+    // Output control (shared object — $onlyIf stopMessage lives here)
+    _out,
+    // Embed state (shared object — mutated by $title, $color, etc.)
     embed,
+    // Component state (shared array — $button, $selectMenu push here)
+    components,
     // Loop state
     loopIndex,
     loopNumber,
@@ -40,26 +44,29 @@ class Context {
     // Debug / call tracing
     callStack,
   } = {}) {
-    // ── Discord ──────────────────────────────────────────────────────────────
+    // ── Discord ───────────────────────────────────────────────────────────────
     this.message = message || null;
     this.client  = client  || message?.client || null;
 
-    // ── Command parsing context ───────────────────────────────────────────
+    // ── Command parsing ───────────────────────────────────────────────────────
     this.commandName    = commandName    || null;
     this.commandInput   = commandInput   || '';
     this.commandArgs    = commandArgs    || [];
     this.noMentionInput = noMentionInput || '';
 
-    // ── Execution state ───────────────────────────────────────────────────
-    this.variables = variables || new Map();   // shared across all child ctxs
+    // ── Execution state ───────────────────────────────────────────────────────
+    this.variables = variables || new Map();
     this.depth     = depth     || 0;
     this.runtime   = runtime   || null;
     this.stopped   = false;
 
-    // ── Embed state (shared across all child contexts by reference) ────────
-    // Functions like $title, $color, $addField mutate this object directly.
-    // Because child() passes the same reference, mutations propagate up the
-    // call tree and are visible to runForCommandFull after execution.
+    // ── Output control (shared) ───────────────────────────────────────────────
+    // $onlyIf[cond;errorMsg] stores errorMsg here; runForCommandFull checks it
+    // after execution and uses it as the final text (replacing any accumulated
+    // output), so only the error message is sent.
+    this._out = _out || { stopMessage: null };
+
+    // ── Embed state (shared) ──────────────────────────────────────────────────
     this.embed = embed || {
       title:       null,
       url:         null,
@@ -70,25 +77,25 @@ class Context {
       thumbnail:   null,
       image:       null,
       timestamp:   null,
-      fields:      [],    // array of { name, value, inline }
+      fields:      [],
     };
 
-    // ── Loop state (set by $loop; inherited by child contexts) ────────────
+    // ── Component state (shared) ──────────────────────────────────────────────
+    // $button, $selectMenu etc. push descriptor objects here.
+    // Runtime._buildComponents() converts them to ActionRowBuilders.
+    this.components = components || [];
+
+    // ── Loop state ────────────────────────────────────────────────────────────
     this.loopIndex  = loopIndex  !== undefined ? loopIndex  : null;
     this.loopNumber = loopNumber !== undefined ? loopNumber : null;
     this.loopCount  = loopCount  !== undefined ? loopCount  : null;
 
-    // ── Debug / call tracing ──────────────────────────────────────────────
-    this.callStack    = callStack    || [];
+    // ── Debug / call tracing ──────────────────────────────────────────────────
+    this.callStack    = callStack || [];
     this.functionName = null;
   }
 
-  // ── Child context ─────────────────────────────────────────────────────────
-  // Creates a new Context inheriting all fields from this one.
-  //
-  // Shared by reference  → variables Map, embed object
-  // Cloned               → callStack array (for accurate per-branch tracing)
-  // Incremented          → depth
+  // ── Child context ──────────────────────────────────────────────────────────
   child() {
     if (this.depth >= MAX_DEPTH) {
       const { FrameworkError } = require('./errors');
@@ -106,8 +113,10 @@ class Context {
       commandInput:    this.commandInput,
       commandArgs:     this.commandArgs,
       noMentionInput:  this.noMentionInput,
-      variables:       this.variables,     // shared Map
-      embed:           this.embed,         // shared embed object
+      variables:       this.variables,    // shared Map
+      _out:            this._out,         // shared output control
+      embed:           this.embed,        // shared embed object
+      components:      this.components,   // shared components array
       depth:           this.depth + 1,
       runtime:         this.runtime,
       loopIndex:       this.loopIndex,
@@ -117,12 +126,12 @@ class Context {
     });
   }
 
-  // ── Node execution helper (used by lazy functions: $loop, $if, $onlyIf) ──
+  // ── Node execution helper ──────────────────────────────────────────────────
   async executeNodes(nodes) {
     return this.runtime.interpreter.executeNodes(nodes, this);
   }
 
-  // ── Variable helpers ──────────────────────────────────────────────────────
+  // ── Variable helpers ───────────────────────────────────────────────────────
   setVariable(name, value) {
     this.variables.set(String(name).toLowerCase(), String(value));
   }
@@ -135,12 +144,12 @@ class Context {
     this.variables.delete(String(name).toLowerCase());
   }
 
-  // ── Execution control ─────────────────────────────────────────────────────
+  // ── Execution control ──────────────────────────────────────────────────────
   stop() {
     this.stopped = true;
   }
 
-  // ── Formatted call stack (for error messages) ─────────────────────────────
+  // ── Formatted call stack ───────────────────────────────────────────────────
   formatCallStack() {
     if (!this.callStack.length) return '(root)';
     return this.callStack.map(n => `$${n}`).join(' → ');

@@ -1,6 +1,7 @@
 'use strict';
 
 const { FrameworkError, RuntimeError } = require('./errors');
+const evaluateCondition = require('./evaluateCondition');
 
 class Interpreter {
   constructor(functions) {
@@ -24,10 +25,33 @@ class Interpreter {
     switch (node.type) {
       case 'text':     return node.value;
       case 'function': return this.executeFunction(node, context);
+      case 'block_if': return this.executeBlockIf(node, context);
       default:         return '';
     }
   }
 
+  // ── Block $if execution ───────────────────────────────────────────────────
+  // Evaluates branches in order; executes only the first matching branch.
+  // condition === null means $else (always matches if reached).
+  async executeBlockIf(node, context) {
+    for (const branch of node.branches) {
+      if (context.stopped) break;
+
+      if (branch.condition === null) {
+        // $else branch — unconditional
+        return this.executeNodes(branch.body, context);
+      }
+
+      // Resolve any nested $functions inside the condition expression
+      const condStr = await this.executeNodes(branch.condition, context);
+      if (evaluateCondition(condStr)) {
+        return this.executeNodes(branch.body, context);
+      }
+    }
+    return '';
+  }
+
+  // ── Inline function execution ─────────────────────────────────────────────
   async executeFunction(node, context) {
     const { name, originalName, args } = node;
     const fn = this.functions.get(name);
@@ -56,13 +80,12 @@ class Interpreter {
     try {
       const result = await execute(childCtx, resolvedArgs);
 
-      // Propagate stop signal from child back to caller
+      // Propagate stop signal and output control from child back to caller
       if (childCtx.stopped) context.stop();
 
       if (result === null || result === undefined) return '';
       return String(result);
     } catch (err) {
-      // Enrich the error with call stack information before re-throwing
       if (err instanceof FrameworkError || err instanceof RuntimeError) {
         if (!err.callStack || err.callStack.length === 0) {
           err.callStack = childCtx.callStack;
@@ -77,7 +100,6 @@ class Interpreter {
     const resolved = [];
     for (let i = 0; i < argNodes.length; i++) {
       if (lazyIndices.includes(i)) {
-        // Pass raw node array — the function controls when/if it runs
         resolved.push(argNodes[i]);
       } else {
         resolved.push(await this.executeNodes(argNodes[i], context));

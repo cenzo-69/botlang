@@ -9,12 +9,19 @@ const { ParseError } = require('./errors');
  *   Program      := Segment*
  *   Segment      := FunctionCall | Text
  *   FunctionCall := '$' Identifier ('[' ArgList ']')?
+ *                 | BlockIf          (when $if has exactly 1 arg)
  *   ArgList      := Arg (';' Arg)*
  *   Arg          := Segment*          (stops at ';' or ']')
+ *   BlockIf      := '$if[' Cond ']' Body ($elseif[Cond] Body)* ($else Body)? $endif
  *   Text         := any chars not '$' (and not ';'/']' when inside an arg)
  *
- * Identifier characters: [a-zA-Z0-9_.] — the dot allows namespaced functions
- * like $db.set, $db.get, $db.has, $db.delete.
+ * Identifier characters: [a-zA-Z0-9_.]
+ *   The dot allows namespaced functions like $db.set, $db.get.
+ *
+ * Block vs inline $if:
+ *   $if[cond]          → block style (1 arg)  — produces a block_if AST node
+ *   $if[cond;then]     → inline style (2 args) → dispatched to $if function
+ *   $if[cond;then;else]→ inline style (3 args) → dispatched to $if function
  *
  * Escape sequences:
  *   \$ \; \] \[ \\  — produce the literal character
@@ -23,7 +30,7 @@ class Parser {
   constructor(source) {
     if (typeof source !== 'string') throw new ParseError('Source must be a string');
     this.source = source;
-    this.pos = 0;
+    this.pos    = 0;
     this.length = source.length;
   }
 
@@ -32,11 +39,14 @@ class Parser {
     return { type: 'program', body };
   }
 
-  // inArg=true  → stop at ';' or ']'
-  // inArg=false → stop only at end-of-input
-  parseSegments(inArg) {
-    const nodes = [];
-    let textBuf = '';
+  // ── Segment parser ─────────────────────────────────────────────────────────
+  //
+  // inArg  = true  → stop at ';' or ']'  (inside a function argument)
+  // stopAt = array of lowercase names that stop parsing without consuming
+  //          them (used by block parsing so the caller can handle the keyword)
+  parseSegments(inArg, stopAt = []) {
+    const nodes  = [];
+    let textBuf  = '';
 
     while (this.pos < this.length) {
       const ch = this.source[this.pos];
@@ -48,11 +58,15 @@ class Parser {
         continue;
       }
 
-      // Arg boundaries
+      // Arg-level boundaries
       if (inArg && (ch === ';' || ch === ']')) break;
 
-      // Function call
       if (ch === '$') {
+        // Block stop-keyword check (peek without consuming)
+        if (stopAt.length) {
+          const peeked = this.peekFunctionName();
+          if (peeked && stopAt.includes(peeked)) break;
+        }
         if (textBuf) {
           nodes.push({ type: 'text', value: textBuf });
           textBuf = '';
@@ -69,57 +83,130 @@ class Parser {
     return nodes;
   }
 
+  // ── Look-ahead helpers ─────────────────────────────────────────────────────
+
+  // Return the lowercase name of the next $function without moving pos.
+  peekFunctionName() {
+    if (this.pos >= this.length || this.source[this.pos] !== '$') return null;
+    let i    = this.pos + 1;
+    let name = '';
+    while (i < this.length && /[a-zA-Z0-9_.]/.test(this.source[i])) {
+      name += this.source[i++];
+    }
+    return name.toLowerCase() || null;
+  }
+
+  // Consume '$keyword' advancing pos past the identifier (no arg parsing).
+  consumeKeyword() {
+    this.pos++; // skip '$'
+    while (this.pos < this.length && /[a-zA-Z0-9_.]/.test(this.source[this.pos])) {
+      this.pos++;
+    }
+  }
+
+  // ── Function parser ────────────────────────────────────────────────────────
   parseFunction() {
     this.pos++; // consume '$'
 
-    // Read identifier — letters, digits, underscores, and dots (for $db.set etc.)
     let name = '';
     while (this.pos < this.length && /[a-zA-Z0-9_.]/.test(this.source[this.pos])) {
       name += this.source[this.pos++];
     }
+    name = name.replace(/\.+$/, ''); // strip trailing dots
 
-    // Strip any trailing dots (e.g. a stray "$foo." becomes "$foo")
-    name = name.replace(/\.+$/, '');
-
-    // Bare '$' with no identifier — treat as literal text
+    // Bare '$' with no identifier → literal text
     if (!name) return { type: 'text', value: '$' };
 
-    // Optional argument list
     let args = null;
     if (this.pos < this.length && this.source[this.pos] === '[') {
       this.pos++; // consume '['
       args = this.parseArgList();
-
       if (this.pos < this.length && this.source[this.pos] === ']') {
         this.pos++; // consume ']'
       } else {
-        throw new ParseError(
-          `Missing closing ']' for $${name}`,
-          this.pos
-        );
+        throw new ParseError(`Missing closing ']' for $${name}`, this.pos);
       }
     }
 
+    // ── Block $if detection ────────────────────────────────────────────────
+    // Exactly 1 arg  → block-style:  $if[cond] body $endif
+    // 2 or more args → inline-style: $if[cond;then;else?]  (existing path)
+    if (name.toLowerCase() === 'if' && args !== null && args.length === 1) {
+      return this.parseBlockIf(args[0]);
+    }
+
     return {
-      type: 'function',
-      name: name.toLowerCase(),   // canonical lookup key
-      originalName: name,          // preserve casing for display
-      args,                        // null = no brackets, [] = empty brackets
+      type:         'function',
+      name:         name.toLowerCase(),
+      originalName: name,
+      args,
     };
   }
 
+  // ── Block $if / $elseif / $else / $endif ──────────────────────────────────
+  parseBlockIf(conditionNodes) {
+    const branches = [];
+    const BLOCK_STOP = ['elseif', 'else', 'endif'];
+
+    // ── Then body ────────────────────────────────────────────────────────────
+    const thenBody = this.parseSegments(false, BLOCK_STOP);
+    branches.push({ condition: conditionNodes, body: thenBody });
+
+    // ── $elseif / $else / $endif loop ─────────────────────────────────────
+    while (this.pos < this.length) {
+      const kw = this.peekFunctionName();
+
+      // ── $endif ────────────────────────────────────────────────────────────
+      if (kw === 'endif') {
+        this.consumeKeyword();
+        break;
+      }
+
+      // ── $else ─────────────────────────────────────────────────────────────
+      if (kw === 'else') {
+        this.consumeKeyword();
+        // Allow optional empty brackets: $else[]
+        if (this.pos < this.length && this.source[this.pos] === '[') {
+          this.pos++;
+          if (this.pos < this.length && this.source[this.pos] === ']') this.pos++;
+        }
+        const elseBody = this.parseSegments(false, ['endif']);
+        branches.push({ condition: null, body: elseBody });
+        if (this.peekFunctionName() === 'endif') this.consumeKeyword();
+        break;
+      }
+
+      // ── $elseif ───────────────────────────────────────────────────────────
+      if (kw === 'elseif') {
+        this.consumeKeyword();
+        let elseifCond = [];
+        if (this.pos < this.length && this.source[this.pos] === '[') {
+          this.pos++; // consume '['
+          const condArgs = this.parseArgList();
+          if (this.pos < this.length && this.source[this.pos] === ']') this.pos++;
+          elseifCond = condArgs[0] || [];
+        }
+        const elseifBody = this.parseSegments(false, BLOCK_STOP);
+        branches.push({ condition: elseifCond, body: elseifBody });
+        continue;
+      }
+
+      // Unknown / no keyword found — stop gracefully (missing $endif)
+      break;
+    }
+
+    return { type: 'block_if', originalName: 'if', branches };
+  }
+
+  // ── Arg list parser ────────────────────────────────────────────────────────
   parseArgList() {
     const args = [];
-
-    // An empty bracket pair '[]' → one empty arg
     while (this.pos < this.length && this.source[this.pos] !== ']') {
       args.push(this.parseSegments(true));
-
       if (this.pos < this.length && this.source[this.pos] === ';') {
         this.pos++; // consume ';'
       }
     }
-
     return args;
   }
 }

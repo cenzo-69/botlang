@@ -57,14 +57,15 @@ client.on(Events.MessageCreate, async (message) => {
   if (!cmd) return;
 
   try {
-    // runForCommandFull returns { text, embed } so text and embeds send together
-    const { text, embed } = await runtime.runForCommandFull(cmd.code, message, PREFIX);
+    // runForCommandFull returns { text, embed, components }
+    const { text, embed, components } = await runtime.runForCommandFull(cmd.code, message, PREFIX);
 
     const payload = {};
-    if (text && text.trim())  payload.content = text.trim();
-    if (embed)                payload.embeds  = [embed];
+    if (text && text.trim())  payload.content    = text.trim();
+    if (embed)                payload.embeds     = [embed];
+    if (components.length)    payload.components = components;
 
-    if (payload.content || payload.embeds) {
+    if (payload.content || payload.embeds || payload.components) {
       await message.channel.send(payload);
     }
   } catch (err) {
