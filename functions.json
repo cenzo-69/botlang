@@ -1,7 +1,7 @@
 {
   "meta": {
     "framework": "CenzoJS",
-    "version": "1.0.0",
+    "version": "2.0.0",
     "description": "Complete reference of all built-in functions. Intended for code editor autocomplete, linting, and documentation generation.",
     "syntax_rules": {
       "prefix": "$",
@@ -13,1004 +13,1749 @@
     }
   },
   "categories": [
-    { "id": "discord",   "label": "Discord",          "description": "Functions that interact with Discord objects (user, guild, channel, message)" },
-    { "id": "message",   "label": "Message Actions",   "description": "Functions that send, reply to, or delete messages" },
-    { "id": "variables", "label": "Variables",         "description": "Session-scoped key-value store for the current execution" },
-    { "id": "control",   "label": "Control Flow",      "description": "Conditionals, loops, and execution control" },
-    { "id": "logic",     "label": "Logic",             "description": "Boolean and comparison operations" },
-    { "id": "math",      "label": "Math",              "description": "Arithmetic, random numbers, and numeric evaluation" },
-    { "id": "strings",   "label": "Strings",           "description": "Text transformation and inspection" },
-    { "id": "misc",      "label": "Miscellaneous",     "description": "Utility functions: time, whitespace, eval" }
+    { "id": "discord",    "label": "Discord",       "description": "User, server, channel, and bot info" },
+    { "id": "message",    "label": "Message",        "description": "Send, reply, delete, and parse command input" },
+    { "id": "moderation", "label": "Moderation",     "description": "Ban, kick, timeout, purge" },
+    { "id": "roles",      "label": "Roles",          "description": "Manage and query guild roles" },
+    { "id": "channels",   "label": "Channels",       "description": "Create, delete, and configure channels" },
+    { "id": "variables",  "label": "Variables",      "description": "Session and scoped in-memory key-value stores" },
+    { "id": "database",   "label": "Database",       "description": "Persistent on-disk key-value storage" },
+    { "id": "control",    "label": "Control Flow",   "description": "Conditionals, loops, guards, and execution control" },
+    { "id": "logic",      "label": "Logic",          "description": "Boolean and comparison operations" },
+    { "id": "math",       "label": "Math",           "description": "Arithmetic, rounding, and numeric operations" },
+    { "id": "strings",    "label": "Strings",        "description": "Text transformation and inspection" },
+    { "id": "embeds",     "label": "Embeds",         "description": "Build and send Discord rich embeds" },
+    { "id": "components", "label": "Components",     "description": "Buttons, select menus, modals, and text inputs" },
+    { "id": "time",       "label": "Time",           "description": "Current date and time values" },
+    { "id": "cooldown",   "label": "Cooldown",       "description": "Per-user, global, and server cooldowns" },
+    { "id": "reactions",  "label": "Reactions",      "description": "Add, get, and manage message reactions" },
+    { "id": "emojis",     "label": "Emojis",         "description": "Create, remove, and inspect custom emojis" },
+    { "id": "random",     "label": "Random",         "description": "Random picks, strings, users, and channels" },
+    { "id": "misc",       "label": "Miscellaneous",  "description": "Eval, JSON, and utility functions" }
   ],
   "functions": [
 
     {
-      "name": "$username",
-      "key": "username",
-      "category": "discord",
+      "name": "$username", "key": "username", "category": "discord",
       "description": "Returns the username of the message author.",
-      "syntax": "$username",
-      "args": [],
-      "returns": "string",
-      "lazy": [],
-      "examples": [
-        { "code": "Hello, $username!", "output": "Hello, TestUser!" }
-      ]
+      "syntax": "$username", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "Hello, $username!", "output": "Hello, TestUser!" }]
     },
-
     {
-      "name": "$userID",
-      "key": "userid",
-      "category": "discord",
+      "name": "$userID", "key": "userid", "category": "discord",
       "description": "Returns the Discord user ID of the message author.",
-      "syntax": "$userID",
-      "args": [],
-      "returns": "string",
-      "lazy": [],
-      "examples": [
-        { "code": "Your ID: $userID", "output": "Your ID: 123456789" }
-      ]
+      "syntax": "$userID", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "Your ID: $userID", "output": "Your ID: 123456789" }]
     },
-
     {
-      "name": "$userTag",
-      "key": "usertag",
-      "category": "discord",
-      "description": "Returns the full username tag. On new Discord accounts this is just the username; on legacy accounts it includes the discriminator (e.g. User#1234).",
-      "syntax": "$userTag",
-      "args": [],
-      "returns": "string",
-      "lazy": [],
-      "examples": [
-        { "code": "Tag: $userTag", "output": "Tag: TestUser" }
-      ]
+      "name": "$authorID", "key": "authorid", "category": "discord",
+      "description": "Alias for $userID — returns the author's user ID.",
+      "syntax": "$authorID", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "$authorID", "output": "123456789" }]
     },
-
     {
-      "name": "$avatar",
-      "key": "avatar",
-      "category": "discord",
-      "description": "Returns the avatar URL of a user. If no userID is provided, returns the message author's avatar.",
-      "syntax": "$avatar[userID?]",
+      "name": "$userTag", "key": "usertag", "category": "discord",
+      "description": "Returns the author's display name or legacy tag (User#1234).",
+      "syntax": "$userTag", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "Tag: $userTag", "output": "Tag: TestUser" }]
+    },
+    {
+      "name": "$userMention", "key": "usermention", "category": "discord",
+      "description": "Returns a Discord mention string for a user. Defaults to the author.",
+      "syntax": "$userMention[userID?]",
+      "args": [{ "name": "userID", "type": "snowflake", "required": false, "lazy": false, "description": "User to mention. Defaults to the message author." }],
+      "returns": "string (<@userID>)", "lazy": [],
+      "examples": [{ "code": "$userMention", "output": "<@123456789>" }]
+    },
+    {
+      "name": "$userAvatar", "key": "useravatar", "category": "discord",
+      "description": "Returns the avatar URL of a user. Defaults to the author.",
+      "syntax": "$userAvatar[userID?]",
+      "args": [{ "name": "userID", "type": "snowflake", "required": false, "lazy": false, "description": "User ID to look up. Defaults to the message author." }],
+      "returns": "string (URL)", "lazy": [],
+      "examples": [{ "code": "$userAvatar", "output": "https://cdn.discordapp.com/avatars/..." }]
+    },
+    {
+      "name": "$userBanner", "key": "userbanner", "category": "discord",
+      "description": "Returns the banner URL of a user. Empty string if no banner.",
+      "syntax": "$userBanner[userID?]",
+      "args": [{ "name": "userID", "type": "snowflake", "required": false, "lazy": false, "description": "User ID to look up." }],
+      "returns": "string (URL or empty)", "lazy": [],
+      "examples": [{ "code": "$image[$userBanner]", "output": "" }]
+    },
+    {
+      "name": "$userCreated", "key": "usercreated", "category": "discord",
+      "description": "Returns the ISO date the Discord account was created.",
+      "syntax": "$userCreated[userID?]",
+      "args": [{ "name": "userID", "type": "snowflake", "required": false, "lazy": false, "description": "User ID. Defaults to the author." }],
+      "returns": "string (ISO date)", "lazy": [],
+      "examples": [{ "code": "$userCreated", "output": "2021-01-01T00:00:00.000Z" }]
+    },
+    {
+      "name": "$userJoined", "key": "userjoined", "category": "discord",
+      "description": "Returns the ISO date the user joined the current guild.",
+      "syntax": "$userJoined[userID?]",
+      "args": [{ "name": "userID", "type": "snowflake", "required": false, "lazy": false, "description": "User ID. Defaults to the author." }],
+      "returns": "string (ISO date)", "lazy": [],
+      "examples": [{ "code": "$userJoined", "output": "2022-06-01T00:00:00.000Z" }]
+    },
+    {
+      "name": "$userRoles", "key": "userroles", "category": "discord",
+      "description": "Returns a comma-separated list of role IDs the user has in the guild.",
+      "syntax": "$userRoles[userID?;separator?]",
       "args": [
-        {
-          "name": "userID",
-          "type": "snowflake",
-          "required": false,
-          "lazy": false,
-          "description": "Discord user ID. Defaults to the message author's ID."
-        }
+        { "name": "userID", "type": "snowflake", "required": false, "lazy": false, "description": "User ID. Defaults to the author." },
+        { "name": "separator", "type": "string", "required": false, "lazy": false, "description": "Separator between role IDs. Defaults to ," }
       ],
-      "returns": "string (URL)",
-      "lazy": [],
-      "examples": [
-        { "code": "$avatar", "output": "https://cdn.discordapp.com/avatars/.../..." },
-        { "code": "$avatar[$userID]", "output": "https://cdn.discordapp.com/avatars/.../..." },
-        { "code": "$avatar[$mentioned[1;true]]", "output": "https://cdn.discordapp.com/avatars/mentioned-user/..." }
-      ]
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$userRoles", "output": "r1,r2" }]
     },
-
     {
-      "name": "$mentioned",
-      "key": "mentioned",
-      "category": "discord",
-      "description": "Returns the user ID of the Nth mentioned user in the message.",
+      "name": "$displayName", "key": "displayname", "category": "discord",
+      "description": "Returns the guild display name (nickname or username).",
+      "syntax": "$displayName[userID?]",
+      "args": [{ "name": "userID", "type": "snowflake", "required": false, "lazy": false, "description": "User ID. Defaults to the author." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$displayName", "output": "TestUser" }]
+    },
+    {
+      "name": "$isBot", "key": "isbot", "category": "discord",
+      "description": "Returns 'true' if the user is a bot account, otherwise 'false'.",
+      "syntax": "$isBot[userID?]",
+      "args": [{ "name": "userID", "type": "snowflake", "required": false, "lazy": false, "description": "User ID. Defaults to the author." }],
+      "returns": "string ('true' or 'false')", "lazy": [],
+      "examples": [{ "code": "$isBot", "output": "false" }]
+    },
+    {
+      "name": "$avatar", "key": "avatar", "category": "discord",
+      "description": "Returns the avatar URL of a user. Alias for $userAvatar.",
+      "syntax": "$avatar[userID?]",
+      "args": [{ "name": "userID", "type": "snowflake", "required": false, "lazy": false, "description": "User ID. Defaults to the message author." }],
+      "returns": "string (URL)", "lazy": [],
+      "examples": [{ "code": "$avatar[$mentioned[1;true]]", "output": "https://cdn.discordapp.com/avatars/..." }]
+    },
+    {
+      "name": "$mentioned", "key": "mentioned", "category": "discord",
+      "description": "Returns the user ID of the Nth mention in the message.",
       "syntax": "$mentioned[index?;fallbackToAuthor?]",
       "args": [
-        {
-          "name": "index",
-          "type": "number",
-          "required": false,
-          "lazy": false,
-          "description": "1-based position of the mention (default: 1)."
-        },
-        {
-          "name": "fallbackToAuthor",
-          "type": "boolean",
-          "required": false,
-          "lazy": false,
-          "description": "If true and no mention is found, returns the author's ID instead of an error message. (default: false)"
-        }
+        { "name": "index", "type": "number", "required": false, "lazy": false, "description": "1-based mention position (default: 1)." },
+        { "name": "fallbackToAuthor", "type": "boolean", "required": false, "lazy": false, "description": "If true, returns the author's ID when no mention is found." }
       ],
-      "returns": "string (user ID)",
-      "lazy": [],
-      "examples": [
-        { "code": "$mentioned[1;true]", "output": "123456789" },
-        { "code": "$avatar[$mentioned[1;true]]", "output": "https://cdn.discordapp.com/..." }
-      ]
+      "returns": "string (user ID)", "lazy": [],
+      "examples": [{ "code": "$mentioned[1;true]", "output": "123456789" }]
+    },
+    {
+      "name": "$guildID", "key": "guildid", "category": "discord",
+      "description": "Returns the ID of the current guild.",
+      "syntax": "$guildID", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "$guildID", "output": "987654321" }]
+    },
+    {
+      "name": "$guildName", "key": "guildname", "category": "discord",
+      "description": "Returns the name of the current guild.",
+      "syntax": "$guildName", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "Server: $guildName", "output": "Server: My Discord Server" }]
+    },
+    {
+      "name": "$serverID", "key": "serverid", "category": "discord",
+      "description": "Alias for $guildID.",
+      "syntax": "$serverID", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "$serverID", "output": "987654321" }]
+    },
+    {
+      "name": "$serverName", "key": "servername", "category": "discord",
+      "description": "Alias for $guildName.",
+      "syntax": "$serverName", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "$serverName", "output": "My Discord Server" }]
+    },
+    {
+      "name": "$serverIcon", "key": "servericon", "category": "discord",
+      "description": "Returns the server icon URL. Empty string if the server has no icon.",
+      "syntax": "$serverIcon", "args": [], "returns": "string (URL or empty)", "lazy": [],
+      "examples": [{ "code": "$thumbnail[$serverIcon]", "output": "" }]
+    },
+    {
+      "name": "$serverBanner", "key": "serverbanner", "category": "discord",
+      "description": "Returns the server banner URL. Empty string if none.",
+      "syntax": "$serverBanner", "args": [], "returns": "string (URL or empty)", "lazy": [],
+      "examples": [{ "code": "$image[$serverBanner]", "output": "" }]
+    },
+    {
+      "name": "$serverOwnerID", "key": "serverownerid", "category": "discord",
+      "description": "Returns the user ID of the guild owner.",
+      "syntax": "$serverOwnerID", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "Owner: <@$serverOwnerID>", "output": "Owner: <@123456789>" }]
+    },
+    {
+      "name": "$serverCreated", "key": "servercreated", "category": "discord",
+      "description": "Returns the ISO date the guild was created.",
+      "syntax": "$serverCreated", "args": [], "returns": "string (ISO date)", "lazy": [],
+      "examples": [{ "code": "$serverCreated", "output": "2020-01-01T00:00:00.000Z" }]
+    },
+    {
+      "name": "$serverBoostCount", "key": "serverboostcount", "category": "discord",
+      "description": "Returns the number of Nitro boosts the server has.",
+      "syntax": "$serverBoostCount", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "Boosts: $serverBoostCount", "output": "Boosts: 5" }]
+    },
+    {
+      "name": "$serverBoostLevel", "key": "serverboostlevel", "category": "discord",
+      "description": "Returns the server boost tier (0–3).",
+      "syntax": "$serverBoostLevel", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "Tier: $serverBoostLevel", "output": "Tier: 1" }]
+    },
+    {
+      "name": "$serverVanity", "key": "servervanity", "category": "discord",
+      "description": "Returns the vanity invite code. Empty string if none.",
+      "syntax": "$serverVanity", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "discord.gg/$serverVanity", "output": "discord.gg/testguild" }]
+    },
+    {
+      "name": "$serverVerificationLevel", "key": "serververificationlevel", "category": "discord",
+      "description": "Returns the verification level of the server (0 = None, 4 = Highest).",
+      "syntax": "$serverVerificationLevel", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$serverVerificationLevel", "output": "2" }]
+    },
+    {
+      "name": "$memberCount", "key": "membercount", "category": "discord",
+      "description": "Returns the total number of members in the guild.",
+      "syntax": "$memberCount", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "Members: $memberCount", "output": "Members: 1042" }]
+    },
+    {
+      "name": "$humanCount", "key": "humancount", "category": "discord",
+      "description": "Returns the number of non-bot members (force-fetches member list).",
+      "syntax": "$humanCount", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "Humans: $humanCount", "output": "Humans: 1040" }]
+    },
+    {
+      "name": "$botCount", "key": "botcount", "category": "discord",
+      "description": "Returns the number of bot members (force-fetches member list).",
+      "syntax": "$botCount", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "Bots: $botCount", "output": "Bots: 2" }]
+    },
+    {
+      "name": "$roleCount", "key": "rolecount", "category": "discord",
+      "description": "Returns the number of roles in the guild (includes @everyone).",
+      "syntax": "$roleCount", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "Roles: $roleCount", "output": "Roles: 12" }]
+    },
+    {
+      "name": "$emojiCount", "key": "emojicount", "category": "discord",
+      "description": "Returns the number of custom emojis in the guild.",
+      "syntax": "$emojiCount", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "Emojis: $emojiCount", "output": "Emojis: 42" }]
+    },
+    {
+      "name": "$allMemberIDs", "key": "allmemberids", "category": "discord",
+      "description": "Returns all guild member IDs joined by a separator. Force-fetches — requires GuildMembers intent.",
+      "syntax": "$allMemberIDs[separator?]",
+      "args": [{ "name": "separator", "type": "string", "required": false, "lazy": false, "description": "String to join IDs with. Defaults to ," }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$allMemberIDs[, ]", "output": "123, 456, 789" }]
+    },
+    {
+      "name": "$channelID", "key": "channelid", "category": "discord",
+      "description": "Returns the ID of the current channel.",
+      "syntax": "$channelID", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "Channel: $channelID", "output": "Channel: 111222333" }]
+    },
+    {
+      "name": "$channelName", "key": "channelname", "category": "discord",
+      "description": "Returns the name of the current channel.",
+      "syntax": "$channelName", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "You are in #$channelName", "output": "You are in #general" }]
+    },
+    {
+      "name": "$channelTopic", "key": "channeltopic", "category": "discord",
+      "description": "Returns the topic of the current channel. Empty if no topic is set.",
+      "syntax": "$channelTopic", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "Topic: $channelTopic", "output": "Topic: A test channel" }]
+    },
+    {
+      "name": "$ping", "key": "ping", "category": "discord",
+      "description": "Returns the bot's WebSocket latency in milliseconds.",
+      "syntax": "$ping", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "Ping: $ping ms", "output": "Ping: 42 ms" }]
+    },
+    {
+      "name": "$botID", "key": "botid", "category": "discord",
+      "description": "Returns the bot's Discord user ID.",
+      "syntax": "$botID", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "$botID", "output": "999000999" }]
+    },
+    {
+      "name": "$botUsername", "key": "botusername", "category": "discord",
+      "description": "Returns the bot's username.",
+      "syntax": "$botUsername", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "Powered by $botUsername", "output": "Powered by TestBot" }]
+    },
+    {
+      "name": "$botAvatar", "key": "botavatar", "category": "discord",
+      "description": "Returns the bot's avatar URL.",
+      "syntax": "$botAvatar", "args": [], "returns": "string (URL)", "lazy": [],
+      "examples": [{ "code": "$thumbnail[$botAvatar]", "output": "" }]
     },
 
     {
-      "name": "$channelID",
-      "key": "channelid",
-      "category": "discord",
-      "description": "Returns the ID of the channel where the message was sent.",
-      "syntax": "$channelID",
-      "args": [],
-      "returns": "string",
-      "lazy": [],
-      "examples": [
-        { "code": "Channel: $channelID", "output": "Channel: 111222333" }
-      ]
-    },
-
-    {
-      "name": "$channelName",
-      "key": "channelname",
-      "category": "discord",
-      "description": "Returns the name of the channel where the message was sent.",
-      "syntax": "$channelName",
-      "args": [],
-      "returns": "string",
-      "lazy": [],
-      "examples": [
-        { "code": "You are in #$channelName", "output": "You are in #general" }
-      ]
-    },
-
-    {
-      "name": "$guildID",
-      "key": "guildid",
-      "category": "discord",
-      "description": "Returns the ID of the current guild (server).",
-      "syntax": "$guildID",
-      "args": [],
-      "returns": "string",
-      "lazy": [],
-      "examples": [
-        { "code": "Guild ID: $guildID", "output": "Guild ID: 987654321" }
-      ]
-    },
-
-    {
-      "name": "$guildName",
-      "key": "guildname",
-      "category": "discord",
-      "description": "Returns the name of the current guild (server).",
-      "syntax": "$guildName",
-      "args": [],
-      "returns": "string",
-      "lazy": [],
-      "examples": [
-        { "code": "Server: $guildName", "output": "Server: My Discord Server" }
-      ]
-    },
-
-    {
-      "name": "$memberCount",
-      "key": "membercount",
-      "category": "discord",
-      "description": "Returns the total number of members in the current guild.",
-      "syntax": "$memberCount",
-      "args": [],
-      "returns": "string (number)",
-      "lazy": [],
-      "examples": [
-        { "code": "Members: $memberCount", "output": "Members: 1042" }
-      ]
-    },
-
-    {
-      "name": "$sendMessage",
-      "key": "sendmessage",
-      "category": "message",
-      "description": "Sends a message to the current channel or a specified channel. Returns empty string.",
+      "name": "$sendMessage", "key": "sendmessage", "category": "message",
+      "description": "Sends a message to the current channel or a specified channel.",
       "syntax": "$sendMessage[content;channelID?]",
       "args": [
-        {
-          "name": "content",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "The text content to send."
-        },
-        {
-          "name": "channelID",
-          "type": "snowflake",
-          "required": false,
-          "lazy": false,
-          "description": "Target channel ID. Defaults to the current channel."
-        }
+        { "name": "content", "type": "string", "required": true, "lazy": false, "description": "Message content to send." },
+        { "name": "channelID", "type": "snowflake", "required": false, "lazy": false, "description": "Target channel. Defaults to the current channel." }
       ],
-      "returns": "empty",
-      "lazy": [],
-      "examples": [
-        { "code": "$sendMessage[Hello world!]", "output": "" },
-        { "code": "$sendMessage[Cross-post!;987654321]", "output": "" }
-      ]
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$sendMessage[Hello world!]", "output": "" }]
     },
-
     {
-      "name": "$reply",
-      "key": "reply",
-      "category": "message",
-      "description": "Replies to the trigger message with the given content. Returns empty string.",
+      "name": "$reply", "key": "reply", "category": "message",
+      "description": "Replies to the triggering message.",
       "syntax": "$reply[content]",
-      "args": [
-        {
-          "name": "content",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "The reply content."
-        }
-      ],
-      "returns": "empty",
-      "lazy": [],
-      "examples": [
-        { "code": "$reply[Got it!]", "output": "" }
-      ]
+      "args": [{ "name": "content", "type": "string", "required": true, "lazy": false, "description": "The reply content." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$reply[Done!]", "output": "" }]
     },
-
     {
-      "name": "$deleteMessage",
-      "key": "deletemessage",
-      "category": "message",
-      "description": "Deletes the trigger message. Optionally after a delay in milliseconds.",
+      "name": "$deleteMessage", "key": "deletemessage", "category": "message",
+      "description": "Deletes the triggering message. Optionally after a delay in milliseconds.",
       "syntax": "$deleteMessage[delayMs?]",
+      "args": [{ "name": "delayMs", "type": "number", "required": false, "lazy": false, "description": "Delay in ms before deletion (max 60000). Defaults to 0." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$deleteMessage[3000]", "output": "" }]
+    },
+    {
+      "name": "$channelSendMessage", "key": "channelsendmessage", "category": "message",
+      "description": "Send a message to any channel by ID.",
+      "syntax": "$channelSendMessage[channelID;content]",
       "args": [
-        {
-          "name": "delayMs",
-          "type": "number",
-          "required": false,
-          "lazy": false,
-          "description": "Delay before deletion in milliseconds (max 60000). Defaults to 0 (immediate)."
-        }
+        { "name": "channelID", "type": "snowflake", "required": true, "lazy": false, "description": "Target channel ID." },
+        { "name": "content", "type": "string", "required": true, "lazy": false, "description": "Message content." }
       ],
-      "returns": "empty",
-      "lazy": [],
-      "examples": [
-        { "code": "$deleteMessage", "output": "" },
-        { "code": "$deleteMessage[3000]", "output": "" }
-      ]
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$channelSendMessage[123456;Hello!]", "output": "" }]
+    },
+    {
+      "name": "$message", "key": "message", "category": "message",
+      "description": "Returns the full command input, or the nth word if an index is given (1-based).",
+      "syntax": "$message  /  $message[n]",
+      "args": [{ "name": "n", "type": "number", "required": false, "lazy": false, "description": "Word index (1-based). No arg = full input." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$message[1]", "output": "hello" }]
+    },
+    {
+      "name": "$noMentionMessage", "key": "nomentionmessage", "category": "message",
+      "description": "Command input with all Discord mentions stripped.",
+      "syntax": "$noMentionMessage[n?]",
+      "args": [{ "name": "n", "type": "number", "required": false, "lazy": false, "description": "Word index (1-based). No arg = full stripped input." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$noMentionMessage", "output": "hi there" }]
+    },
+    {
+      "name": "$argsCount", "key": "argscount", "category": "message",
+      "description": "Returns the number of space-separated words in the command input.",
+      "syntax": "$argsCount", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$argsCount", "output": "2" }]
+    },
+    {
+      "name": "$arg", "key": "arg", "category": "message",
+      "description": "Returns the Nth word of command input. Alias for $message[n].",
+      "syntax": "$arg[n]",
+      "args": [{ "name": "n", "type": "number", "required": true, "lazy": false, "description": "Word index (1-based)." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$arg[2]", "output": "world" }]
+    },
+    {
+      "name": "$commandName", "key": "commandname", "category": "message",
+      "description": "Returns the triggered command name without the prefix.",
+      "syntax": "$commandName", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "$commandName", "output": "ping" }]
     },
 
     {
-      "name": "$var",
-      "key": "var",
-      "category": "variables",
-      "description": "Sets a session variable. Variables are shared across the entire execution of one command run and reset on the next invocation.",
+      "name": "$ban", "key": "ban", "category": "moderation",
+      "description": "Bans a user from the guild. Requires Ban Members permission.",
+      "syntax": "$ban[userID;reason?]",
+      "args": [
+        { "name": "userID", "type": "snowflake", "required": true, "lazy": false, "description": "ID of the user to ban." },
+        { "name": "reason", "type": "string", "required": false, "lazy": false, "description": "Audit log reason." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$ban[$mentioned[1;true];Spamming]", "output": "" }]
+    },
+    {
+      "name": "$kick", "key": "kick", "category": "moderation",
+      "description": "Kicks a member from the guild. Requires Kick Members permission.",
+      "syntax": "$kick[userID;reason?]",
+      "args": [
+        { "name": "userID", "type": "snowflake", "required": true, "lazy": false, "description": "ID of the member to kick." },
+        { "name": "reason", "type": "string", "required": false, "lazy": false, "description": "Audit log reason." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$kick[$mentioned[1;true]]", "output": "" }]
+    },
+    {
+      "name": "$timeout", "key": "timeout", "category": "moderation",
+      "description": "Times out (mutes) a member for a given duration. Requires Moderate Members permission.",
+      "syntax": "$timeout[userID;durationMs;reason?]",
+      "args": [
+        { "name": "userID", "type": "snowflake", "required": true, "lazy": false, "description": "ID of the member to time out." },
+        { "name": "durationMs", "type": "number", "required": true, "lazy": false, "description": "Duration in milliseconds (max 28 days)." },
+        { "name": "reason", "type": "string", "required": false, "lazy": false, "description": "Audit log reason." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$timeout[$mentioned[1;true];300000]", "output": "" }]
+    },
+    {
+      "name": "$untimeout", "key": "untimeout", "category": "moderation",
+      "description": "Removes a timeout from a member.",
+      "syntax": "$untimeout[userID]",
+      "args": [{ "name": "userID", "type": "snowflake", "required": true, "lazy": false, "description": "ID of the member to un-mute." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$untimeout[$mentioned[1;true]]", "output": "" }]
+    },
+    {
+      "name": "$purge", "key": "purge", "category": "moderation",
+      "description": "Bulk-deletes messages in the current channel (max 100, messages < 14 days old). Returns the number deleted.",
+      "syntax": "$purge[amount]",
+      "args": [{ "name": "amount", "type": "number", "required": true, "lazy": false, "description": "Number of messages to delete (1–100)." }],
+      "returns": "string (number deleted)", "lazy": [],
+      "examples": [{ "code": "$purge[10]", "output": "10" }]
+    },
+
+    {
+      "name": "$hasRole", "key": "hasrole", "category": "roles",
+      "description": "Returns 'true' if the user has the specified role, otherwise 'false'.",
+      "syntax": "$hasRole[userID;roleID]",
+      "args": [
+        { "name": "userID", "type": "snowflake", "required": true, "lazy": false, "description": "User to check." },
+        { "name": "roleID", "type": "snowflake", "required": true, "lazy": false, "description": "Role to look for." }
+      ],
+      "returns": "string ('true' or 'false')", "lazy": [],
+      "examples": [{ "code": "$hasRole[$userID;123456]", "output": "true" }]
+    },
+    {
+      "name": "$addRole", "key": "addrole", "category": "roles",
+      "description": "Adds a role to a guild member. Requires Manage Roles permission.",
+      "syntax": "$addRole[userID;roleID]",
+      "args": [
+        { "name": "userID", "type": "snowflake", "required": true, "lazy": false, "description": "Target member." },
+        { "name": "roleID", "type": "snowflake", "required": true, "lazy": false, "description": "Role to add." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$addRole[$mentioned[1;true];roleID]", "output": "" }]
+    },
+    {
+      "name": "$removeRole", "key": "removerole", "category": "roles",
+      "description": "Removes a role from a guild member. Requires Manage Roles permission.",
+      "syntax": "$removeRole[userID;roleID]",
+      "args": [
+        { "name": "userID", "type": "snowflake", "required": true, "lazy": false, "description": "Target member." },
+        { "name": "roleID", "type": "snowflake", "required": true, "lazy": false, "description": "Role to remove." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$removeRole[$mentioned[1;true];roleID]", "output": "" }]
+    },
+    {
+      "name": "$createRole", "key": "createrole", "category": "roles",
+      "description": "Creates a new role in the guild. Returns the new role ID.",
+      "syntax": "$createRole[name;color?;hoist?;mentionable?]",
+      "args": [
+        { "name": "name", "type": "string", "required": true, "lazy": false, "description": "Role name." },
+        { "name": "color", "type": "string", "required": false, "lazy": false, "description": "Hex color e.g. #ff0000." },
+        { "name": "hoist", "type": "boolean", "required": false, "lazy": false, "description": "Show role separately in member list." },
+        { "name": "mentionable", "type": "boolean", "required": false, "lazy": false, "description": "Allow mentioning the role." }
+      ],
+      "returns": "string (role ID)", "lazy": [],
+      "examples": [{ "code": "$createRole[Newbie;#00ff00]", "output": "newrole123" }]
+    },
+    {
+      "name": "$deleteRole", "key": "deleterole", "category": "roles",
+      "description": "Deletes a role from the guild. Requires Manage Roles permission.",
+      "syntax": "$deleteRole[roleID]",
+      "args": [{ "name": "roleID", "type": "snowflake", "required": true, "lazy": false, "description": "Role to delete." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$deleteRole[123456789]", "output": "" }]
+    },
+
+    {
+      "name": "$createChannel", "key": "createchannel", "category": "channels",
+      "description": "Creates a channel in the guild. Returns the new channel ID. type: text|voice|category|stage|forum|announcement",
+      "syntax": "$createChannel[name;type?]",
+      "args": [
+        { "name": "name", "type": "string", "required": true, "lazy": false, "description": "Channel name." },
+        { "name": "type", "type": "string", "required": false, "lazy": false, "description": "Channel type. Default: text." }
+      ],
+      "returns": "string (channel ID)", "lazy": [],
+      "examples": [{ "code": "$createChannel[general]", "output": "newchan123" }]
+    },
+    {
+      "name": "$deleteChannel", "key": "deletechannel", "category": "channels",
+      "description": "Deletes a channel by ID. Requires Manage Channels permission.",
+      "syntax": "$deleteChannel[channelID]",
+      "args": [{ "name": "channelID", "type": "snowflake", "required": true, "lazy": false, "description": "Channel to delete." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$deleteChannel[$channelID]", "output": "" }]
+    },
+    {
+      "name": "$setChannelName", "key": "setchannelname", "category": "channels",
+      "description": "Renames a channel. Requires Manage Channels permission.",
+      "syntax": "$setChannelName[channelID;name]",
+      "args": [
+        { "name": "channelID", "type": "snowflake", "required": true, "lazy": false, "description": "Channel to rename." },
+        { "name": "name", "type": "string", "required": true, "lazy": false, "description": "New channel name." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$setChannelName[$channelID;new-name]", "output": "" }]
+    },
+    {
+      "name": "$slowmode", "key": "slowmode", "category": "channels",
+      "description": "Sets the slowmode rate limit on a channel. Pass 0 to disable.",
+      "syntax": "$slowmode[seconds;channelID?]",
+      "args": [
+        { "name": "seconds", "type": "number", "required": true, "lazy": false, "description": "Slowmode delay in seconds (0–21600)." },
+        { "name": "channelID", "type": "snowflake", "required": false, "lazy": false, "description": "Target channel. Defaults to current." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$slowmode[5]", "output": "" }]
+    },
+
+    {
+      "name": "$var", "key": "var", "category": "variables",
+      "description": "Sets a session variable. Resets each command run.",
       "syntax": "$var[name;value]",
       "args": [
-        {
-          "name": "name",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "Variable name (case-insensitive)."
-        },
-        {
-          "name": "value",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "Value to store."
-        }
+        { "name": "name", "type": "string", "required": true, "lazy": false, "description": "Variable name (case-insensitive)." },
+        { "name": "value", "type": "string", "required": true, "lazy": false, "description": "Value to store." }
       ],
-      "returns": "empty",
-      "lazy": [],
-      "examples": [
-        { "code": "$var[score;100]", "output": "" },
-        { "code": "$var[name;$username]", "output": "" }
-      ]
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$var[score;100]", "output": "" }]
     },
-
     {
-      "name": "$getVar",
-      "key": "getvar",
-      "category": "variables",
-      "description": "Retrieves the value of a session variable. Returns the default value (or empty string) if the variable is not set.",
+      "name": "$setVar", "key": "setvar", "category": "variables",
+      "description": "Explicit alias for $var — sets a session variable.",
+      "syntax": "$setVar[name;value]",
+      "args": [
+        { "name": "name", "type": "string", "required": true, "lazy": false, "description": "Variable name." },
+        { "name": "value", "type": "string", "required": true, "lazy": false, "description": "Value to store." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$setVar[hp;100]", "output": "" }]
+    },
+    {
+      "name": "$getVar", "key": "getvar", "category": "variables",
+      "description": "Retrieves a session variable. Returns the default if not set.",
       "syntax": "$getVar[name;default?]",
       "args": [
-        {
-          "name": "name",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "Variable name (case-insensitive)."
-        },
-        {
-          "name": "default",
-          "type": "string",
-          "required": false,
-          "lazy": false,
-          "description": "Fallback value if the variable is not set. Defaults to empty string."
-        }
+        { "name": "name", "type": "string", "required": true, "lazy": false, "description": "Variable name." },
+        { "name": "default", "type": "string", "required": false, "lazy": false, "description": "Fallback value. Defaults to empty string." }
       ],
-      "returns": "string",
-      "lazy": [],
-      "examples": [
-        { "code": "$getVar[score]", "output": "100" },
-        { "code": "$getVar[missing;N/A]", "output": "N/A" }
-      ]
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$getVar[score;0]", "output": "100" }]
     },
-
     {
-      "name": "$deleteVar",
-      "key": "deletevar",
-      "category": "variables",
+      "name": "$deleteVar", "key": "deletevar", "category": "variables",
       "description": "Removes a session variable.",
       "syntax": "$deleteVar[name]",
+      "args": [{ "name": "name", "type": "string", "required": true, "lazy": false, "description": "Variable name to delete." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$deleteVar[score]", "output": "" }]
+    },
+    {
+      "name": "$varExists", "key": "varexists", "category": "variables",
+      "description": "Returns 'true' if the session variable is set, otherwise 'false'.",
+      "syntax": "$varExists[name]",
+      "args": [{ "name": "name", "type": "string", "required": true, "lazy": false, "description": "Variable name to check." }],
+      "returns": "string ('true' or 'false')", "lazy": [],
+      "examples": [{ "code": "$varExists[score]", "output": "true" }]
+    },
+    {
+      "name": "$listVar", "key": "listvar", "category": "variables",
+      "description": "Returns all current session variable names joined by a separator.",
+      "syntax": "$listVar[separator?]",
+      "args": [{ "name": "separator", "type": "string", "required": false, "lazy": false, "description": "Separator string. Defaults to ," }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$listVar[, ]", "output": "score, hp" }]
+    },
+    {
+      "name": "$setUserVar", "key": "setuservar", "category": "variables",
+      "description": "Set a persistent (in-memory) variable scoped to a user. Resets on bot restart.",
+      "syntax": "$setUserVar[name;value;userID?]",
       "args": [
-        {
-          "name": "name",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "Variable name to delete (case-insensitive)."
-        }
+        { "name": "name", "type": "string", "required": true, "lazy": false, "description": "Variable name." },
+        { "name": "value", "type": "string", "required": true, "lazy": false, "description": "Value to store." },
+        { "name": "userID", "type": "snowflake", "required": false, "lazy": false, "description": "Target user. Defaults to message author." }
       ],
-      "returns": "empty",
-      "lazy": [],
-      "examples": [
-        { "code": "$deleteVar[score]", "output": "" }
-      ]
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$setUserVar[coins;100]", "output": "" }]
+    },
+    {
+      "name": "$getUserVar", "key": "getuservar", "category": "variables",
+      "description": "Get a user-scoped variable.",
+      "syntax": "$getUserVar[name;userID?;default?]",
+      "args": [
+        { "name": "name", "type": "string", "required": true, "lazy": false, "description": "Variable name." },
+        { "name": "userID", "type": "snowflake", "required": false, "lazy": false, "description": "Target user." },
+        { "name": "default", "type": "string", "required": false, "lazy": false, "description": "Fallback if not set." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$getUserVar[coins;;0]", "output": "100" }]
+    },
+    {
+      "name": "$resetUserVar", "key": "resetuservar", "category": "variables",
+      "description": "Delete a user-scoped variable.",
+      "syntax": "$resetUserVar[name;userID?]",
+      "args": [
+        { "name": "name", "type": "string", "required": true, "lazy": false, "description": "Variable name." },
+        { "name": "userID", "type": "snowflake", "required": false, "lazy": false, "description": "Target user." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$resetUserVar[coins]", "output": "" }]
+    },
+    {
+      "name": "$setServerVar", "key": "setservervar", "category": "variables",
+      "description": "Set a persistent (in-memory) variable scoped to a guild.",
+      "syntax": "$setServerVar[name;value;guildID?]",
+      "args": [
+        { "name": "name", "type": "string", "required": true, "lazy": false, "description": "Variable name." },
+        { "name": "value", "type": "string", "required": true, "lazy": false, "description": "Value to store." },
+        { "name": "guildID", "type": "snowflake", "required": false, "lazy": false, "description": "Target guild. Defaults to current." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$setServerVar[prefix;!]", "output": "" }]
+    },
+    {
+      "name": "$getServerVar", "key": "getservervar", "category": "variables",
+      "description": "Get a guild-scoped variable.",
+      "syntax": "$getServerVar[name;guildID?;default?]",
+      "args": [
+        { "name": "name", "type": "string", "required": true, "lazy": false, "description": "Variable name." },
+        { "name": "guildID", "type": "snowflake", "required": false, "lazy": false, "description": "Target guild." },
+        { "name": "default", "type": "string", "required": false, "lazy": false, "description": "Fallback if not set." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$getServerVar[prefix;;!]", "output": "!" }]
+    },
+    {
+      "name": "$resetServerVar", "key": "resetservervar", "category": "variables",
+      "description": "Delete a guild-scoped variable.",
+      "syntax": "$resetServerVar[name;guildID?]",
+      "args": [
+        { "name": "name", "type": "string", "required": true, "lazy": false, "description": "Variable name." },
+        { "name": "guildID", "type": "snowflake", "required": false, "lazy": false, "description": "Target guild." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$resetServerVar[prefix]", "output": "" }]
+    },
+    {
+      "name": "$setChannelVar", "key": "setchannelvar", "category": "variables",
+      "description": "Set a persistent (in-memory) variable scoped to a channel.",
+      "syntax": "$setChannelVar[name;value;channelID?]",
+      "args": [
+        { "name": "name", "type": "string", "required": true, "lazy": false, "description": "Variable name." },
+        { "name": "value", "type": "string", "required": true, "lazy": false, "description": "Value to store." },
+        { "name": "channelID", "type": "snowflake", "required": false, "lazy": false, "description": "Target channel. Defaults to current." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$setChannelVar[topic;hello]", "output": "" }]
+    },
+    {
+      "name": "$getChannelVar", "key": "getchannelvar", "category": "variables",
+      "description": "Get a channel-scoped variable.",
+      "syntax": "$getChannelVar[name;channelID?;default?]",
+      "args": [
+        { "name": "name", "type": "string", "required": true, "lazy": false, "description": "Variable name." },
+        { "name": "channelID", "type": "snowflake", "required": false, "lazy": false, "description": "Target channel." },
+        { "name": "default", "type": "string", "required": false, "lazy": false, "description": "Fallback if not set." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$getChannelVar[topic]", "output": "hello" }]
+    },
+    {
+      "name": "$resetChannelVar", "key": "resetchannelvar", "category": "variables",
+      "description": "Delete a channel-scoped variable.",
+      "syntax": "$resetChannelVar[name;channelID?]",
+      "args": [
+        { "name": "name", "type": "string", "required": true, "lazy": false, "description": "Variable name." },
+        { "name": "channelID", "type": "snowflake", "required": false, "lazy": false, "description": "Target channel." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$resetChannelVar[topic]", "output": "" }]
     },
 
     {
-      "name": "$stop",
-      "key": "stop",
-      "category": "control",
-      "description": "Immediately halts execution of the current script. Any code after $stop is not evaluated.",
-      "syntax": "$stop",
-      "args": [],
-      "returns": "empty",
-      "lazy": [],
-      "examples": [
-        { "code": "before\n$stop\nafter", "output": "before\n" }
-      ]
+      "name": "$db.set", "key": "db.set", "category": "database",
+      "description": "Persist a value to disk under a key. Survives bot restarts.",
+      "syntax": "$db.set[key;value]",
+      "args": [
+        { "name": "key", "type": "string", "required": true, "lazy": false, "description": "Storage key." },
+        { "name": "value", "type": "string", "required": true, "lazy": false, "description": "Value to store." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$db.set[coins_123;500]", "output": "" }]
+    },
+    {
+      "name": "$db.get", "key": "db.get", "category": "database",
+      "description": "Read a persisted value. Returns the default if the key is missing.",
+      "syntax": "$db.get[key;default?]",
+      "args": [
+        { "name": "key", "type": "string", "required": true, "lazy": false, "description": "Storage key." },
+        { "name": "default", "type": "string", "required": false, "lazy": false, "description": "Fallback value. Defaults to empty string." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$db.get[coins_123;0]", "output": "500" }]
+    },
+    {
+      "name": "$db.delete", "key": "db.delete", "category": "database",
+      "description": "Remove a key from persistent storage.",
+      "syntax": "$db.delete[key]",
+      "args": [{ "name": "key", "type": "string", "required": true, "lazy": false, "description": "Storage key to remove." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$db.delete[coins_123]", "output": "" }]
+    },
+    {
+      "name": "$db.has", "key": "db.has", "category": "database",
+      "description": "Returns 'true' if the key exists in persistent storage, otherwise 'false'.",
+      "syntax": "$db.has[key]",
+      "args": [{ "name": "key", "type": "string", "required": true, "lazy": false, "description": "Storage key to check." }],
+      "returns": "string ('true' or 'false')", "lazy": [],
+      "examples": [{ "code": "$db.has[coins_123]", "output": "true" }]
     },
 
     {
-      "name": "$if",
-      "key": "if",
-      "category": "control",
-      "description": "Evaluates a condition and executes either the then-branch or the else-branch. Only the matching branch is executed (lazy evaluation). Supported operators: == != > < >= <=",
+      "name": "$if", "key": "if", "category": "control",
+      "description": "Evaluates a condition and lazily executes the matching branch. Supports: == != > < >= <=",
       "syntax": "$if[condition;thenCode;elseCode?]",
       "args": [
-        {
-          "name": "condition",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "Condition string. Supports: value==value, value!=value, value>value, value<value, value>=value, value<=value, or a plain truthy check."
-        },
-        {
-          "name": "thenCode",
-          "type": "code",
-          "required": true,
-          "lazy": true,
-          "description": "Executed only when condition is true."
-        },
-        {
-          "name": "elseCode",
-          "type": "code",
-          "required": false,
-          "lazy": true,
-          "description": "Executed only when condition is false."
-        }
+        { "name": "condition", "type": "string", "required": true, "lazy": false, "description": "Condition string e.g. 5>3 or $username==Admin." },
+        { "name": "thenCode", "type": "code", "required": true, "lazy": true, "description": "Executed only when condition is true." },
+        { "name": "elseCode", "type": "code", "required": false, "lazy": true, "description": "Executed only when condition is false." }
       ],
-      "returns": "string (result of executed branch, or empty)",
-      "lazy": [1, 2],
-      "examples": [
-        { "code": "$if[5>3;YES;NO]", "output": "YES" },
-        { "code": "$if[$username==Admin;Welcome back!;Access denied]", "output": "Access denied" },
-        { "code": "$if[$getVar[score]>=100;High score!;Keep trying]", "output": "Keep trying" }
-      ]
+      "returns": "string", "lazy": [1, 2],
+      "examples": [{ "code": "$if[5>3;YES;NO]", "output": "YES" }]
     },
-
     {
-      "name": "$equals",
-      "key": "equals",
-      "category": "control",
-      "description": "Checks strict string equality between two values. Without branch args returns 'true'/'false'. With branch args, executes the matching branch lazily.",
+      "name": "$elseif", "key": "elseif", "category": "control",
+      "description": "Chained condition for block-style $if. Must follow a $if or $elseif block.",
+      "syntax": "$elseif[condition;thenCode]",
+      "args": [
+        { "name": "condition", "type": "string", "required": true, "lazy": false, "description": "Condition to check." },
+        { "name": "thenCode", "type": "code", "required": true, "lazy": true, "description": "Executed when this branch matches." }
+      ],
+      "returns": "string", "lazy": [1],
+      "examples": [{ "code": "$if[$x==1;A]$elseif[$x==2;B]$else[C]$endif", "output": "B" }]
+    },
+    {
+      "name": "$else", "key": "else", "category": "control",
+      "description": "Fallback branch for block-style $if. Executes when no prior branch matched.",
+      "syntax": "$else[code]",
+      "args": [{ "name": "code", "type": "code", "required": true, "lazy": true, "description": "Fallback code." }],
+      "returns": "string", "lazy": [0],
+      "examples": [{ "code": "$if[false;YES]$else[NO]$endif", "output": "NO" }]
+    },
+    {
+      "name": "$endif", "key": "endif", "category": "control",
+      "description": "Closes a block-style $if/$elseif/$else block.",
+      "syntax": "$endif", "args": [], "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$if[true;OK]$endif", "output": "OK" }]
+    },
+    {
+      "name": "$onlyIf", "key": "onlyif", "category": "control",
+      "description": "Halts execution if the condition is false. Optional error message shown to the user.",
+      "syntax": "$onlyIf[condition;errorMsg?]",
+      "args": [
+        { "name": "condition", "type": "string", "required": true, "lazy": false, "description": "Condition to check." },
+        { "name": "errorMsg", "type": "string", "required": false, "lazy": false, "description": "Message shown when halted." }
+      ],
+      "returns": "empty (or stops execution)", "lazy": [],
+      "examples": [{ "code": "$onlyIf[$argsCount>=1;Please provide a name!]", "output": "" }]
+    },
+    {
+      "name": "$onlyChannels", "key": "onlychannels", "category": "control",
+      "description": "Stops execution unless the command is used in one of the listed channel IDs.",
+      "syntax": "$onlyChannels[id1;id2;...;errorMsg?]",
+      "args": [{ "name": "channelIDs / errorMsg", "type": "string", "required": true, "lazy": false, "variadic": true, "description": "Channel IDs to allow, optionally followed by an error message." }],
+      "returns": "empty (or stops)", "lazy": [],
+      "examples": [{ "code": "$onlyChannels[111;222;Bot channels only!]", "output": "" }]
+    },
+    {
+      "name": "$onlyUsers", "key": "onlyusers", "category": "control",
+      "description": "Restricts the command to specific user IDs. Stops execution for anyone else.",
+      "syntax": "$onlyUsers[id1;id2;...;errorMsg?]",
+      "args": [{ "name": "userIDs / errorMsg", "type": "string", "required": true, "lazy": false, "variadic": true, "description": "User IDs to allow, optionally followed by an error message." }],
+      "returns": "empty (or stops)", "lazy": [],
+      "examples": [{ "code": "$onlyUsers[123456789;Owner only!]", "output": "" }]
+    },
+    {
+      "name": "$onlyRoles", "key": "onlyroles", "category": "control",
+      "description": "Restricts the command to users who have at least one of the listed roles.",
+      "syntax": "$onlyRoles[roleID1;...;errorMsg?]",
+      "args": [{ "name": "roleIDs / errorMsg", "type": "string", "required": true, "lazy": false, "variadic": true, "description": "Role IDs required, optionally followed by an error message." }],
+      "returns": "empty (or stops)", "lazy": [],
+      "examples": [{ "code": "$onlyRoles[modRoleID;Need a mod role!]", "output": "" }]
+    },
+    {
+      "name": "$onlyPerms", "key": "onlyperms", "category": "control",
+      "description": "Restricts the command to users with specific Discord permissions.",
+      "syntax": "$onlyPerms[perm1;perm2;...;errorMsg?]",
+      "args": [{ "name": "permissions / errorMsg", "type": "string", "required": true, "lazy": false, "variadic": true, "description": "Discord permission names, optionally followed by an error message." }],
+      "returns": "empty (or stops)", "lazy": [],
+      "examples": [{ "code": "$onlyPerms[Administrator;Admins only!]", "output": "" }]
+    },
+    {
+      "name": "$equals", "key": "equals", "category": "control",
+      "description": "Checks strict string equality. Without branches returns 'true'/'false'. With branches, executes matching one lazily.",
       "syntax": "$equals[a;b;thenCode?;elseCode?]",
       "args": [
-        {
-          "name": "a",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "Left-hand value."
-        },
-        {
-          "name": "b",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "Right-hand value."
-        },
-        {
-          "name": "thenCode",
-          "type": "code",
-          "required": false,
-          "lazy": true,
-          "description": "Executed only when a === b."
-        },
-        {
-          "name": "elseCode",
-          "type": "code",
-          "required": false,
-          "lazy": true,
-          "description": "Executed only when a !== b."
-        }
+        { "name": "a", "type": "string", "required": true, "lazy": false, "description": "Left value." },
+        { "name": "b", "type": "string", "required": true, "lazy": false, "description": "Right value." },
+        { "name": "thenCode", "type": "code", "required": false, "lazy": true, "description": "Executed when a === b." },
+        { "name": "elseCode", "type": "code", "required": false, "lazy": true, "description": "Executed when a !== b." }
       ],
-      "returns": "string ('true'/'false' or branch result)",
-      "lazy": [2, 3],
-      "examples": [
-        { "code": "$equals[hello;hello]", "output": "true" },
-        { "code": "$equals[a;b]", "output": "false" },
-        { "code": "$equals[$username;Admin;Welcome!;Denied]", "output": "Denied" }
-      ]
+      "returns": "string", "lazy": [2, 3],
+      "examples": [{ "code": "$equals[$username;Admin;Welcome!;Denied]", "output": "Denied" }]
     },
-
     {
-      "name": "$loop",
-      "key": "loop",
-      "category": "control",
-      "description": "Repeats a block of code N times (max 1000). Inside the body, use $loopIndex (0-based) and $loopNumber (1-based) to access the current iteration.",
+      "name": "$loop", "key": "loop", "category": "control",
+      "description": "Repeats a block of code N times (max 1000). Body is lazily evaluated each iteration.",
       "syntax": "$loop[count;code]",
       "args": [
-        {
-          "name": "count",
-          "type": "number",
-          "required": true,
-          "lazy": false,
-          "description": "Number of iterations (1–1000)."
-        },
-        {
-          "name": "code",
-          "type": "code",
-          "required": true,
-          "lazy": true,
-          "description": "The code block to repeat. Re-executed each iteration."
-        }
+        { "name": "count", "type": "number", "required": true, "lazy": false, "description": "Number of iterations (1–1000)." },
+        { "name": "code", "type": "code", "required": true, "lazy": true, "description": "Code block to repeat." }
       ],
-      "returns": "string (concatenated output of all iterations)",
-      "lazy": [1],
-      "examples": [
-        { "code": "$loop[3;Item $loopNumber\n]", "output": "Item 1\nItem 2\nItem 3\n" },
-        { "code": "$loop[5;$math[$loopNumber * 2] ]", "output": "2 4 6 8 10 " }
-      ]
+      "returns": "string (concatenated output)", "lazy": [1],
+      "examples": [{ "code": "$loop[3;Item $loopNumber\n]", "output": "Item 1\nItem 2\nItem 3\n" }]
+    },
+    {
+      "name": "$loopIndex", "key": "loopindex", "category": "control",
+      "description": "0-based iteration index. Only valid inside a $loop body.",
+      "syntax": "$loopIndex", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$loop[3;index=$loopIndex\n]", "output": "index=0\nindex=1\nindex=2\n" }]
+    },
+    {
+      "name": "$loopNumber", "key": "loopnumber", "category": "control",
+      "description": "1-based iteration number. Only valid inside a $loop body.",
+      "syntax": "$loopNumber", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$loop[3;#$loopNumber\n]", "output": "#1\n#2\n#3\n" }]
+    },
+    {
+      "name": "$stop", "key": "stop", "category": "control",
+      "description": "Immediately halts execution. Code after $stop is not evaluated.",
+      "syntax": "$stop", "args": [], "returns": "empty", "lazy": [],
+      "examples": [{ "code": "before$stopafter", "output": "before" }]
+    },
+    {
+      "name": "$find", "key": "find", "category": "control",
+      "description": "Search function docs. No query shows full overview. Pass a category name or function name to filter.",
+      "syntax": "$find[query?]",
+      "args": [{ "name": "query", "type": "string", "required": false, "lazy": false, "description": "Function name, category, or keyword." }],
+      "returns": "string (formatted docs)", "lazy": [],
+      "examples": [{ "code": "$find[math]", "output": "🔢 math — N functions..." }]
     },
 
     {
-      "name": "$loopIndex",
-      "key": "loopindex",
-      "category": "control",
-      "description": "Returns the current 0-based loop iteration index. Only valid inside a $loop body.",
-      "syntax": "$loopIndex",
-      "args": [],
-      "returns": "string (number)",
-      "lazy": [],
-      "examples": [
-        { "code": "$loop[3;index=$loopIndex\n]", "output": "index=0\nindex=1\nindex=2\n" }
-      ]
-    },
-
-    {
-      "name": "$loopNumber",
-      "key": "loopnumber",
-      "category": "control",
-      "description": "Returns the current 1-based loop iteration number. Only valid inside a $loop body.",
-      "syntax": "$loopNumber",
-      "args": [],
-      "returns": "string (number)",
-      "lazy": [],
-      "examples": [
-        { "code": "$loop[3;#$loopNumber\n]", "output": "#1\n#2\n#3\n" }
-      ]
-    },
-
-    {
-      "name": "$and",
-      "key": "and",
-      "category": "logic",
-      "description": "Returns 'true' if ALL provided conditions are truthy, otherwise 'false'. A value is falsy if it is empty, '0', or 'false'.",
+      "name": "$and", "key": "and", "category": "logic",
+      "description": "Returns 'true' if ALL provided values are truthy, otherwise 'false'.",
       "syntax": "$and[cond1;cond2;...condN]",
-      "args": [
-        {
-          "name": "conditions",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "variadic": true,
-          "description": "One or more conditions to evaluate."
-        }
-      ],
-      "returns": "string ('true' or 'false')",
-      "lazy": [],
-      "examples": [
-        { "code": "$and[true;true]", "output": "true" },
-        { "code": "$and[true;false]", "output": "false" },
-        { "code": "$and[$equals[a;a];$equals[b;b]]", "output": "true" }
-      ]
+      "args": [{ "name": "conditions", "type": "string", "required": true, "lazy": false, "variadic": true, "description": "One or more conditions." }],
+      "returns": "string ('true' or 'false')", "lazy": [],
+      "examples": [{ "code": "$and[true;true]", "output": "true" }]
     },
-
     {
-      "name": "$or",
-      "key": "or",
-      "category": "logic",
-      "description": "Returns 'true' if ANY provided condition is truthy, otherwise 'false'.",
+      "name": "$or", "key": "or", "category": "logic",
+      "description": "Returns 'true' if ANY provided value is truthy, otherwise 'false'.",
       "syntax": "$or[cond1;cond2;...condN]",
-      "args": [
-        {
-          "name": "conditions",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "variadic": true,
-          "description": "One or more conditions to evaluate."
-        }
-      ],
-      "returns": "string ('true' or 'false')",
-      "lazy": [],
-      "examples": [
-        { "code": "$or[false;true]", "output": "true" },
-        { "code": "$or[false;false]", "output": "false" }
-      ]
+      "args": [{ "name": "conditions", "type": "string", "required": true, "lazy": false, "variadic": true, "description": "One or more conditions." }],
+      "returns": "string ('true' or 'false')", "lazy": [],
+      "examples": [{ "code": "$or[false;true]", "output": "true" }]
     },
-
     {
-      "name": "$not",
-      "key": "not",
-      "category": "logic",
-      "description": "Inverts a boolean value. Returns 'true' if the value is falsy, 'false' if truthy.",
+      "name": "$not", "key": "not", "category": "logic",
+      "description": "Inverts a boolean. Returns 'true' if the value is falsy, 'false' if truthy.",
       "syntax": "$not[value]",
-      "args": [
-        {
-          "name": "value",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "A value to negate. Falsy: empty, '0', 'false'."
-        }
-      ],
-      "returns": "string ('true' or 'false')",
-      "lazy": [],
-      "examples": [
-        { "code": "$not[true]", "output": "false" },
-        { "code": "$not[false]", "output": "true" },
-        { "code": "$not[$equals[a;b]]", "output": "true" }
-      ]
+      "args": [{ "name": "value", "type": "string", "required": true, "lazy": false, "description": "Value to negate. Falsy: empty, '0', 'false'." }],
+      "returns": "string ('true' or 'false')", "lazy": [],
+      "examples": [{ "code": "$not[$equals[a;b]]", "output": "true" }]
     },
 
     {
-      "name": "$math",
-      "key": "math",
-      "category": "math",
-      "description": "Evaluates a mathematical expression using a safe built-in parser. Supports: + - * / % ^ () with correct operator precedence. ^ is right-associative exponentiation.",
+      "name": "$math", "key": "math", "category": "math",
+      "description": "Evaluates a math expression safely. Supports: + - * / % ^ () with correct precedence.",
       "syntax": "$math[expression]",
+      "args": [{ "name": "expression", "type": "string", "required": true, "lazy": false, "description": "Math expression. Allowed: digits, .+-*/% ^()." }],
+      "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$math[2^10]", "output": "1024" }]
+    },
+    {
+      "name": "$random", "key": "random", "category": "math",
+      "description": "Returns a random integer between min and max (inclusive). One arg = 1–max.",
+      "syntax": "$random[min;max]  /  $random[max]",
       "args": [
-        {
-          "name": "expression",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "A mathematical expression. Allowed characters: digits, . + - * / % ^ ( ) and whitespace."
-        }
+        { "name": "min", "type": "number", "required": false, "lazy": false, "description": "Minimum (inclusive). Defaults to 1." },
+        { "name": "max", "type": "number", "required": true, "lazy": false, "description": "Maximum (inclusive)." }
       ],
-      "returns": "string (number)",
-      "lazy": [],
+      "returns": "string (integer)", "lazy": [],
+      "examples": [{ "code": "$random[1;6]", "output": "4" }]
+    },
+    {
+      "name": "$add", "key": "add", "category": "math",
+      "description": "Returns the sum of all provided numbers.",
+      "syntax": "$add[a;b;c;...]",
+      "args": [{ "name": "numbers", "type": "number", "required": true, "lazy": false, "variadic": true, "description": "Numbers to add." }],
+      "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$add[10;20;5]", "output": "35" }]
+    },
+    {
+      "name": "$sub", "key": "sub", "category": "math",
+      "description": "Subtracts b, c, … from a.",
+      "syntax": "$sub[a;b;c;...]",
+      "args": [{ "name": "numbers", "type": "number", "required": true, "lazy": false, "variadic": true, "description": "First is the base; rest are subtracted from it." }],
+      "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$sub[100;30;20]", "output": "50" }]
+    },
+    {
+      "name": "$multi", "key": "multi", "category": "math",
+      "description": "Multiplies all provided numbers together.",
+      "syntax": "$multi[a;b;c;...]",
+      "args": [{ "name": "numbers", "type": "number", "required": true, "lazy": false, "variadic": true, "description": "Numbers to multiply." }],
+      "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$multi[3;4;2]", "output": "24" }]
+    },
+    {
+      "name": "$div", "key": "div", "category": "math",
+      "description": "Divides a by b.",
+      "syntax": "$div[a;b]",
+      "args": [
+        { "name": "a", "type": "number", "required": true, "lazy": false, "description": "Dividend." },
+        { "name": "b", "type": "number", "required": true, "lazy": false, "description": "Divisor (must not be 0)." }
+      ],
+      "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$div[10;4]", "output": "2.5" }]
+    },
+    {
+      "name": "$mod", "key": "mod", "category": "math",
+      "description": "Returns the remainder of a divided by b.",
+      "syntax": "$mod[a;b]",
+      "args": [
+        { "name": "a", "type": "number", "required": true, "lazy": false, "description": "Dividend." },
+        { "name": "b", "type": "number", "required": true, "lazy": false, "description": "Divisor." }
+      ],
+      "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$mod[17;5]", "output": "2" }]
+    },
+    {
+      "name": "$modulo", "key": "modulo", "category": "math",
+      "description": "Alias for $mod — returns the remainder of a divided by b.",
+      "syntax": "$modulo[a;b]",
+      "args": [
+        { "name": "a", "type": "number", "required": true, "lazy": false, "description": "Dividend." },
+        { "name": "b", "type": "number", "required": true, "lazy": false, "description": "Divisor." }
+      ],
+      "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$modulo[17;5]", "output": "2" }]
+    },
+    {
+      "name": "$ceil", "key": "ceil", "category": "math",
+      "description": "Rounds a number up to the nearest integer.",
+      "syntax": "$ceil[number]",
+      "args": [{ "name": "number", "type": "number", "required": true, "lazy": false, "description": "Number to round up." }],
+      "returns": "string (integer)", "lazy": [],
+      "examples": [{ "code": "$ceil[4.1]", "output": "5" }]
+    },
+    {
+      "name": "$floor", "key": "floor", "category": "math",
+      "description": "Rounds a number down to the nearest integer.",
+      "syntax": "$floor[number]",
+      "args": [{ "name": "number", "type": "number", "required": true, "lazy": false, "description": "Number to round down." }],
+      "returns": "string (integer)", "lazy": [],
+      "examples": [{ "code": "$floor[4.9]", "output": "4" }]
+    },
+    {
+      "name": "$sqrt", "key": "sqrt", "category": "math",
+      "description": "Returns the square root of a number.",
+      "syntax": "$sqrt[number]",
+      "args": [{ "name": "number", "type": "number", "required": true, "lazy": false, "description": "Non-negative number." }],
+      "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$sqrt[144]", "output": "12" }]
+    },
+    {
+      "name": "$max", "key": "max", "category": "math",
+      "description": "Returns the largest number from the provided values.",
+      "syntax": "$max[a;b;c;...]",
+      "args": [{ "name": "numbers", "type": "number", "required": true, "lazy": false, "variadic": true, "description": "Numbers to compare." }],
+      "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$max[3;7;2;9]", "output": "9" }]
+    },
+    {
+      "name": "$min", "key": "min", "category": "math",
+      "description": "Returns the smallest number from the provided values.",
+      "syntax": "$min[a;b;c;...]",
+      "args": [{ "name": "numbers", "type": "number", "required": true, "lazy": false, "variadic": true, "description": "Numbers to compare." }],
+      "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$min[3;7;2;9]", "output": "2" }]
+    },
+    {
+      "name": "$calculate", "key": "calculate", "category": "math",
+      "description": "Alias for $math — evaluates a math expression safely.",
+      "syntax": "$calculate[expression]",
+      "args": [{ "name": "expression", "type": "string", "required": true, "lazy": false, "description": "Math expression." }],
+      "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$calculate[2*(3+4)]", "output": "14" }]
+    },
+    {
+      "name": "$sort", "key": "sort", "category": "math",
+      "description": "Sorts a list of numbers (or strings) and returns comma-separated result. Add 'asc' or 'desc' as last arg.",
+      "syntax": "$sort[a;b;c;...;asc|desc?]",
+      "args": [{ "name": "values / order", "type": "string", "required": true, "lazy": false, "variadic": true, "description": "Values to sort. Optional last arg: asc (default) or desc." }],
+      "returns": "string (comma-separated)", "lazy": [],
       "examples": [
-        { "code": "$math[2+2]", "output": "4" },
-        { "code": "$math[2^10]", "output": "1024" },
-        { "code": "$math[(3+4)*2]", "output": "14" },
-        { "code": "$math[100/3]", "output": "3.3333333333" },
-        { "code": "$math[17%5]", "output": "2" }
+        { "code": "$sort[5;2;8;1]", "output": "1,2,5,8" },
+        { "code": "$sort[5;2;8;1;desc]", "output": "8,5,2,1" }
       ]
     },
 
     {
-      "name": "$random",
-      "key": "random",
-      "category": "math",
-      "description": "Returns a random integer between min and max (inclusive). When only one argument is given, min defaults to 1.",
-      "syntax": "$random[min;max] or $random[max]",
-      "args": [
-        {
-          "name": "min",
-          "type": "number",
-          "required": false,
-          "lazy": false,
-          "description": "Minimum value (inclusive). Defaults to 1 when only max is provided."
-        },
-        {
-          "name": "max",
-          "type": "number",
-          "required": true,
-          "lazy": false,
-          "description": "Maximum value (inclusive)."
-        }
-      ],
-      "returns": "string (integer)",
-      "lazy": [],
-      "examples": [
-        { "code": "$random[6]", "output": "4" },
-        { "code": "$random[1;100]", "output": "73" },
-        { "code": "$random[50;100]", "output": "82" }
-      ]
-    },
-
-    {
-      "name": "$eval",
-      "key": "eval",
-      "category": "misc",
-      "description": "Evaluates a JavaScript expression inside a sandboxed VM. Has access to: Math, parseInt, parseFloat, String, Number, Boolean, Array, Object, JSON, Date. No network, no require, no file system.",
-      "syntax": "$eval[expression]",
-      "args": [
-        {
-          "name": "expression",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "A JavaScript expression to evaluate."
-        }
-      ],
-      "returns": "string (result of expression)",
-      "lazy": [],
-      "examples": [
-        { "code": "$eval[1+1]", "output": "2" },
-        { "code": "$eval[Math.sqrt(144)]", "output": "12" },
-        { "code": "$eval[Math.PI.toFixed(4)]", "output": "3.1416" },
-        { "code": "$eval[\"hello\".toUpperCase()]", "output": "HELLO" }
-      ]
-    },
-
-    {
-      "name": "$evalDJS",
-      "key": "evaldjs",
-      "category": "misc",
-      "description": "Evaluates JavaScript with full discord.js context access including message, client, channel, guild, author. Supports async/await. Dangerous — restrict to bot owners.",
-      "syntax": "$evalDJS[code]",
-      "args": [
-        {
-          "name": "code",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "JavaScript code to execute. Has access to: message, client, channel, guild, author, require, console."
-        }
-      ],
-      "returns": "string (return value of code, or empty)",
-      "lazy": [],
-      "danger": true,
-      "examples": [
-        { "code": "$evalDJS[return guild.name]", "output": "My Server" },
-        { "code": "$evalDJS[return client.users.cache.size]", "output": "150" }
-      ]
-    },
-
-    {
-      "name": "$upper",
-      "key": "upper",
-      "category": "strings",
+      "name": "$upper", "key": "upper", "category": "strings",
       "description": "Converts text to UPPERCASE.",
       "syntax": "$upper[text]",
-      "args": [
-        {
-          "name": "text",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "The text to transform."
-        }
-      ],
-      "returns": "string",
-      "lazy": [],
-      "examples": [
-        { "code": "$upper[hello world]", "output": "HELLO WORLD" },
-        { "code": "$upper[$username]", "output": "TESTUSER" }
-      ]
+      "args": [{ "name": "text", "type": "string", "required": true, "lazy": false, "description": "Text to transform." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$upper[hello world]", "output": "HELLO WORLD" }]
     },
-
     {
-      "name": "$lower",
-      "key": "lower",
-      "category": "strings",
+      "name": "$lower", "key": "lower", "category": "strings",
       "description": "Converts text to lowercase.",
       "syntax": "$lower[text]",
-      "args": [
-        {
-          "name": "text",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "The text to transform."
-        }
-      ],
-      "returns": "string",
-      "lazy": [],
-      "examples": [
-        { "code": "$lower[HELLO WORLD]", "output": "hello world" }
-      ]
+      "args": [{ "name": "text", "type": "string", "required": true, "lazy": false, "description": "Text to transform." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$lower[HELLO]", "output": "hello" }]
     },
-
     {
-      "name": "$length",
-      "key": "length",
-      "category": "strings",
-      "description": "Returns the character count of the given text.",
+      "name": "$uppercase", "key": "uppercase", "category": "strings",
+      "description": "Alias for $upper — converts text to UPPERCASE.",
+      "syntax": "$uppercase[text]",
+      "args": [{ "name": "text", "type": "string", "required": true, "lazy": false, "description": "Text to transform." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$uppercase[hello]", "output": "HELLO" }]
+    },
+    {
+      "name": "$lowercase", "key": "lowercase", "category": "strings",
+      "description": "Alias for $lower — converts text to lowercase.",
+      "syntax": "$lowercase[text]",
+      "args": [{ "name": "text", "type": "string", "required": true, "lazy": false, "description": "Text to transform." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$lowercase[HELLO]", "output": "hello" }]
+    },
+    {
+      "name": "$titlecase", "key": "titlecase", "category": "strings",
+      "description": "Capitalises the first letter of each word.",
+      "syntax": "$titlecase[text]",
+      "args": [{ "name": "text", "type": "string", "required": true, "lazy": false, "description": "Text to transform." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$titlecase[hello world]", "output": "Hello World" }]
+    },
+    {
+      "name": "$length", "key": "length", "category": "strings",
+      "description": "Returns the number of characters in text.",
       "syntax": "$length[text]",
-      "args": [
-        {
-          "name": "text",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "The text to measure."
-        }
-      ],
-      "returns": "string (number)",
-      "lazy": [],
-      "examples": [
-        { "code": "$length[hello]", "output": "5" },
-        { "code": "$length[$username]", "output": "8" }
-      ]
+      "args": [{ "name": "text", "type": "string", "required": true, "lazy": false, "description": "Text to measure." }],
+      "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$length[hello]", "output": "5" }]
     },
-
     {
-      "name": "$trim",
-      "key": "trim",
-      "category": "strings",
-      "description": "Removes leading and trailing whitespace from text.",
+      "name": "$charCount", "key": "charcount", "category": "strings",
+      "description": "Alias for $length — returns the number of characters in text.",
+      "syntax": "$charCount[text]",
+      "args": [{ "name": "text", "type": "string", "required": true, "lazy": false, "description": "Text to measure." }],
+      "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$charCount[hello]", "output": "5" }]
+    },
+    {
+      "name": "$linesCount", "key": "linescount", "category": "strings",
+      "description": "Returns the number of newline-separated lines in text.",
+      "syntax": "$linesCount[text]",
+      "args": [{ "name": "text", "type": "string", "required": true, "lazy": false, "description": "Multi-line text." }],
+      "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$linesCount[a\nb\nc]", "output": "3" }]
+    },
+    {
+      "name": "$trim", "key": "trim", "category": "strings",
+      "description": "Removes leading and trailing whitespace.",
       "syntax": "$trim[text]",
-      "args": [
-        {
-          "name": "text",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "The text to trim."
-        }
-      ],
-      "returns": "string",
-      "lazy": [],
-      "examples": [
-        { "code": "$trim[  hello  ]", "output": "hello" }
-      ]
+      "args": [{ "name": "text", "type": "string", "required": true, "lazy": false, "description": "Text to trim." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$trim[  hello  ]", "output": "hello" }]
     },
-
     {
-      "name": "$replace",
-      "key": "replace",
-      "category": "strings",
-      "description": "Replaces all occurrences of a search string with a replacement string.",
+      "name": "$trimContent", "key": "trimcontent", "category": "strings",
+      "description": "Alias for $trim — removes leading and trailing whitespace.",
+      "syntax": "$trimContent[text]",
+      "args": [{ "name": "text", "type": "string", "required": true, "lazy": false, "description": "Text to trim." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$trimContent[  hello  ]", "output": "hello" }]
+    },
+    {
+      "name": "$trimSpace", "key": "trimspace", "category": "strings",
+      "description": "Collapses all internal whitespace runs to a single space, then trims.",
+      "syntax": "$trimSpace[text]",
+      "args": [{ "name": "text", "type": "string", "required": true, "lazy": false, "description": "Text to normalize." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$trimSpace[a  b   c]", "output": "a b c" }]
+    },
+    {
+      "name": "$replace", "key": "replace", "category": "strings",
+      "description": "Replaces all occurrences of a search string with a replacement.",
       "syntax": "$replace[text;search;replacement]",
       "args": [
-        {
-          "name": "text",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "The source text."
-        },
-        {
-          "name": "search",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "The substring to find and replace."
-        },
-        {
-          "name": "replacement",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "The replacement string."
-        }
+        { "name": "text", "type": "string", "required": true, "lazy": false, "description": "Source text." },
+        { "name": "search", "type": "string", "required": true, "lazy": false, "description": "String to find." },
+        { "name": "replacement", "type": "string", "required": true, "lazy": false, "description": "Replacement string." }
       ],
-      "returns": "string",
-      "lazy": [],
-      "examples": [
-        { "code": "$replace[hello world;world;everyone]", "output": "hello everyone" },
-        { "code": "$replace[a-b-c;-;_]", "output": "a_b_c" }
-      ]
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$replace[hi world;world;there]", "output": "hi there" }]
     },
-
     {
-      "name": "$includes",
-      "key": "includes",
-      "category": "strings",
-      "description": "Checks whether text contains the search string. Returns 'true' or 'false'.",
+      "name": "$replaceText", "key": "replacetext", "category": "strings",
+      "description": "Alias for $replace — replaces all occurrences of a substring.",
+      "syntax": "$replaceText[text;search;replacement]",
+      "args": [
+        { "name": "text", "type": "string", "required": true, "lazy": false, "description": "Source text." },
+        { "name": "search", "type": "string", "required": true, "lazy": false, "description": "String to find." },
+        { "name": "replacement", "type": "string", "required": true, "lazy": false, "description": "Replacement string." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$replaceText[a b a;a;x]", "output": "x b x" }]
+    },
+    {
+      "name": "$includes", "key": "includes", "category": "strings",
+      "description": "Returns 'true' if text contains the search string.",
       "syntax": "$includes[text;search]",
       "args": [
-        {
-          "name": "text",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "The text to search within."
-        },
-        {
-          "name": "search",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "The substring to look for."
-        }
+        { "name": "text", "type": "string", "required": true, "lazy": false, "description": "Source text." },
+        { "name": "search", "type": "string", "required": true, "lazy": false, "description": "Substring to look for." }
       ],
-      "returns": "string ('true' or 'false')",
-      "lazy": [],
-      "examples": [
-        { "code": "$includes[hello world;world]", "output": "true" },
-        { "code": "$includes[hello world;xyz]", "output": "false" }
-      ]
+      "returns": "string ('true' or 'false')", "lazy": [],
+      "examples": [{ "code": "$includes[hello;ell]", "output": "true" }]
     },
-
     {
-      "name": "$slice",
-      "key": "slice",
-      "category": "strings",
-      "description": "Extracts a portion of text. Uses 0-based indexing. If end is omitted, slices to the end of the string.",
+      "name": "$slice", "key": "slice", "category": "strings",
+      "description": "Extracts a substring by 0-based character index.",
       "syntax": "$slice[text;start;end?]",
       "args": [
-        {
-          "name": "text",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "The source text."
-        },
-        {
-          "name": "start",
-          "type": "number",
-          "required": true,
-          "lazy": false,
-          "description": "Start index (0-based, inclusive)."
-        },
-        {
-          "name": "end",
-          "type": "number",
-          "required": false,
-          "lazy": false,
-          "description": "End index (0-based, exclusive). Defaults to end of string."
-        }
+        { "name": "text", "type": "string", "required": true, "lazy": false, "description": "Source text." },
+        { "name": "start", "type": "number", "required": true, "lazy": false, "description": "Start index (0-based)." },
+        { "name": "end", "type": "number", "required": false, "lazy": false, "description": "End index (exclusive). Defaults to end of string." }
       ],
-      "returns": "string",
-      "lazy": [],
-      "examples": [
-        { "code": "$slice[hello world;6]", "output": "world" },
-        { "code": "$slice[hello world;0;5]", "output": "hello" }
-      ]
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$slice[hello;1;4]", "output": "ell" }]
     },
-
     {
-      "name": "$split",
-      "key": "split",
-      "category": "strings",
-      "description": "Splits text by a separator. With only 2 args returns the number of parts. With 3 args returns the element at the 1-based index.",
-      "syntax": "$split[text;separator;index?]",
+      "name": "$cropText", "key": "croptext", "category": "strings",
+      "description": "Truncates text to maxLength characters, appending suffix if truncated.",
+      "syntax": "$cropText[text;maxLength;suffix?]",
       "args": [
-        {
-          "name": "text",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "The text to split."
-        },
-        {
-          "name": "separator",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "The delimiter string."
-        },
-        {
-          "name": "index",
-          "type": "number",
-          "required": false,
-          "lazy": false,
-          "description": "1-based index of the element to return. If omitted, returns the total number of parts."
-        }
+        { "name": "text", "type": "string", "required": true, "lazy": false, "description": "Text to truncate." },
+        { "name": "maxLength", "type": "number", "required": true, "lazy": false, "description": "Maximum character count." },
+        { "name": "suffix", "type": "string", "required": false, "lazy": false, "description": "Appended when truncated. Defaults to ..." }
       ],
-      "returns": "string",
-      "lazy": [],
-      "examples": [
-        { "code": "$split[a,b,c;,]", "output": "3" },
-        { "code": "$split[a,b,c;,;2]", "output": "b" },
-        { "code": "$split[hello world; ;1]", "output": "hello" }
-      ]
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$cropText[Hello World;5]", "output": "Hello..." }]
     },
-
     {
-      "name": "$repeat",
-      "key": "repeat",
-      "category": "strings",
-      "description": "Repeats a text N times. Optionally joined by a separator. Max 1000 repetitions.",
-      "syntax": "$repeat[text;count;separator?]",
+      "name": "$split", "key": "split", "category": "strings",
+      "description": "Splits text by a separator. No index returns the count; an index returns that element (1-based).",
+      "syntax": "$split[text;sep;index?]",
       "args": [
-        {
-          "name": "text",
-          "type": "string",
-          "required": true,
-          "lazy": false,
-          "description": "The text to repeat."
-        },
-        {
-          "name": "count",
-          "type": "number",
-          "required": true,
-          "lazy": false,
-          "description": "Number of repetitions (0–1000)."
-        },
-        {
-          "name": "separator",
-          "type": "string",
-          "required": false,
-          "lazy": false,
-          "description": "String placed between each repetition. Defaults to empty string."
-        }
+        { "name": "text", "type": "string", "required": true, "lazy": false, "description": "Text to split." },
+        { "name": "sep", "type": "string", "required": true, "lazy": false, "description": "Separator string." },
+        { "name": "index", "type": "number", "required": false, "lazy": false, "description": "1-based element to return. No index = total count." }
       ],
-      "returns": "string",
-      "lazy": [],
-      "examples": [
-        { "code": "$repeat[ab;3]", "output": "ababab" },
-        { "code": "$repeat[ha;3;-]", "output": "ha-ha-ha" }
-      ]
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$split[a,b,c;,;2]", "output": "b" }]
     },
-
     {
-      "name": "$newline",
-      "key": "newline",
-      "category": "strings",
-      "description": "Inserts a literal newline character (\\n). Useful when writing multi-line output in a single string.",
-      "syntax": "$newline",
-      "args": [],
-      "returns": "string ('\\n')",
-      "lazy": [],
-      "note": "Must be followed by a space or non-identifier character. '$newlinetext' will be parsed as function '$newlinetext'.",
-      "examples": [
-        { "code": "line1$newline line2", "output": "line1\n line2" }
-      ]
-    },
-
-    {
-      "name": "$space",
-      "key": "space",
-      "category": "strings",
-      "description": "Inserts one or more space characters.",
-      "syntax": "$space[count?]",
+      "name": "$repeat", "key": "repeat", "category": "strings",
+      "description": "Repeats text N times with an optional separator.",
+      "syntax": "$repeat[text;n;sep?]",
       "args": [
-        {
-          "name": "count",
-          "type": "number",
-          "required": false,
-          "lazy": false,
-          "description": "Number of spaces (1–100). Defaults to 1."
-        }
+        { "name": "text", "type": "string", "required": true, "lazy": false, "description": "Text to repeat." },
+        { "name": "n", "type": "number", "required": true, "lazy": false, "description": "Number of repetitions." },
+        { "name": "sep", "type": "string", "required": false, "lazy": false, "description": "Separator between repetitions." }
       ],
-      "returns": "string",
-      "lazy": [],
-      "examples": [
-        { "code": "a$spaceb", "output": "a b" },
-        { "code": "a$space[4]b", "output": "a    b" }
-      ]
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$repeat[ha;3;-]", "output": "ha-ha-ha" }]
+    },
+    {
+      "name": "$newline", "key": "newline", "category": "strings",
+      "description": "Inserts a literal newline character (\\n).",
+      "syntax": "$newline", "args": [], "returns": "string (\\n)", "lazy": [],
+      "examples": [{ "code": "line1$newlineline2", "output": "line1\nline2" }]
+    },
+    {
+      "name": "$space", "key": "space", "category": "strings",
+      "description": "Inserts N space characters (default 1).",
+      "syntax": "$space[n?]",
+      "args": [{ "name": "n", "type": "number", "required": false, "lazy": false, "description": "Number of spaces. Defaults to 1." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "a$space[3]b", "output": "a   b" }]
+    },
+    {
+      "name": "$numberSeparator", "key": "numberseparator", "category": "strings",
+      "description": "Formats a number with thousands separators.",
+      "syntax": "$numberSeparator[number;sep?]",
+      "args": [
+        { "name": "number", "type": "number", "required": true, "lazy": false, "description": "Number to format." },
+        { "name": "sep", "type": "string", "required": false, "lazy": false, "description": "Separator character. Defaults to ," }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$numberSeparator[1000000]", "output": "1,000,000" }]
     },
 
     {
-      "name": "$time",
-      "key": "time",
-      "category": "misc",
-      "description": "Returns the current time. Without arguments, returns a Unix timestamp in seconds. With a format string, returns a formatted date using tokens: YYYY MM DD HH mm ss.",
-      "syntax": "$time[format?]",
+      "name": "$title", "key": "title", "category": "embeds",
+      "description": "Sets the embed title. Use with $description, $color, etc. to build an embed.",
+      "syntax": "$title[text]",
+      "args": [{ "name": "text", "type": "string", "required": true, "lazy": false, "description": "Embed title text." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$title[Server Stats]", "output": "" }]
+    },
+    {
+      "name": "$titleURL", "key": "titleurl", "category": "embeds",
+      "description": "Makes the embed title a clickable hyperlink. Requires $title to be set.",
+      "syntax": "$titleURL[url]",
+      "args": [{ "name": "url", "type": "string", "required": true, "lazy": false, "description": "URL for the title link." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$title[Click me]$titleURL[https://example.com]", "output": "" }]
+    },
+    {
+      "name": "$description", "key": "description", "category": "embeds",
+      "description": "Sets the embed description (main body text).",
+      "syntax": "$description[text]",
+      "args": [{ "name": "text", "type": "string", "required": true, "lazy": false, "description": "Description text." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$description[Welcome to $guildName!]", "output": "" }]
+    },
+    {
+      "name": "$color", "key": "color", "category": "embeds",
+      "description": "Sets the embed accent color using a hex code.",
+      "syntax": "$color[#hex]",
+      "args": [{ "name": "hex", "type": "string", "required": true, "lazy": false, "description": "Hex color code e.g. #5865F2." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$color[#5865F2]", "output": "" }]
+    },
+    {
+      "name": "$footer", "key": "footer", "category": "embeds",
+      "description": "Sets the embed footer text.",
+      "syntax": "$footer[text]",
+      "args": [{ "name": "text", "type": "string", "required": true, "lazy": false, "description": "Footer text." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$footer[Requested by $username]", "output": "" }]
+    },
+    {
+      "name": "$footerIcon", "key": "footericon", "category": "embeds",
+      "description": "Sets the embed footer icon URL (shown next to footer text).",
+      "syntax": "$footerIcon[url]",
+      "args": [{ "name": "url", "type": "string", "required": true, "lazy": false, "description": "Icon URL." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$footerIcon[$avatar]", "output": "" }]
+    },
+    {
+      "name": "$author", "key": "author", "category": "embeds",
+      "description": "Sets the embed author name (shown above the title).",
+      "syntax": "$author[name]",
+      "args": [{ "name": "name", "type": "string", "required": true, "lazy": false, "description": "Author name." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$author[$botUsername]", "output": "" }]
+    },
+    {
+      "name": "$authorIcon", "key": "authoricon", "category": "embeds",
+      "description": "Sets the embed author icon URL.",
+      "syntax": "$authorIcon[url]",
+      "args": [{ "name": "url", "type": "string", "required": true, "lazy": false, "description": "Icon URL." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$authorIcon[$botAvatar]", "output": "" }]
+    },
+    {
+      "name": "$authorURL", "key": "authorurl", "category": "embeds",
+      "description": "Makes the embed author name a clickable link.",
+      "syntax": "$authorURL[url]",
+      "args": [{ "name": "url", "type": "string", "required": true, "lazy": false, "description": "URL for the author link." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$author[Bot]$authorURL[https://example.com]", "output": "" }]
+    },
+    {
+      "name": "$thumbnail", "key": "thumbnail", "category": "embeds",
+      "description": "Sets the small image shown at the top-right of the embed.",
+      "syntax": "$thumbnail[url]",
+      "args": [{ "name": "url", "type": "string", "required": true, "lazy": false, "description": "Thumbnail image URL." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$thumbnail[$serverIcon]", "output": "" }]
+    },
+    {
+      "name": "$image", "key": "image", "category": "embeds",
+      "description": "Sets the large image shown at the bottom of the embed.",
+      "syntax": "$image[url]",
+      "args": [{ "name": "url", "type": "string", "required": true, "lazy": false, "description": "Image URL." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$image[$serverBanner]", "output": "" }]
+    },
+    {
+      "name": "$timestamp", "key": "timestamp", "category": "embeds",
+      "description": "Adds the current date and time to the embed footer area.",
+      "syntax": "$timestamp", "args": [], "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$timestamp", "output": "" }]
+    },
+    {
+      "name": "$addField", "key": "addfield", "category": "embeds",
+      "description": "Adds a field to the embed. inline=true places fields side-by-side.",
+      "syntax": "$addField[name;value;inline?]",
       "args": [
-        {
-          "name": "format",
-          "type": "string",
-          "required": false,
-          "lazy": false,
-          "description": "Format string. Supported tokens: YYYY (year), MM (month), DD (day), HH (24h hour), mm (minute), ss (second)."
-        }
+        { "name": "name", "type": "string", "required": true, "lazy": false, "description": "Field title." },
+        { "name": "value", "type": "string", "required": true, "lazy": false, "description": "Field content." },
+        { "name": "inline", "type": "boolean", "required": false, "lazy": false, "description": "Show inline. Defaults to false." }
       ],
-      "returns": "string",
-      "lazy": [],
-      "examples": [
-        { "code": "$time", "output": "1778426211" },
-        { "code": "$time[YYYY-MM-DD]", "output": "2026-05-10" },
-        { "code": "$time[HH:mm:ss]", "output": "14:35:22" },
-        { "code": "$time[YYYY-MM-DD HH:mm]", "output": "2026-05-10 14:35" }
-      ]
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$addField[Score;$db.get[score;0];true]", "output": "" }]
+    },
+    {
+      "name": "$sendEmbed", "key": "sendembed", "category": "embeds",
+      "description": "Sends the currently built embed to a channel. Returns the sent message ID.",
+      "syntax": "$sendEmbed[channelID]",
+      "args": [{ "name": "channelID", "type": "snowflake", "required": true, "lazy": false, "description": "Target channel ID." }],
+      "returns": "string (message ID)", "lazy": [],
+      "examples": [{ "code": "$title[Hi]$color[#ff0000]$sendEmbed[$channelID]", "output": "1234567890" }]
+    },
+    {
+      "name": "$sendEmbedMessage", "key": "sendembedmessage", "category": "embeds",
+      "description": "All-in-one embed sender. Pass empty strings to skip optional fields.",
+      "syntax": "$sendEmbedMessage[channelID;content;title;titleURL;desc;color;author;authorIcon;footer;footerIcon;thumb;image;timestamp?;returnID?]",
+      "args": [
+        { "name": "channelID", "type": "snowflake", "required": true, "lazy": false, "description": "Target channel." },
+        { "name": "content", "type": "string", "required": false, "lazy": false, "description": "Plain text above the embed." },
+        { "name": "title", "type": "string", "required": false, "lazy": false, "description": "Embed title." },
+        { "name": "titleURL", "type": "string", "required": false, "lazy": false, "description": "Title hyperlink URL." },
+        { "name": "description", "type": "string", "required": false, "lazy": false, "description": "Embed body text." },
+        { "name": "color", "type": "string", "required": false, "lazy": false, "description": "Hex color." },
+        { "name": "author", "type": "string", "required": false, "lazy": false, "description": "Author name." },
+        { "name": "authorIcon", "type": "string", "required": false, "lazy": false, "description": "Author icon URL." },
+        { "name": "footer", "type": "string", "required": false, "lazy": false, "description": "Footer text." },
+        { "name": "footerIcon", "type": "string", "required": false, "lazy": false, "description": "Footer icon URL." },
+        { "name": "thumbnail", "type": "string", "required": false, "lazy": false, "description": "Thumbnail URL." },
+        { "name": "image", "type": "string", "required": false, "lazy": false, "description": "Large image URL." },
+        { "name": "timestamp", "type": "boolean", "required": false, "lazy": false, "description": "Pass 'true' to add timestamp." },
+        { "name": "returnID", "type": "boolean", "required": false, "lazy": false, "description": "Pass 'true' to return the sent message ID." }
+      ],
+      "returns": "empty or message ID", "lazy": [],
+      "examples": [{ "code": "$sendEmbedMessage[$channelID;;My Title;;Hello!;#5865F2]", "output": "" }]
+    },
+
+    {
+      "name": "$button", "key": "button", "category": "components",
+      "description": "Adds a button to the message. style: primary|secondary|success|danger|link",
+      "syntax": "$button[label;customID;style?;emoji?;disabled?]",
+      "args": [
+        { "name": "label", "type": "string", "required": true, "lazy": false, "description": "Button label." },
+        { "name": "customID", "type": "string", "required": true, "lazy": false, "description": "Custom ID (or URL for link style)." },
+        { "name": "style", "type": "string", "required": false, "lazy": false, "description": "Button style. Default: primary." },
+        { "name": "emoji", "type": "string", "required": false, "lazy": false, "description": "Emoji to display on the button." },
+        { "name": "disabled", "type": "boolean", "required": false, "lazy": false, "description": "Set to 'true' to disable the button." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$button[Click me!;btn_click;primary]", "output": "" }]
+    },
+    {
+      "name": "$selectMenu", "key": "selectmenu", "category": "components",
+      "description": "Adds a select/dropdown menu to the message.",
+      "syntax": "$selectMenu[customID;placeholder;opt1;opt2;...]",
+      "args": [
+        { "name": "customID", "type": "string", "required": true, "lazy": false, "description": "Custom ID for the menu." },
+        { "name": "placeholder", "type": "string", "required": true, "lazy": false, "description": "Placeholder text shown when nothing is selected." },
+        { "name": "options", "type": "string", "required": true, "lazy": false, "variadic": true, "description": "Menu option labels." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$selectMenu[pick;Choose one;Option A;Option B]", "output": "" }]
+    },
+    {
+      "name": "$modal", "key": "modal", "category": "components",
+      "description": "Opens a modal dialog. Only works in interaction (slash command / button) contexts.",
+      "syntax": "$modal[title;customID]",
+      "args": [
+        { "name": "title", "type": "string", "required": true, "lazy": false, "description": "Modal window title." },
+        { "name": "customID", "type": "string", "required": true, "lazy": false, "description": "Custom ID for the modal." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$modal[Feedback Form;feedback_modal]", "output": "" }]
+    },
+    {
+      "name": "$textInput", "key": "textinput", "category": "components",
+      "description": "Adds a text input field to a modal. style: short (default) or paragraph.",
+      "syntax": "$textInput[label;customID;style?;placeholder?;required?]",
+      "args": [
+        { "name": "label", "type": "string", "required": true, "lazy": false, "description": "Input label." },
+        { "name": "customID", "type": "string", "required": true, "lazy": false, "description": "Custom ID for the input." },
+        { "name": "style", "type": "string", "required": false, "lazy": false, "description": "short or paragraph. Default: short." },
+        { "name": "placeholder", "type": "string", "required": false, "lazy": false, "description": "Placeholder text." },
+        { "name": "required", "type": "boolean", "required": false, "lazy": false, "description": "Whether the field is required." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$textInput[Your name;name_input;short]", "output": "" }]
+    },
+
+    {
+      "name": "$time", "key": "time", "category": "time",
+      "description": "Returns the current Unix timestamp in seconds, or a formatted date string using tokens: YYYY MM DD HH mm ss.",
+      "syntax": "$time  /  $time[format]",
+      "args": [{ "name": "format", "type": "string", "required": false, "lazy": false, "description": "Format string using tokens. No arg = Unix timestamp." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$time[YYYY-MM-DD]", "output": "2026-05-11" }]
+    },
+    {
+      "name": "$date", "key": "date", "category": "time",
+      "description": "Returns the current date as YYYY-MM-DD, or formatted using tokens.",
+      "syntax": "$date  /  $date[format]",
+      "args": [{ "name": "format", "type": "string", "required": false, "lazy": false, "description": "Format using tokens YYYY MM DD." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$date", "output": "2026-05-11" }]
+    },
+    {
+      "name": "$day", "key": "day", "category": "time",
+      "description": "Returns the current day of the month (1–31).",
+      "syntax": "$day", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$day", "output": "11" }]
+    },
+    {
+      "name": "$month", "key": "month", "category": "time",
+      "description": "Returns the current month number (1–12).",
+      "syntax": "$month", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$month", "output": "5" }]
+    },
+    {
+      "name": "$year", "key": "year", "category": "time",
+      "description": "Returns the current 4-digit year.",
+      "syntax": "$year", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$year", "output": "2026" }]
+    },
+    {
+      "name": "$hour", "key": "hour", "category": "time",
+      "description": "Returns the current hour (0–23).",
+      "syntax": "$hour", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$hour", "output": "14" }]
+    },
+    {
+      "name": "$minute", "key": "minute", "category": "time",
+      "description": "Returns the current minute (0–59).",
+      "syntax": "$minute", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$minute", "output": "30" }]
+    },
+    {
+      "name": "$second", "key": "second", "category": "time",
+      "description": "Returns the current second (0–59).",
+      "syntax": "$second", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$second", "output": "45" }]
+    },
+
+    {
+      "name": "$cooldown", "key": "cooldown", "category": "cooldown",
+      "description": "Per-user, per-command cooldown. Stops execution and shows a message if the user is on cooldown.",
+      "syntax": "$cooldown[duration]",
+      "args": [{ "name": "duration", "type": "string", "required": true, "lazy": false, "description": "Duration: 10s | 5m | 2h | 1d" }],
+      "returns": "empty (or stops execution)", "lazy": [],
+      "examples": [{ "code": "$cooldown[30s]", "output": "" }]
+    },
+    {
+      "name": "$globalCooldown", "key": "globalcooldown", "category": "cooldown",
+      "description": "Server-wide cooldown — all users share one slot per command.",
+      "syntax": "$globalCooldown[duration]",
+      "args": [{ "name": "duration", "type": "string", "required": true, "lazy": false, "description": "Duration: 10s | 5m | 2h | 1d" }],
+      "returns": "empty (or stops execution)", "lazy": [],
+      "examples": [{ "code": "$globalCooldown[5m]", "output": "" }]
+    },
+    {
+      "name": "$serverCooldown", "key": "servercooldown", "category": "cooldown",
+      "description": "Per-server cooldown — all users in the guild share one slot.",
+      "syntax": "$serverCooldown[duration]",
+      "args": [{ "name": "duration", "type": "string", "required": true, "lazy": false, "description": "Duration: 10s | 5m | 2h | 1d" }],
+      "returns": "empty (or stops execution)", "lazy": [],
+      "examples": [{ "code": "$serverCooldown[1m]", "output": "" }]
+    },
+    {
+      "name": "$getCooldown", "key": "getcooldown", "category": "cooldown",
+      "description": "Returns the remaining cooldown seconds for the current command.",
+      "syntax": "$getCooldown[type?;id?]",
+      "args": [
+        { "name": "type", "type": "string", "required": false, "lazy": false, "description": "user (default) | global | server" },
+        { "name": "id", "type": "string", "required": false, "lazy": false, "description": "Override userID or guildID." }
+      ],
+      "returns": "string (seconds remaining)", "lazy": [],
+      "examples": [{ "code": "$getCooldown", "output": "25.0" }]
+    },
+    {
+      "name": "$changeCooldownTime", "key": "changecooldowntime", "category": "cooldown",
+      "description": "Change or clear the active cooldown time for the current command. Pass '0' to clear.",
+      "syntax": "$changeCooldownTime[duration;type?;id?]",
+      "args": [
+        { "name": "duration", "type": "string", "required": true, "lazy": false, "description": "New duration, or '0' to clear." },
+        { "name": "type", "type": "string", "required": false, "lazy": false, "description": "user | global | server. Default: user." },
+        { "name": "id", "type": "string", "required": false, "lazy": false, "description": "Override userID or guildID." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$changeCooldownTime[0]", "output": "" }]
+    },
+
+    {
+      "name": "$addReaction", "key": "addreaction", "category": "reactions",
+      "description": "Reacts to a message with an emoji. Defaults to the triggering message.",
+      "syntax": "$addReaction[emoji;messageID?;channelID?]",
+      "args": [
+        { "name": "emoji", "type": "string", "required": true, "lazy": false, "description": "Unicode emoji or custom emoji string." },
+        { "name": "messageID", "type": "snowflake", "required": false, "lazy": false, "description": "Target message. Defaults to triggering message." },
+        { "name": "channelID", "type": "snowflake", "required": false, "lazy": false, "description": "Channel of the target message." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$addReaction[👍]", "output": "" }]
+    },
+    {
+      "name": "$addReactions", "key": "addreactions", "category": "reactions",
+      "description": "Adds multiple reactions to a message at once.",
+      "syntax": "$addReactions[emoji1;emoji2;...;messageID?]",
+      "args": [{ "name": "emojis / messageID", "type": "string", "required": true, "lazy": false, "variadic": true, "description": "Emojis to react with. Optional snowflake as last arg = specific message." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$addReactions[👍;❤️;🎉]", "output": "" }]
+    },
+    {
+      "name": "$addCmdReactions", "key": "addcmdreactions", "category": "reactions",
+      "description": "Adds reactions to the triggering command message.",
+      "syntax": "$addCmdReactions[emoji1;emoji2;...]",
+      "args": [{ "name": "emojis", "type": "string", "required": true, "lazy": false, "variadic": true, "description": "Emojis to react with." }],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$addCmdReactions[✅;❌]", "output": "" }]
+    },
+    {
+      "name": "$getReactions", "key": "getreactions", "category": "reactions",
+      "description": "Returns the count of a specific reaction on a message.",
+      "syntax": "$getReactions[emoji;messageID?;channelID?]",
+      "args": [
+        { "name": "emoji", "type": "string", "required": true, "lazy": false, "description": "Emoji to count." },
+        { "name": "messageID", "type": "snowflake", "required": false, "lazy": false, "description": "Target message. Defaults to triggering message." },
+        { "name": "channelID", "type": "snowflake", "required": false, "lazy": false, "description": "Channel of the target message." }
+      ],
+      "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$getReactions[👍]", "output": "5" }]
+    },
+    {
+      "name": "$clearReactions", "key": "clearreactions", "category": "reactions",
+      "description": "Removes ALL reactions from a message. Requires Manage Messages permission.",
+      "syntax": "$clearReactions[messageID?;channelID?]",
+      "args": [
+        { "name": "messageID", "type": "snowflake", "required": false, "lazy": false, "description": "Target message. Defaults to triggering message." },
+        { "name": "channelID", "type": "snowflake", "required": false, "lazy": false, "description": "Channel of the target message." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$clearReactions", "output": "" }]
+    },
+    {
+      "name": "$userReacted", "key": "userreacted", "category": "reactions",
+      "description": "Returns 'true' if the specified user reacted with the given emoji.",
+      "syntax": "$userReacted[emoji;userID?;messageID?;channelID?]",
+      "args": [
+        { "name": "emoji", "type": "string", "required": true, "lazy": false, "description": "Emoji to check." },
+        { "name": "userID", "type": "snowflake", "required": false, "lazy": false, "description": "User to check. Defaults to author." },
+        { "name": "messageID", "type": "snowflake", "required": false, "lazy": false, "description": "Target message." },
+        { "name": "channelID", "type": "snowflake", "required": false, "lazy": false, "description": "Channel of the target message." }
+      ],
+      "returns": "string ('true' or 'false')", "lazy": [],
+      "examples": [{ "code": "$userReacted[👍]", "output": "true" }]
+    },
+
+    {
+      "name": "$addEmoji", "key": "addemoji", "category": "emojis",
+      "description": "Uploads a new custom emoji to the guild. Returns the emoji string. Requires Manage Emojis permission.",
+      "syntax": "$addEmoji[name;imageURL;guildID?]",
+      "args": [
+        { "name": "name", "type": "string", "required": true, "lazy": false, "description": "Emoji name." },
+        { "name": "imageURL", "type": "string", "required": true, "lazy": false, "description": "Direct URL to the image (PNG, JPG, GIF)." },
+        { "name": "guildID", "type": "snowflake", "required": false, "lazy": false, "description": "Target guild. Defaults to current." }
+      ],
+      "returns": "string (emoji string)", "lazy": [],
+      "examples": [{ "code": "$addEmoji[wave;https://example.com/wave.png]", "output": "<:wave:123>" }]
+    },
+    {
+      "name": "$removeEmoji", "key": "removeemoji", "category": "emojis",
+      "description": "Deletes a custom emoji from the guild by ID. Requires Manage Emojis permission.",
+      "syntax": "$removeEmoji[emojiID;guildID?]",
+      "args": [
+        { "name": "emojiID", "type": "snowflake", "required": true, "lazy": false, "description": "Emoji to remove." },
+        { "name": "guildID", "type": "snowflake", "required": false, "lazy": false, "description": "Target guild. Defaults to current." }
+      ],
+      "returns": "empty", "lazy": [],
+      "examples": [{ "code": "$removeEmoji[123456789]", "output": "" }]
+    },
+    {
+      "name": "$customEmoji", "key": "customemoji", "category": "emojis",
+      "description": "Returns the full formatted emoji string for a custom emoji by name.",
+      "syntax": "$customEmoji[name;guildID?]",
+      "args": [
+        { "name": "name", "type": "string", "required": true, "lazy": false, "description": "Emoji name." },
+        { "name": "guildID", "type": "snowflake", "required": false, "lazy": false, "description": "Target guild. Defaults to current." }
+      ],
+      "returns": "string (<:name:id>)", "lazy": [],
+      "examples": [{ "code": "$customEmoji[wave]", "output": "<:wave:123456789>" }]
+    },
+    {
+      "name": "$emojiExists", "key": "emojiexists", "category": "emojis",
+      "description": "Returns 'true' if a custom emoji with that name exists in the guild.",
+      "syntax": "$emojiExists[name;guildID?]",
+      "args": [
+        { "name": "name", "type": "string", "required": true, "lazy": false, "description": "Emoji name to check." },
+        { "name": "guildID", "type": "snowflake", "required": false, "lazy": false, "description": "Target guild. Defaults to current." }
+      ],
+      "returns": "string ('true' or 'false')", "lazy": [],
+      "examples": [{ "code": "$emojiExists[wave]", "output": "true" }]
+    },
+    {
+      "name": "$emojiName", "key": "emojiname", "category": "emojis",
+      "description": "Returns the name of a custom emoji by its ID.",
+      "syntax": "$emojiName[emojiID;guildID?]",
+      "args": [
+        { "name": "emojiID", "type": "snowflake", "required": true, "lazy": false, "description": "Emoji ID." },
+        { "name": "guildID", "type": "snowflake", "required": false, "lazy": false, "description": "Target guild. Defaults to current." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$emojiName[123456789]", "output": "wave" }]
+    },
+    {
+      "name": "$emoteCount", "key": "emotecount", "category": "emojis",
+      "description": "Returns the number of custom emojis in the guild. Alias for $emojiCount.",
+      "syntax": "$emoteCount[guildID?]",
+      "args": [{ "name": "guildID", "type": "snowflake", "required": false, "lazy": false, "description": "Target guild. Defaults to current." }],
+      "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$emoteCount", "output": "42" }]
+    },
+    {
+      "name": "$isEmojiAnimated", "key": "isemojianimated", "category": "emojis",
+      "description": "Returns 'true' if the custom emoji is animated (GIF), otherwise 'false'.",
+      "syntax": "$isEmojiAnimated[emojiID;guildID?]",
+      "args": [
+        { "name": "emojiID", "type": "snowflake", "required": true, "lazy": false, "description": "Emoji ID." },
+        { "name": "guildID", "type": "snowflake", "required": false, "lazy": false, "description": "Target guild. Defaults to current." }
+      ],
+      "returns": "string ('true' or 'false')", "lazy": [],
+      "examples": [{ "code": "$isEmojiAnimated[123456789]", "output": "false" }]
+    },
+
+    {
+      "name": "$randomText", "key": "randomtext", "category": "random",
+      "description": "Returns one of the provided options at random.",
+      "syntax": "$randomText[opt1;opt2;...]",
+      "args": [{ "name": "options", "type": "string", "required": true, "lazy": false, "variadic": true, "description": "Options to pick from." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$randomText[heads;tails]", "output": "heads" }]
+    },
+    {
+      "name": "$choose", "key": "choose", "category": "random",
+      "description": "Alias for $randomText — picks one option at random.",
+      "syntax": "$choose[opt1;opt2;...]",
+      "args": [{ "name": "options", "type": "string", "required": true, "lazy": false, "variadic": true, "description": "Options to pick from." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$choose[rock;paper;scissors]", "output": "paper" }]
+    },
+    {
+      "name": "$randomString", "key": "randomstring", "category": "random",
+      "description": "Generates a random string of the given length from the character pool.",
+      "syntax": "$randomString[length;chars?]",
+      "args": [
+        { "name": "length", "type": "number", "required": true, "lazy": false, "description": "Length of the string." },
+        { "name": "chars", "type": "string", "required": false, "lazy": false, "description": "Character pool. Defaults to alphanumeric." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$randomString[8]", "output": "aB3xZ9kL" }]
+    },
+    {
+      "name": "$randomUser", "key": "randomuser", "category": "random",
+      "description": "Returns a random guild member's username (non-bots only).",
+      "syntax": "$randomUser", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "$randomUser", "output": "SomeUser" }]
+    },
+    {
+      "name": "$randomUserID", "key": "randomuserid", "category": "random",
+      "description": "Returns a random guild member's user ID (non-bots only).",
+      "syntax": "$randomUserID", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "<@$randomUserID>", "output": "<@123456789>" }]
+    },
+    {
+      "name": "$randomMemberID", "key": "randommemberid", "category": "random",
+      "description": "Returns a random member ID from the cached guild member list.",
+      "syntax": "$randomMemberID", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "Chosen: <@$randomMemberID>", "output": "Chosen: <@123456789>" }]
+    },
+    {
+      "name": "$randomChannelID", "key": "randomchannelid", "category": "random",
+      "description": "Returns a random channel ID from the cached guild channel list.",
+      "syntax": "$randomChannelID", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "Go to <#$randomChannelID>", "output": "Go to <#111222333>" }]
+    },
+    {
+      "name": "$randomRoleID", "key": "randomroleid", "category": "random",
+      "description": "Returns a random role ID from the cached guild role list.",
+      "syntax": "$randomRoleID", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "Role: <@&$randomRoleID>", "output": "Role: <@&r1>" }]
+    },
+    {
+      "name": "$randomGuildID", "key": "randomguildid", "category": "random",
+      "description": "Returns the current guild ID, or a random guild from the bot's cache with arg 'any'.",
+      "syntax": "$randomGuildID[any?]",
+      "args": [{ "name": "any", "type": "string", "required": false, "lazy": false, "description": "Pass 'any' to get a random guild from all guilds the bot is in." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$randomGuildID[any]", "output": "987654321" }]
+    },
+    {
+      "name": "$randomMention", "key": "randommention", "category": "random",
+      "description": "Mentions a random non-bot guild member.",
+      "syntax": "$randomMention", "args": [], "returns": "string (<@userID>)", "lazy": [],
+      "examples": [{ "code": "$randomMention won the prize!", "output": "<@123456789> won the prize!" }]
+    },
+    {
+      "name": "$randomCategoryID", "key": "randomcategoryid", "category": "random",
+      "description": "Returns the ID of a random category channel in the guild.",
+      "syntax": "$randomCategoryID", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "<#$randomCategoryID>", "output": "<#555555555>" }]
+    },
+
+    {
+      "name": "$eval", "key": "eval", "category": "misc",
+      "description": "Re-runs the given string as CenzoJS framework code — NOT JavaScript. Inherits the full execution context (variables, embed state, client, message).",
+      "syntax": "$eval[code]",
+      "args": [{ "name": "code", "type": "string", "required": true, "lazy": false, "description": "Framework code to execute." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$eval[$message]", "output": "(executes user input as bot code)" }]
+    },
+    {
+      "name": "$evalDJS", "key": "evaldjs", "category": "misc",
+      "description": "Evaluates JavaScript with full discord.js access. DISABLED by default — opt-in via runtime.register('evalDJS', ...). Restrict to bot owners.",
+      "syntax": "$evalDJS[code]",
+      "args": [{ "name": "code", "type": "string", "required": true, "lazy": false, "description": "JavaScript code. Has access to: message, client, channel, guild, author." }],
+      "returns": "string", "lazy": [], "danger": true,
+      "examples": [{ "code": "$evalDJS[return guild.name]", "output": "My Server" }]
+    },
+    {
+      "name": "$jsonParse", "key": "jsonparse", "category": "misc",
+      "description": "Parses a JSON string. Optionally retrieves a nested value using dot-path notation.",
+      "syntax": "$jsonParse[json;key?]",
+      "args": [
+        { "name": "json", "type": "string", "required": true, "lazy": false, "description": "JSON string to parse." },
+        { "name": "key", "type": "string", "required": false, "lazy": false, "description": "Dot-path key e.g. 'user.name'." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$jsonParse[{\"name\":\"Bob\"};name]", "output": "Bob" }]
+    },
+    {
+      "name": "$jsonStringify", "key": "jsonstringify", "category": "misc",
+      "description": "Builds a JSON object from alternating key-value argument pairs.",
+      "syntax": "$jsonStringify[k1;v1;k2;v2;...]",
+      "args": [{ "name": "pairs", "type": "string", "required": true, "lazy": false, "variadic": true, "description": "Alternating key and value arguments." }],
+      "returns": "string (JSON)", "lazy": [],
+      "examples": [{ "code": "$jsonStringify[x;1;y;2]", "output": "{\"x\":\"1\",\"y\":\"2\"}" }]
     }
 
   ]
