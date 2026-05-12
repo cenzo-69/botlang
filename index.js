@@ -28,14 +28,16 @@ const path = require('path');
 
 const commands = new Map();
 
+const COMMAND_EXTS = ['.js', '.cjs'];
+
 const commandDir = path.join(__dirname, 'commands');
 if (fs.existsSync(commandDir)) {
-  for (const file of fs.readdirSync(commandDir).filter(f => f.endsWith('.js'))) {
+  for (const file of fs.readdirSync(commandDir).filter(f => COMMAND_EXTS.some(ext => f.endsWith(ext)))) {
     try {
       const cmd = require(path.join(commandDir, file));
       if (cmd.name && cmd.code) {
         commands.set(cmd.name.toLowerCase(), cmd);
-        console.log(`[Commands] Loaded: ${cmd.name}`);
+        console.log(`[Commands] Loaded: ${cmd.name} (${path.extname(file)})`);
       }
     } catch (err) {
       console.error(`[Commands] Failed to load ${file}: ${err.message}`);
