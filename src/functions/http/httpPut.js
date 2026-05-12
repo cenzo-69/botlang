@@ -18,6 +18,8 @@ module.exports = async (context, args) => {
   try {
     const res  = await fetch(url, { method: 'PUT', headers: headersObj, body });
     const text = await res.text();
+    context.variables.set('__http_response__', text);
+    context.variables.set('__http_status__', String(res.status));
     return text;
   } catch (err) {
     return `[error: $httpPut — ${err.message}]`;

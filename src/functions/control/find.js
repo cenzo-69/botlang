@@ -357,6 +357,109 @@ const DOCS = [
   { name:'deleteevent',           cat:'events',     syntax:'$deleteEvent[eventID;reason?]',               desc:'Cancels and deletes a scheduled guild event',                          ex:'$deleteEvent[123456789]' },
   { name:'listevents',            cat:'events',     syntax:'$listEvents[separator?;format?]',             desc:'Lists upcoming events. format: id (default)|name|both',                ex:'$listEvents[, ;name]' },
   { name:'eventusercount',        cat:'events',     syntax:'$eventUserCount[eventID]',                    desc:'Returns the number of users interested in a scheduled event',          ex:'$eventUserCount[123456789]  →  27' },
+
+  // ── JSON (extended) ───────────────────────────────────────────────────────
+  { name:'json',                  cat:'json',       syntax:'$json[key;...]',                               desc:'Read a value from the active JSON context (loaded by $jsonParse)',      ex:'$jsonParse[{"a":1}]$json[a]  →  1' },
+  { name:'jsonunset',             cat:'json',       syntax:'$jsonUnset[key;...]',                          desc:'Delete a key from the active JSON context',                             ex:'$jsonUnset[user;name]' },
+  { name:'jsonexists',            cat:'json',       syntax:'$jsonExists[key;...]',                         desc:'Returns "true" if the key path exists in the JSON context',             ex:'$jsonExists[user;id]  →  true' },
+  { name:'jsonarray',             cat:'json',       syntax:'$jsonArray[key;...;index]',                    desc:'Get an element by 0-based index from an array in the JSON context',     ex:'$jsonArray[items;0]  →  first' },
+  { name:'jsonarrayappend',       cat:'json',       syntax:'$jsonArrayAppend[key;...;value]',              desc:'Append a value to an array in the JSON context',                        ex:'$jsonArrayAppend[tags;newTag]' },
+  { name:'jsonarraypop',          cat:'json',       syntax:'$jsonArrayPop[key;...]',                       desc:'Remove and return the last element of an array in the JSON context',    ex:'$jsonArrayPop[items]  →  last' },
+  { name:'jsonarrayshift',        cat:'json',       syntax:'$jsonArrayShift[key;...]',                     desc:'Remove and return the first element of an array in the JSON context',   ex:'$jsonArrayShift[queue]  →  first' },
+  { name:'jsonarraycount',        cat:'json',       syntax:'$jsonArrayCount[key;...]',                     desc:'Return the length of an array in the JSON context',                     ex:'$jsonArrayCount[items]  →  3' },
+  { name:'jsonpretty',            cat:'json',       syntax:'$jsonPretty[(indent)]',                        desc:'Pretty-print the current JSON context with indentation',                ex:'$jsonPretty[2]' },
+  { name:'jsonclear',             cat:'json',       syntax:'$jsonClear',                                   desc:'Clear the active JSON context',                                         ex:'$jsonClear' },
+  { name:'jsonsetstring',         cat:'json',       syntax:'$jsonSetString[key;...;value]',                desc:'Same as $jsonSet but always stores the value as a string',              ex:'$jsonSetString[id;12345]' },
+
+  // ── HTTP (extended) ───────────────────────────────────────────────────────
+  { name:'httppatch',             cat:'http',       syntax:'$httpPatch[url;body;headers?]',               desc:'Send an HTTP PATCH request and return the response body',               ex:'$httpPatch[https://api.example.com/item/1;{"name":"new"}]' },
+  { name:'httpresult',            cat:'http',       syntax:'$httpResult[(key;...)]',                       desc:'Return stored HTTP response. With key args, parse as JSON and navigate',ex:'$httpGet[url]$httpResult[data;name]' },
+  { name:'httpstatus',            cat:'http',       syntax:'$httpStatus',                                  desc:'Return the HTTP status code from the last request',                     ex:'$httpGet[url]$httpStatus  →  200' },
+  { name:'httpaddheader',         cat:'http',       syntax:'$httpAddHeader[name;value]',                   desc:'Add a persistent header included in all subsequent HTTP requests',      ex:'$httpAddHeader[Authorization;Bearer TOKEN]' },
+  { name:'httpremoveheader',      cat:'http',       syntax:'$httpRemoveHeader[name]',                      desc:'Remove a persistent HTTP header',                                       ex:'$httpRemoveHeader[Authorization]' },
+
+  // ── Discord / Users (extended) ────────────────────────────────────────────
+  { name:'nickname',              cat:'discord',    syntax:'$nickname[userID?]',                           desc:'Server nickname of a member, or their username if no nickname is set',  ex:'$nickname  →  CoolGuy' },
+  { name:'userbannercolor',       cat:'discord',    syntax:'$userBannerColor[userID?]',                    desc:'User banner color as a hex string (empty if none)',                     ex:'$userBannerColor  →  #ff0000' },
+  { name:'userserveravatar',      cat:'discord',    syntax:'$userServerAvatar[userID?]',                   desc:'Per-server avatar URL. Falls back to global avatar',                    ex:'$userServerAvatar[$mentioned[1;true]]' },
+  { name:'userexists',            cat:'discord',    syntax:'$userExists[userID]',                          desc:'Returns "true" if the user ID is valid, "false" otherwise',             ex:'$userExists[123456789]  →  true' },
+  { name:'isadmin',               cat:'discord',    syntax:'$isAdmin[userID?]',                            desc:'Returns "true" if the member has Administrator permission',             ex:'$isAdmin  →  false' },
+  { name:'istimedout',            cat:'discord',    syntax:'$isTimedOut[userID?]',                         desc:'Returns "true" if the member is currently timed out',                   ex:'$isTimedOut[$mentioned[1;true]]  →  false' },
+  { name:'isbooster',             cat:'discord',    syntax:'$isBooster[userID?;guildID?]',                 desc:'Returns "true" if the member is currently boosting the server',         ex:'$isBooster  →  true' },
+  { name:'userperms',             cat:'discord',    syntax:'$userPerms[userID?;returnAmount?;separator?]', desc:'List of permission names a member has',                                 ex:'$userPerms[$userID;3;, ]  →  SendMessages, ReadMessages, BanMembers' },
+
+  // ── Roles (extended) ──────────────────────────────────────────────────────
+  { name:'modifyrole',            cat:'roles',      syntax:'$modifyRole[roleID;name?;color?;hoist?;mentionable?;reason?]', desc:'Edit multiple role properties in one call',             ex:'$modifyRole[$roleID;Admins;#FF0000;true;false]' },
+  { name:'setuserroles',          cat:'roles',      syntax:'$setUserRoles[userID;roleID;...;reason?]',     desc:'Replace all of a member\'s roles with the provided list',               ex:'$setUserRoles[$userID;role1;role2]' },
+  { name:'roleid',                cat:'roles',      syntax:'$roleID[roleName]',                            desc:'Return the ID of the first role matching the name (case-insensitive)',  ex:'$roleID[Members]  →  123456789' },
+  { name:'rolename',              cat:'roles',      syntax:'$roleName[roleID]',                            desc:'Return the name of a role by its ID',                                  ex:'$roleName[$roleID]  →  Members' },
+  { name:'roleposition',          cat:'roles',      syntax:'$rolePosition[roleID]',                        desc:'Return the integer hierarchy position of a role',                       ex:'$rolePosition[$roleID]  →  5' },
+  { name:'getrolecolor',          cat:'roles',      syntax:'$getRoleColor[roleID]',                        desc:'Return the hex color of a role (e.g. "#ff0000")',                       ex:'$getRoleColor[$roleID]  →  #ff0000' },
+
+  // ── Channels (extended) ───────────────────────────────────────────────────
+  { name:'modifychannel',         cat:'channels',   syntax:'$modifyChannel[channelID;name?;topic?;nsfw?;slowmode?;categoryID?;reason?]', desc:'Edit multiple channel properties in one call', ex:'$modifyChannel[$channelID;news-updates;;;false]' },
+  { name:'channeltype',           cat:'channels',   syntax:'$channelType[channelID?]',                    desc:'Return the type of a channel: text/voice/category/announcement/etc.',   ex:'$channelType  →  text' },
+  { name:'channelexists',         cat:'channels',   syntax:'$channelExists[channelID]',                   desc:'Returns "true" if the channel ID exists and is accessible',             ex:'$channelExists[123456789]  →  true' },
+  { name:'parentid',              cat:'channels',   syntax:'$parentID[channelID?]',                       desc:'Return the category ID of a channel (empty if no parent)',              ex:'$parentID  →  987654321' },
+
+  // ── Threads (extended) ────────────────────────────────────────────────────
+  { name:'editthread',            cat:'threads',    syntax:'$editThread[threadID;name?;archived?;archiveDuration?;locked?;slowmode?;reason?]', desc:'Edit multiple thread properties in one call', ex:'$editThread[$threadID;Resolved;;;true]' },
+  { name:'threadaddmember',       cat:'threads',    syntax:'$threadAddMember[threadID;userID]',           desc:'Add a member to a thread so they can view and post',                    ex:'$threadAddMember[$threadID;$mentioned[1;true]]' },
+  { name:'threadremovemember',    cat:'threads',    syntax:'$threadRemoveMember[threadID;userID]',        desc:'Remove a member from a thread',                                         ex:'$threadRemoveMember[$threadID;$userID]' },
+
+  // ── Messages (extended) ───────────────────────────────────────────────────
+  { name:'editmessage',           cat:'message',    syntax:'$editMessage[channelID;messageID;content;title?;description?;color?;footer?]', desc:'Edit an existing message with new content/embed', ex:'$editMessage[$channelID;$message;Updated!]' },
+  { name:'replyin',               cat:'message',    syntax:'$replyIn[timeMs]',                            desc:'Schedule the reply to be sent after a delay (sets __reply_delay__)',    ex:'$replyIn[2000]  (replies in 2 seconds)' },
+  { name:'deletein',              cat:'message',    syntax:'$deleteIn[timeMs]',                           desc:'Schedule the bot reply to be deleted after a delay',                    ex:'$deleteIn[5000]  (deletes after 5 seconds)' },
+  { name:'editin',                cat:'message',    syntax:'$editIn[timeMs;newContent]',                  desc:'Schedule the bot reply to be edited after a delay',                     ex:'$editIn[3000;Done!]' },
+  { name:'repeatmessage',         cat:'message',    syntax:'$repeatMessage[amount;message]',              desc:'Send a message to the channel multiple times (max 10)',                 ex:'$repeatMessage[3;Hello!]' },
+
+  // ── Strings (extended) ────────────────────────────────────────────────────
+  { name:'bytecount',             cat:'strings',    syntax:'$byteCount[text]',                            desc:'Return the UTF-8 byte length of text',                                  ex:'$byteCount[Hello]  →  5' },
+  { name:'joinsplittext',         cat:'strings',    syntax:'$joinSplitText[separator?]',                  desc:'Join the current text-split array back into one string',                ex:'$textSplit[a,b,c;,]$joinSplitText[-]  →  a-b-c' },
+
+  // ── Utility ───────────────────────────────────────────────────────────────
+  { name:'executiontime',         cat:'discord',    syntax:'$executionTime',                               desc:'Script execution time in ms since the context was created',             ex:'$executionTime  →  42' },
+  { name:'bottyping',             cat:'discord',    syntax:'$botTyping[channelID?]',                       desc:'Trigger the "Bot is typing..." indicator in a channel',                 ex:'$botTyping' },
+  { name:'tts',                   cat:'discord',    syntax:'$tts',                                         desc:'Mark the response as TTS (sets __tts__ flag for your reply handler)',   ex:'$tts' },
+  { name:'nomention',             cat:'discord',    syntax:'$nomention',                                   desc:'Disable all @mentions in the reply (sets __nomention__ flag)',           ex:'$nomention' },
+  { name:'ephemeral',             cat:'discord',    syntax:'$ephemeral',                                   desc:'Mark response as ephemeral — only visible to the command user',         ex:'$ephemeral' },
+  { name:'defer',                 cat:'discord',    syntax:'$defer',                                       desc:'Defer the slash interaction (shows "Bot is thinking...")',               ex:'$defer' },
+
+  // ── AI ────────────────────────────────────────────────────────────────────
+  { name:'ai',                    cat:'ai',         syntax:'$ai[prompt;systemPrompt?;maxTokens?]',         desc:'One-shot OpenAI chat completion. Requires OPENAI_API_KEY env var',      ex:'$ai[Tell me a joke]' },
+  { name:'aiwithctx',             cat:'ai',         syntax:'$aiWithCtx[prompt;systemPrompt?;maxTokens?]',  desc:'Stateful AI chat — maintains conversation history in the script run',   ex:'$aiWithCtx[What did I just ask?]' },
+  { name:'aiagent',               cat:'ai',         syntax:'$aiAgent[prompt;systemPrompt?;maxTokens?]',    desc:'AI agent using gpt-4o for complex reasoning tasks',                     ex:'$aiAgent[Summarize this in 3 bullets: $noMentionMessage]' },
+  { name:'aidecide',              cat:'ai',         syntax:'$aiDecide[content;question]',                  desc:'AI classifier — returns "true" or "false" based on content',            ex:'$aiDecide[$noMentionMessage;Is this toxic?]' },
+  { name:'aidecidewithctx',       cat:'ai',         syntax:'$aiDecideWithCtx[question]',                   desc:'Like $aiDecide but uses the $aiWithCtx conversation history',           ex:'$aiDecideWithCtx[Did the user ask about prices?]' },
+  { name:'aiquota',               cat:'ai',         syntax:'$aiQuota',                                     desc:'Total tokens used by AI functions in this script run',                  ex:'Tokens used: $aiQuota' },
+
+  // ── Slash Commands ────────────────────────────────────────────────────────
+  { name:'registerguildcommands', cat:'slash',      syntax:'$registerGuildCommands[name;description;...;guildID?]', desc:'Register slash commands in a guild. Args in name/desc pairs', ex:'$registerGuildCommands[ping;Replies with pong]' },
+  { name:'unregisterguildcommands',cat:'slash',     syntax:'$unregisterGuildCommands[guildID?]',           desc:'Remove all slash commands from a guild. Returns count cleared',         ex:'$unregisterGuildCommands' },
+  { name:'slashid',               cat:'slash',      syntax:'$slashID[commandName;guildID?]',               desc:'Return the ID of a registered slash command by name',                   ex:'$slashID[ping]  →  1234567890' },
+  { name:'slashcommandscount',    cat:'slash',      syntax:'$slashCommandsCount[guildID?]',                desc:'Return the number of registered slash commands',                        ex:'$slashCommandsCount  →  5' },
+
+  // ── Tickets ───────────────────────────────────────────────────────────────
+  { name:'newticket',             cat:'tickets',    syntax:'$newTicket[category;noQMsg;inTicketMsg;msgToUser;errorMsg;ticketNum?;returnID?]', desc:'Create a support ticket channel. Returns channel ID if returnID=true', ex:'$newTicket[Support;No question;Welcome!;Check DM!;Error]' },
+  { name:'closeticket',           cat:'tickets',    syntax:'$closeTicket[errorMessage?]',                  desc:'Close (delete) the current ticket channel',                             ex:'$closeTicket[You cannot do this here!]' },
+  { name:'isticket',              cat:'tickets',    syntax:'$isTicket[(channelID)]',                        desc:'Returns "true" if the channel is an active ticket channel',             ex:'$onlyIf[$isTicket]' },
+
+  // ── Async Blocks ──────────────────────────────────────────────────────────
+  { name:'async',                 cat:'control',    syntax:'$async[blockName]',                            desc:'Mark the start of a named async block definition',                      ex:'$async[myBlock]...code...$endasync' },
+  { name:'endasync',              cat:'control',    syntax:'$endasync',                                    desc:'Mark the end of an async block definition',                             ex:'$async[myBlock]Hello$endasync' },
+  { name:'await',                 cat:'control',    syntax:'$await[blockName]',                            desc:'Execute a stored async block by name',                                  ex:'$await[myBlock]' },
+
+  // ── Components (extended) ─────────────────────────────────────────────────
+  { name:'addbuttoncv2',          cat:'components', syntax:'$addButtonCV2[buttonID/URL;label;style;disabled?;emoji?;actionRowID?]', desc:'Add a button with explicit action row ID',        ex:'$addButtonCV2[click-me;Click Me!;primary;false;;1]' },
+  { name:'editbutton',            cat:'components', syntax:'$editButton[buttonID/URL;label;style;disabled?;emoji?;messageID?]', desc:'Edit an existing button on a message in-place',     ex:'$editButton[click-me;Clicked!;success]' },
+  { name:'removebuttons',         cat:'components', syntax:'$removeButtons[messageID?]',                  desc:'Remove all button components from a message',                           ex:'$removeButtons[$message]' },
+  { name:'addstringselect',       cat:'components', syntax:'$addStringSelect[menuID;placeholder;min;max;disabled?;rowID?]', desc:'Create a string/text dropdown select menu',           ex:'$addStringSelect[color-select;Pick a color;1;1]' },
+  { name:'addstringselectoption', cat:'components', syntax:'$addStringSelectOption[label;value;desc?;emoji?;default?;menuID?]', desc:'Add an option to the most recent string select menu', ex:'$addStringSelectOption[Red;red;The color red]' },
+  { name:'adduserselect',         cat:'components', syntax:'$addUserSelect[menuID;placeholder;min;max;disabled?;rowID?]', desc:'Create a user picker select menu',                      ex:'$addUserSelect[pick-user;Select a user;1;1]' },
+  { name:'addroleselect',         cat:'components', syntax:'$addRoleSelect[menuID;placeholder;min;max;disabled?;rowID?]', desc:'Create a role picker select menu',                      ex:'$addRoleSelect[pick-role;Select a role;1;1]' },
+  { name:'addmentionableselect',  cat:'components', syntax:'$addMentionableSelect[menuID;placeholder;min;max;disabled?;rowID?]', desc:'Create a user+role mentionable select menu',     ex:'$addMentionableSelect[pick;Select user or role;1;1]' },
+  { name:'addchannelselect',      cat:'components', syntax:'$addChannelSelect[menuID;placeholder;min;max;disabled?;rowID?;types?]', desc:'Create a channel picker select menu',         ex:'$addChannelSelect[pick-ch;Select a channel;1;1;;;text,voice]' },
 ];
 
 // ─── Category metadata ────────────────────────────────────────────────────────
@@ -389,6 +492,10 @@ const CAT_EMOJI = {
   giveaway:     '🎉',
   invites:      '✉️',
   events:       '📅',
+  json:         '📋',
+  ai:           '🤖',
+  slash:        '⚡',
+  tickets:      '🎫',
   misc:         '⚙️',
 };
 
@@ -400,6 +507,7 @@ const CAT_ORDER = [
   'time','cooldown','reactions','emojis','random',
   'http','webhooks','threads','permissions','errorhandling','blacklist',
   'vc','giveaway','invites','events',
+  'json','ai','slash','tickets',
   'misc',
 ];
 

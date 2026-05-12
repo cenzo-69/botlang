@@ -1,0 +1,16 @@
+'use strict';
+
+// $rolePosition[roleID]
+// Returns the integer position of a role in the guild hierarchy.
+module.exports = async (context, args) => {
+  const roleID = String(args[0] !== undefined ? args[0] : '').trim();
+  if (!roleID) return '[error: $rolePosition requires a roleID]';
+  if (!context.message?.guild) return '[error: $rolePosition — not in a guild]';
+
+  try {
+    const role = await context.message.guild.roles.fetch(roleID);
+    return role ? String(role.position) : '[error: $rolePosition — role not found]';
+  } catch (err) {
+    return `[error: $rolePosition — ${err.message}]`;
+  }
+};

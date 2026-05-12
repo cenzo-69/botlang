@@ -1,0 +1,20 @@
+'use strict';
+
+// $jsonArrayPop[key;...]
+// Removes and returns the last element of an array at the key path.
+module.exports = async (context, args) => {
+  let root = context.variables.get('__json_ctx__');
+  if (root === undefined) return '[error: $jsonArrayPop — no JSON context loaded]';
+
+  const keys = args.filter(k => k !== '');
+  let cur = root;
+  for (const key of keys) {
+    if (cur === null || cur === undefined || typeof cur !== 'object') return '';
+    cur = cur[key];
+  }
+  if (!Array.isArray(cur)) return '[error: $jsonArrayPop — target is not an array]';
+  const val = cur.pop();
+  context.variables.set('__json_ctx__', root);
+  if (val === undefined || val === null) return '';
+  return typeof val === 'object' ? JSON.stringify(val) : String(val);
+};

@@ -1,5 +1,5 @@
 {
-  "name": "cenzojs",
+  "name": "@cenzotz/cenzojs",
   "version": "1.0.0",
   "description": "Professional Discord bot scripting language runtime — like BDFD/ForgeScript but fully open, extensible, and npm-publishable.",
   "main": "src/index.js",
