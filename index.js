@@ -28,7 +28,7 @@ const path = require('path');
 
 const commands = new Map();
 
-const COMMAND_EXTS = ['.js', '.cjs'];
+const COMMAND_EXTS = ['.js', '.cj'];
 
 const commandDir = path.join(__dirname, 'commands');
 if (fs.existsSync(commandDir)) {
