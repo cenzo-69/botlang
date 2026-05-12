@@ -42,7 +42,7 @@
     { "id": "giveaway",      "label": "Giveaways",       "description": "Full giveaway lifecycle: create, end, reroll, list, and inspect" },
     { "id": "invites",       "label": "Invites",         "description": "Create, delete, and inspect server invites" },
     { "id": "events",        "label": "Scheduled Events","description": "Create, delete, and list Discord scheduled events" },
-    { "id": "json",          "label": "JSON",            "description": "Stateful JSON context: parse, navigate, mutate, and stringify JSON objects" },
+    { "id": "json",          "label": "JSON",            "description": "Stateful JSON context: parse, navigate, mutate, and stringify JSON objects" }
   ],
   "functions": [
 
@@ -3068,6 +3068,564 @@
       ],
       "returns": "empty string", "lazy": [],
       "examples": [{ "code": "$addChannelSelect[pick-ch;Select a channel;1;1;;;text,voice]", "output": "" }]
+    },
+
+    { "name": "$round", "key": "round", "category": "math",
+      "description": "Rounds a number to the specified number of decimal places (default 0).",
+      "syntax": "$round[number;decimals?]",
+      "args": [
+        { "name": "number",   "type": "number",  "required": true,  "lazy": false, "description": "Number to round." },
+        { "name": "decimals", "type": "integer", "required": false, "lazy": false, "description": "Decimal places. Default 0." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$round[3.14159;2]", "output": "3.14" }]
+    },
+    { "name": "$isNumber", "key": "isnumber", "category": "math",
+      "description": "Returns \"true\" if the value is a valid finite number, \"false\" otherwise.",
+      "syntax": "$isNumber[value]",
+      "args": [{ "name": "value", "type": "string", "required": true, "lazy": false, "description": "Value to test." }],
+      "returns": "boolean string", "lazy": [],
+      "examples": [{ "code": "$isNumber[42]", "output": "true" }]
+    },
+    { "name": "$isInteger", "key": "isinteger", "category": "math",
+      "description": "Returns \"true\" if the value is a whole integer.",
+      "syntax": "$isInteger[value]",
+      "args": [{ "name": "value", "type": "string", "required": true, "lazy": false, "description": "Value to test." }],
+      "returns": "boolean string", "lazy": [],
+      "examples": [{ "code": "$isInteger[7]", "output": "true" }]
+    },
+    { "name": "$isBoolean", "key": "isboolean", "category": "math",
+      "description": "Returns \"true\" if value is exactly \"true\" or \"false\" (case-insensitive).",
+      "syntax": "$isBoolean[value]",
+      "args": [{ "name": "value", "type": "string", "required": true, "lazy": false, "description": "Value to test." }],
+      "returns": "boolean string", "lazy": [],
+      "examples": [{ "code": "$isBoolean[true]", "output": "true" }]
+    },
+
+    { "name": "$messageID", "key": "messageid", "category": "discord",
+      "description": "Returns the ID of the triggering message.",
+      "syntax": "$messageID", "args": [], "returns": "snowflake string", "lazy": [],
+      "examples": [{ "code": "$messageID", "output": "1234567890123456789" }]
+    },
+    { "name": "$discriminator", "key": "discriminator", "category": "discord",
+      "description": "Returns the discriminator of the author or a specified user (returns \"0\" for migrated accounts).",
+      "syntax": "$discriminator[userID?]",
+      "args": [{ "name": "userID", "type": "snowflake", "required": false, "lazy": false, "description": "User to look up. Defaults to the author." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$discriminator", "output": "0" }]
+    },
+    { "name": "$isMentioned", "key": "ismentioned", "category": "discord",
+      "description": "Returns \"true\" if the specified user was mentioned in the triggering message.",
+      "syntax": "$isMentioned[userID]",
+      "args": [{ "name": "userID", "type": "snowflake", "required": true, "lazy": false, "description": "User ID to check." }],
+      "returns": "boolean string", "lazy": [],
+      "examples": [{ "code": "$isMentioned[123456789]", "output": "true" }]
+    },
+    { "name": "$isNSFW", "key": "isnsfw", "category": "discord",
+      "description": "Returns \"true\" if the channel (or specified channelID) is marked as NSFW.",
+      "syntax": "$isNSFW[channelID?]",
+      "args": [{ "name": "channelID", "type": "snowflake", "required": false, "lazy": false, "description": "Channel to check. Defaults to current channel." }],
+      "returns": "boolean string", "lazy": [],
+      "examples": [{ "code": "$isNSFW", "output": "false" }]
+    },
+    { "name": "$repliedMessageID", "key": "repliedmessageid", "category": "discord",
+      "description": "Returns the ID of the message being replied to, or empty string if not a reply.",
+      "syntax": "$repliedMessageID", "args": [], "returns": "snowflake string", "lazy": [],
+      "examples": [{ "code": "$repliedMessageID", "output": "9876543210987654321" }]
+    },
+    { "name": "$nodeVersion", "key": "nodeversion", "category": "discord",
+      "description": "Returns the current Node.js version string (e.g. \"v20.11.0\").",
+      "syntax": "$nodeVersion", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "$nodeVersion", "output": "v20.11.0" }]
+    },
+    { "name": "$getBotInvite", "key": "getbotinvite", "category": "discord",
+      "description": "Returns the OAuth2 invite URL for the bot with Administrator permission.",
+      "syntax": "$getBotInvite", "args": [], "returns": "string (URL)", "lazy": [],
+      "examples": [{ "code": "$getBotInvite", "output": "https://discord.com/api/oauth2/authorize?client_id=..." }]
+    },
+    { "name": "$isValidHex", "key": "isvalidhex", "category": "discord",
+      "description": "Returns \"true\" if the value is a valid 6-digit hex color (with or without #).",
+      "syntax": "$isValidHex[hex]",
+      "args": [{ "name": "hex", "type": "string", "required": true, "lazy": false, "description": "Hex value to validate." }],
+      "returns": "boolean string", "lazy": [],
+      "examples": [{ "code": "$isValidHex[#FF0000]", "output": "true" }]
+    },
+    { "name": "$channelCount", "key": "channelcount", "category": "discord",
+      "description": "Returns the total number of channels in the current guild.",
+      "syntax": "$channelCount", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$channelCount", "output": "42" }]
+    },
+    { "name": "$channelNames", "key": "channelnames", "category": "discord",
+      "description": "Returns a list of all channel names in the guild joined by the separator.",
+      "syntax": "$channelNames[separator;guildID?]",
+      "args": [
+        { "name": "separator", "type": "string",   "required": true,  "lazy": false, "description": "Separator between names." },
+        { "name": "guildID",   "type": "snowflake", "required": false, "lazy": false, "description": "Guild ID. Defaults to current guild." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$channelNames[, ]", "output": "general, announcements, bot-commands" }]
+    },
+    { "name": "$afkChannelID", "key": "afkchannelid", "category": "discord",
+      "description": "Returns the ID of the guild's AFK voice channel, or empty string if not set.",
+      "syntax": "$afkChannelID", "args": [], "returns": "snowflake string", "lazy": [],
+      "examples": [{ "code": "$afkChannelID", "output": "123456789012345678" }]
+    },
+    { "name": "$afkTimeout", "key": "afktimeout", "category": "discord",
+      "description": "Returns the guild's AFK timeout in seconds (0 if not set).",
+      "syntax": "$afkTimeout", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$afkTimeout", "output": "300" }]
+    },
+    { "name": "$dm", "key": "dm", "category": "discord",
+      "description": "Sends a direct message to the specified user. Returns empty string on success.",
+      "syntax": "$dm[userID;message]",
+      "args": [
+        { "name": "userID",  "type": "snowflake", "required": true, "lazy": false, "description": "User to DM." },
+        { "name": "message", "type": "string",    "required": true, "lazy": false, "description": "Message content." }
+      ],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$dm[$userID;Hello there!]", "output": "" }]
+    },
+    { "name": "$dmChannelID", "key": "dmchannelid", "category": "discord",
+      "description": "Opens (or returns) the DM channel ID for the specified user.",
+      "syntax": "$dmChannelID[userID]",
+      "args": [{ "name": "userID", "type": "snowflake", "required": true, "lazy": false, "description": "Target user." }],
+      "returns": "snowflake string", "lazy": [],
+      "examples": [{ "code": "$dmChannelID[$userID]", "output": "987654321098765432" }]
+    },
+    { "name": "$lastMessageID", "key": "lastmessageid", "category": "discord",
+      "description": "Returns the ID of the most recent message in the channel (or specified channel).",
+      "syntax": "$lastMessageID[channelID?]",
+      "args": [{ "name": "channelID", "type": "snowflake", "required": false, "lazy": false, "description": "Channel to check. Defaults to current." }],
+      "returns": "snowflake string", "lazy": [],
+      "examples": [{ "code": "$lastMessageID", "output": "1234567890123456789" }]
+    },
+    { "name": "$isMessageEdited", "key": "ismessageedited", "category": "discord",
+      "description": "Returns \"true\" if the specified message has been edited.",
+      "syntax": "$isMessageEdited[channelID;messageID]",
+      "args": [
+        { "name": "channelID", "type": "snowflake", "required": true, "lazy": false, "description": "Channel containing the message." },
+        { "name": "messageID", "type": "snowflake", "required": true, "lazy": false, "description": "Message to check." }
+      ],
+      "returns": "boolean string", "lazy": [],
+      "examples": [{ "code": "$isMessageEdited[$channelID;$messageID]", "output": "false" }]
+    },
+    { "name": "$messageEditedTimestamp", "key": "messageeditedtimestamp", "category": "discord",
+      "description": "Returns the ISO 8601 timestamp of when a message was last edited, or empty string if never edited.",
+      "syntax": "$messageEditedTimestamp[channelID;messageID]",
+      "args": [
+        { "name": "channelID", "type": "snowflake", "required": true, "lazy": false, "description": "Channel containing the message." },
+        { "name": "messageID", "type": "snowflake", "required": true, "lazy": false, "description": "Message to check." }
+      ],
+      "returns": "ISO 8601 string", "lazy": [],
+      "examples": [{ "code": "$messageEditedTimestamp[$channelID;$messageID]", "output": "2024-01-15T12:00:00.000Z" }]
+    },
+    { "name": "$mentionedChannels", "key": "mentionedchannels", "category": "discord",
+      "description": "Returns the Nth mentioned channel from the message. returnMention=false returns the ID only.",
+      "syntax": "$mentionedChannels[index;returnMention?]",
+      "args": [
+        { "name": "index",         "type": "integer", "required": true,  "lazy": false, "description": "1-based index of the mention." },
+        { "name": "returnMention", "type": "boolean", "required": false, "lazy": false, "description": "true = <#id> (default), false = raw ID." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$mentionedChannels[1]", "output": "<#123456789>" }]
+    },
+    { "name": "$mentionedRoles", "key": "mentionedroles", "category": "discord",
+      "description": "Returns the Nth mentioned role from the message as a mention string.",
+      "syntax": "$mentionedRoles[index]",
+      "args": [{ "name": "index", "type": "integer", "required": true, "lazy": false, "description": "1-based index of the role mention." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$mentionedRoles[1]", "output": "<@&123456789>" }]
+    },
+    { "name": "$getMessage", "key": "getmessage", "category": "discord",
+      "description": "Fetches a message. Type can be: content (default), author, authorID, timestamp.",
+      "syntax": "$getMessage[channelID;messageID;type?]",
+      "args": [
+        { "name": "channelID", "type": "snowflake", "required": true,  "lazy": false, "description": "Channel containing the message." },
+        { "name": "messageID", "type": "snowflake", "required": true,  "lazy": false, "description": "Message to fetch." },
+        { "name": "type",      "type": "string",    "required": false, "lazy": false, "description": "content | author | authorID | timestamp" }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$getMessage[$channelID;$messageID]", "output": "Hello world" }]
+    },
+    { "name": "$getAttachments", "key": "getattachments", "category": "discord",
+      "description": "Returns attachment URLs from the triggering message. Optionally specify a 1-based index.",
+      "syntax": "$getAttachments[index?]",
+      "args": [{ "name": "index", "type": "integer", "required": false, "lazy": false, "description": "1-based index. Omit to return all URLs." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$getAttachments[1]", "output": "https://cdn.discordapp.com/attachments/..." }]
+    },
+    { "name": "$getUserStatus", "key": "getuserstatus", "category": "discord",
+      "description": "Returns the presence status of a guild member: online, idle, dnd, or offline. Requires GuildPresences intent.",
+      "syntax": "$getUserStatus[userID]",
+      "args": [{ "name": "userID", "type": "snowflake", "required": true, "lazy": false, "description": "Member to check." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$getUserStatus[$userID]", "output": "online" }]
+    },
+    { "name": "$userBadges", "key": "userbadges", "category": "discord",
+      "description": "Returns the public badge flags of a user as a joined string.",
+      "syntax": "$userBadges[userID;separator?]",
+      "args": [
+        { "name": "userID",    "type": "snowflake", "required": true,  "lazy": false, "description": "User to look up." },
+        { "name": "separator", "type": "string",    "required": false, "lazy": false, "description": "Separator. Default \", \"." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$userBadges[$userID]", "output": "ActiveDeveloper, HypeSquadOnlineHouse1" }]
+    },
+    { "name": "$voiceUserLimit", "key": "voiceuserlimit", "category": "discord",
+      "description": "Returns the user limit of a voice channel (0 = unlimited).",
+      "syntax": "$voiceUserLimit[voiceChannelID]",
+      "args": [{ "name": "voiceChannelID", "type": "snowflake", "required": true, "lazy": false, "description": "Voice channel to check." }],
+      "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$voiceUserLimit[123456789]", "output": "10" }]
+    },
+    { "name": "$serverDescription", "key": "serverdescription", "category": "discord",
+      "description": "Returns the description of the current (or specified) guild.",
+      "syntax": "$serverDescription[guildID?]",
+      "args": [{ "name": "guildID", "type": "snowflake", "required": false, "lazy": false, "description": "Guild ID. Defaults to current guild." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$serverDescription", "output": "A cool server!" }]
+    },
+    { "name": "$serverRegion", "key": "serverregion", "category": "discord",
+      "description": "Returns the guild's preferred locale (Discord removed explicit regions in 2021).",
+      "syntax": "$serverRegion", "args": [], "returns": "string", "lazy": [],
+      "examples": [{ "code": "$serverRegion", "output": "en-US" }]
+    },
+    { "name": "$serverEmojis", "key": "serveremojis", "category": "discord",
+      "description": "Returns all custom emoji strings in the guild joined by a separator.",
+      "syntax": "$serverEmojis[guildID;separator]",
+      "args": [
+        { "name": "guildID",   "type": "snowflake", "required": true, "lazy": false, "description": "Guild to list emojis for." },
+        { "name": "separator", "type": "string",    "required": true, "lazy": false, "description": "Separator between emoji strings." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$serverEmojis[$guildID; ]", "output": "<:cool:123> <a:spin:456>" }]
+    },
+    { "name": "$serverNames", "key": "servernames", "category": "discord",
+      "description": "Returns a list of server names the bot is in.",
+      "syntax": "$serverNames[amount?;separator?]",
+      "args": [
+        { "name": "amount",    "type": "integer", "required": false, "lazy": false, "description": "Max servers to list. 0 = all." },
+        { "name": "separator", "type": "string",  "required": false, "lazy": false, "description": "Separator. Default \", \"." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$serverNames[5;, ]", "output": "Server A, Server B, Server C" }]
+    },
+    { "name": "$getServerInvite", "key": "getserverinvite", "category": "discord",
+      "description": "Returns the first active invite URL for the guild.",
+      "syntax": "$getServerInvite[guildID?]",
+      "args": [{ "name": "guildID", "type": "snowflake", "required": false, "lazy": false, "description": "Guild ID. Defaults to current guild." }],
+      "returns": "string (URL)", "lazy": [],
+      "examples": [{ "code": "$getServerInvite", "output": "https://discord.gg/abc123" }]
+    },
+    { "name": "$getBanReason", "key": "getbanreason", "category": "discord",
+      "description": "Returns the ban reason for a user, or empty string if no reason was given.",
+      "syntax": "$getBanReason[userID;guildID?]",
+      "args": [
+        { "name": "userID",  "type": "snowflake", "required": true,  "lazy": false, "description": "Banned user ID." },
+        { "name": "guildID", "type": "snowflake", "required": false, "lazy": false, "description": "Guild ID. Defaults to current guild." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$getBanReason[123456789]", "output": "Spamming" }]
+    },
+    { "name": "$systemChannelID", "key": "systemchannelid", "category": "discord",
+      "description": "Returns the ID of the guild's system messages channel, or empty string if not set.",
+      "syntax": "$systemChannelID", "args": [], "returns": "snowflake string", "lazy": [],
+      "examples": [{ "code": "$systemChannelID", "output": "123456789012345678" }]
+    },
+    { "name": "$rulesChannelID", "key": "ruleschannelid", "category": "discord",
+      "description": "Returns the ID of the guild's rules channel, or empty string if not set.",
+      "syntax": "$rulesChannelID", "args": [], "returns": "snowflake string", "lazy": [],
+      "examples": [{ "code": "$rulesChannelID", "output": "123456789012345678" }]
+    },
+    { "name": "$categoryCount", "key": "categorycount", "category": "discord",
+      "description": "Returns the number of category channels in the guild.",
+      "syntax": "$categoryCount[guildID?]",
+      "args": [{ "name": "guildID", "type": "snowflake", "required": false, "lazy": false, "description": "Guild ID. Defaults to current guild." }],
+      "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$categoryCount", "output": "5" }]
+    },
+    { "name": "$poll", "key": "poll", "category": "discord",
+      "description": "Sends a formatted poll to the channel with 1️⃣–9️⃣ reactions auto-added. Supports 2–9 options.",
+      "syntax": "$poll[question;option1;option2;...;option9]",
+      "args": [
+        { "name": "question", "type": "string", "required": true, "lazy": false, "description": "The poll question." },
+        { "name": "options",  "type": "string", "required": true, "lazy": false, "description": "2–9 answer options (variadic)." }
+      ],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$poll[Favorite color?;Red;Blue;Green]", "output": "" }]
+    },
+
+    { "name": "$highestRole", "key": "highestrole", "category": "roles",
+      "description": "Returns the name of the author's (or specified user's) highest-positioned role.",
+      "syntax": "$highestRole[userID?]",
+      "args": [{ "name": "userID", "type": "snowflake", "required": false, "lazy": false, "description": "Member to check. Defaults to author." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$highestRole", "output": "Admin" }]
+    },
+    { "name": "$lowestRole", "key": "lowestrole", "category": "roles",
+      "description": "Returns the name of the author's (or specified user's) lowest-positioned role.",
+      "syntax": "$lowestRole[userID?]",
+      "args": [{ "name": "userID", "type": "snowflake", "required": false, "lazy": false, "description": "Member to check. Defaults to author." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$lowestRole", "output": "@everyone" }]
+    },
+    { "name": "$isHoisted", "key": "ishoisted", "category": "roles",
+      "description": "Returns \"true\" if the role is displayed separately in the member list (hoisted).",
+      "syntax": "$isHoisted[roleID]",
+      "args": [{ "name": "roleID", "type": "snowflake", "required": true, "lazy": false, "description": "Role to check." }],
+      "returns": "boolean string", "lazy": [],
+      "examples": [{ "code": "$isHoisted[$roleID]", "output": "true" }]
+    },
+    { "name": "$isMentionable", "key": "ismentionable", "category": "roles",
+      "description": "Returns \"true\" if the role can be mentioned by regular members.",
+      "syntax": "$isMentionable[roleID]",
+      "args": [{ "name": "roleID", "type": "snowflake", "required": true, "lazy": false, "description": "Role to check." }],
+      "returns": "boolean string", "lazy": [],
+      "examples": [{ "code": "$isMentionable[$roleID]", "output": "false" }]
+    },
+    { "name": "$roleNames", "key": "rolenames", "category": "roles",
+      "description": "Returns all role names in the guild joined by separator.",
+      "syntax": "$roleNames[separator?;guildID?]",
+      "args": [
+        { "name": "separator", "type": "string",    "required": false, "lazy": false, "description": "Separator. Default \", \"." },
+        { "name": "guildID",   "type": "snowflake", "required": false, "lazy": false, "description": "Guild ID. Defaults to current guild." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$roleNames[, ]", "output": "Admin, Moderator, Member" }]
+    },
+    { "name": "$rolePerms", "key": "roleperms", "category": "roles",
+      "description": "Returns a list of permission names held by a role.",
+      "syntax": "$rolePerms[guildID;roleID;separator?]",
+      "args": [
+        { "name": "guildID",   "type": "snowflake", "required": true,  "lazy": false, "description": "Guild containing the role." },
+        { "name": "roleID",    "type": "snowflake", "required": true,  "lazy": false, "description": "Role to inspect." },
+        { "name": "separator", "type": "string",    "required": false, "lazy": false, "description": "Separator. Default \", \"." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$rolePerms[$guildID;$roleID]", "output": "SendMessages, ReadMessageHistory" }]
+    },
+
+    { "name": "$categoryChannels", "key": "categorychannels", "category": "channels",
+      "description": "Returns channels inside a category joined by separator. option: \"name\" (default) or \"id\".",
+      "syntax": "$categoryChannels[categoryID;separator;option?]",
+      "args": [
+        { "name": "categoryID", "type": "snowflake", "required": true,  "lazy": false, "description": "Category ID or name." },
+        { "name": "separator",  "type": "string",    "required": true,  "lazy": false, "description": "Separator between results." },
+        { "name": "option",     "type": "string",    "required": false, "lazy": false, "description": "\"name\" (default) or \"id\"." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$categoryChannels[123456789;, ]", "output": "general, media, off-topic" }]
+    },
+    { "name": "$categoryID", "key": "categoryid", "category": "channels",
+      "description": "Returns the ID of a category channel by name.",
+      "syntax": "$categoryID[categoryName]",
+      "args": [{ "name": "categoryName", "type": "string", "required": true, "lazy": false, "description": "Exact name of the category (case-insensitive)." }],
+      "returns": "snowflake string", "lazy": [],
+      "examples": [{ "code": "$categoryID[TEXT CHANNELS]", "output": "123456789012345678" }]
+    },
+    { "name": "$deleteChannelsByName", "key": "deletechannelsbyname", "category": "channels",
+      "description": "Deletes all channels whose name matches any of the provided names. Returns the count deleted.",
+      "syntax": "$deleteChannelsByName[name;...]",
+      "args": [{ "name": "name", "type": "string", "required": true, "lazy": false, "description": "Channel name(s) to delete (variadic)." }],
+      "returns": "string (number deleted)", "lazy": [],
+      "examples": [{ "code": "$deleteChannelsByName[temp;scratch]", "output": "2" }]
+    },
+    { "name": "$editChannelPerms", "key": "editchannelperms", "category": "channels",
+      "description": "Sets permission overrides on a channel for a user or role. Prefix permission with \"+\" to allow or \"-\" to deny.",
+      "syntax": "$editChannelPerms[channelID;userID/roleID;permission;...]",
+      "args": [
+        { "name": "channelID",     "type": "snowflake", "required": true, "lazy": false, "description": "Target channel." },
+        { "name": "userID/roleID", "type": "snowflake", "required": true, "lazy": false, "description": "User or role to override." },
+        { "name": "permission",    "type": "string",    "required": true, "lazy": false, "description": "Permission flag(s), variadic. Prefix +/- to allow/deny." }
+      ],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$editChannelPerms[$channelID;$roleID;+SendMessages;-ViewChannel]", "output": "" }]
+    },
+    { "name": "$getSlowmode", "key": "getslowmode", "category": "channels",
+      "description": "Returns the slowmode delay in seconds for a channel (0 = no slowmode).",
+      "syntax": "$getSlowmode[channelID?]",
+      "args": [{ "name": "channelID", "type": "snowflake", "required": false, "lazy": false, "description": "Channel to check. Defaults to current channel." }],
+      "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$getSlowmode", "output": "5" }]
+    },
+    { "name": "$findChannel", "key": "findchannel", "category": "channels",
+      "description": "Resolves a channel by mention, ID, or name and returns its ID.",
+      "syntax": "$findChannel[ID/Name/Mention]",
+      "args": [{ "name": "query", "type": "string", "required": true, "lazy": false, "description": "A channel mention, snowflake ID, or channel name." }],
+      "returns": "snowflake string", "lazy": [],
+      "examples": [{ "code": "$findChannel[general]", "output": "123456789012345678" }]
+    },
+    { "name": "$findRole", "key": "findrole", "category": "channels",
+      "description": "Resolves a role by mention, ID, or name and returns its ID.",
+      "syntax": "$findRole[ID/Name/Mention]",
+      "args": [{ "name": "query", "type": "string", "required": true, "lazy": false, "description": "A role mention, snowflake ID, or role name." }],
+      "returns": "snowflake string", "lazy": [],
+      "examples": [{ "code": "$findRole[Admin]", "output": "987654321098765432" }]
+    },
+    { "name": "$findUser", "key": "finduser", "category": "channels",
+      "description": "Resolves a user by mention, ID, or username and returns their ID. Falls back to the author if not found.",
+      "syntax": "$findUser[ID/Username/Mention;fallbackToAuthor?]",
+      "args": [
+        { "name": "query",           "type": "string",  "required": true,  "lazy": false, "description": "Mention, snowflake ID, or username." },
+        { "name": "fallbackToAuthor","type": "boolean", "required": false, "lazy": false, "description": "Return author ID if not found. Default true." }
+      ],
+      "returns": "snowflake string", "lazy": [],
+      "examples": [{ "code": "$findUser[$message[1]]", "output": "123456789012345678" }]
+    },
+
+    { "name": "$checkContains", "key": "checkcontains", "category": "strings",
+      "description": "Returns \"true\" if text contains any of the provided words (case-insensitive).",
+      "syntax": "$checkContains[text;word;...]",
+      "args": [
+        { "name": "text",  "type": "string", "required": true, "lazy": false, "description": "Text to search in." },
+        { "name": "words", "type": "string", "required": true, "lazy": false, "description": "Words to search for (variadic)." }
+      ],
+      "returns": "boolean string", "lazy": [],
+      "examples": [{ "code": "$checkContains[$message;hello;hi;hey]", "output": "true" }]
+    },
+    { "name": "$removeLinks", "key": "removelinks", "category": "strings",
+      "description": "Removes all HTTP/HTTPS URLs from the text.",
+      "syntax": "$removeLinks[text]",
+      "args": [{ "name": "text", "type": "string", "required": true, "lazy": false, "description": "Text to clean." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$removeLinks[Visit https://example.com today]", "output": "Visit today" }]
+    },
+    { "name": "$removeContains", "key": "removecontains", "category": "strings",
+      "description": "Removes occurrences of each word from text. Last argument can be a number to limit how many are removed.",
+      "syntax": "$removeContains[text;word;...;amount?]",
+      "args": [
+        { "name": "text",   "type": "string",  "required": true,  "lazy": false, "description": "Source text." },
+        { "name": "words",  "type": "string",  "required": true,  "lazy": false, "description": "Words to remove (variadic)." },
+        { "name": "amount", "type": "integer", "required": false, "lazy": false, "description": "Max removals per word." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$removeContains[hello hello world;hello;1]", "output": "hello world" }]
+    },
+    { "name": "$unescape", "key": "unescape", "category": "strings",
+      "description": "Removes backslash escaping from text (e.g. \\; → ;, \\$ → $).",
+      "syntax": "$unescape[text]",
+      "args": [{ "name": "text", "type": "string", "required": true, "lazy": false, "description": "Escaped text to unescape." }],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$unescape[hello\\;world]", "output": "hello;world" }]
+    },
+
+    { "name": "$onlyAdmin", "key": "onlyadmin", "category": "control",
+      "description": "Stops execution if the command author does not have the Administrator permission.",
+      "syntax": "$onlyAdmin[errorMessage?]",
+      "args": [{ "name": "errorMessage", "type": "string", "required": false, "lazy": false, "description": "Message to send when blocked. Empty = silent stop." }],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$onlyAdmin[Admins only!]", "output": "" }]
+    },
+    { "name": "$onlyNSFW", "key": "onlynsfw", "category": "control",
+      "description": "Stops execution if the command is not used in an NSFW channel.",
+      "syntax": "$onlyNSFW[errorMessage?]",
+      "args": [{ "name": "errorMessage", "type": "string", "required": false, "lazy": false, "description": "Message to send when blocked." }],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$onlyNSFW[NSFW channels only!]", "output": "" }]
+    },
+    { "name": "$onlyBotPerms", "key": "onlybotperms", "category": "control",
+      "description": "Stops execution if the bot is missing any of the listed permissions. Last argument is the error message.",
+      "syntax": "$onlyBotPerms[permission;...;errorMessage]",
+      "args": [
+        { "name": "permission",   "type": "string", "required": true, "lazy": false, "description": "Permission flag(s) to require (variadic)." },
+        { "name": "errorMessage", "type": "string", "required": true, "lazy": false, "description": "Last argument. Message shown when bot lacks perms." }
+      ],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$onlyBotPerms[ManageMessages;I need Manage Messages!]", "output": "" }]
+    },
+    { "name": "$onlyForIDs", "key": "onlyforids", "category": "control",
+      "description": "Stops execution if the command author's ID is not in the provided list. Last argument is the error message.",
+      "syntax": "$onlyForIDs[userID;...;errorMessage]",
+      "args": [
+        { "name": "userID",       "type": "snowflake", "required": true, "lazy": false, "description": "Allowed user ID(s) (variadic)." },
+        { "name": "errorMessage", "type": "string",    "required": true, "lazy": false, "description": "Last argument. Shown when user is not allowed." }
+      ],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$onlyForIDs[111222333;444555666;Not allowed!]", "output": "" }]
+    },
+    { "name": "$argsCheck", "key": "argscheck", "category": "control",
+      "description": "Stops execution if the number of command arguments is less than the required count.",
+      "syntax": "$argsCheck[requiredCount;errorMessage]",
+      "args": [
+        { "name": "requiredCount", "type": "integer", "required": true, "lazy": false, "description": "Minimum number of arguments required." },
+        { "name": "errorMessage",  "type": "string",  "required": true, "lazy": false, "description": "Shown when arg count is too low." }
+      ],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$argsCheck[2;Usage: !cmd <a> <b>]", "output": "" }]
+    },
+    { "name": "$checkCondition", "key": "checkcondition", "category": "control",
+      "description": "Evaluates a condition expression (same syntax as $if) and returns \"true\" or \"false\".",
+      "syntax": "$checkCondition[condition]",
+      "args": [{ "name": "condition", "type": "string", "required": true, "lazy": false, "description": "Condition to evaluate (e.g. 5>3)." }],
+      "returns": "boolean string", "lazy": [],
+      "examples": [{ "code": "$checkCondition[5>3]", "output": "true" }]
+    },
+
+    { "name": "$jsonArrayIndex", "key": "jsonarrayindex", "category": "json",
+      "description": "Returns the 0-based index of a value in a JSON array, or -1 if not found.",
+      "syntax": "$jsonArrayIndex[key;...;value]",
+      "args": [
+        { "name": "key",   "type": "string", "required": true, "lazy": false, "description": "Key path to the array (variadic). Last arg is the search value." },
+        { "name": "value", "type": "string", "required": true, "lazy": false, "description": "Value to search for (last argument)." }
+      ],
+      "returns": "string (integer)", "lazy": [],
+      "examples": [{ "code": "$jsonArrayIndex[items;banana]", "output": "1" }]
+    },
+    { "name": "$jsonArrayReverse", "key": "jsonarrayreverse", "category": "json",
+      "description": "Reverses a JSON array in-place at the given key path.",
+      "syntax": "$jsonArrayReverse[key;...]",
+      "args": [{ "name": "key", "type": "string", "required": true, "lazy": false, "description": "Key path to the array (variadic)." }],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$jsonArrayReverse[items]", "output": "" }]
+    },
+    { "name": "$jsonArraySort", "key": "jsonarraysort", "category": "json",
+      "description": "Sorts a JSON array in-place (numeric if all numbers, otherwise lexicographic).",
+      "syntax": "$jsonArraySort[key;...]",
+      "args": [{ "name": "key", "type": "string", "required": true, "lazy": false, "description": "Key path to the array (variadic)." }],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$jsonArraySort[scores]", "output": "" }]
+    },
+    { "name": "$jsonArrayUnshift", "key": "jsonarrayunshift", "category": "json",
+      "description": "Prepends a value to the beginning of a JSON array at the given key path.",
+      "syntax": "$jsonArrayUnshift[key;...;value]",
+      "args": [
+        { "name": "key",   "type": "string", "required": true, "lazy": false, "description": "Key path to the array (variadic). Last arg is the value." },
+        { "name": "value", "type": "string", "required": true, "lazy": false, "description": "Value to prepend (last argument)." }
+      ],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$jsonArrayUnshift[items;first]", "output": "" }]
+    },
+    { "name": "$jsonJoinArray", "key": "jsonjoinarray", "category": "json",
+      "description": "Joins all elements of a JSON array using a separator. Last argument is always the separator.",
+      "syntax": "$jsonJoinArray[key;...;separator]",
+      "args": [
+        { "name": "key",       "type": "string", "required": true, "lazy": false, "description": "Key path to the array (variadic). Last arg is separator." },
+        { "name": "separator", "type": "string", "required": true, "lazy": false, "description": "Separator string (last argument)." }
+      ],
+      "returns": "string", "lazy": [],
+      "examples": [{ "code": "$jsonJoinArray[tags;, ]", "output": "red, blue, green" }]
+    },
+
+    { "name": "$threadMessageCount", "key": "threadmessagecount", "category": "threads",
+      "description": "Returns the approximate message count in the current thread.",
+      "syntax": "$threadMessageCount", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$threadMessageCount", "output": "42" }]
+    },
+    { "name": "$threadUserCount", "key": "threadusercount", "category": "threads",
+      "description": "Returns the approximate number of members in the current thread.",
+      "syntax": "$threadUserCount", "args": [], "returns": "string (number)", "lazy": [],
+      "examples": [{ "code": "$threadUserCount", "output": "7" }]
+    },
+
+    { "name": "$publishMessage", "key": "publishmessage", "category": "message",
+      "description": "Crossposts (publishes) a message in an announcement channel to all followers.",
+      "syntax": "$publishMessage[channelID;messageID]",
+      "args": [
+        { "name": "channelID", "type": "snowflake", "required": true, "lazy": false, "description": "Announcement channel containing the message." },
+        { "name": "messageID", "type": "snowflake", "required": true, "lazy": false, "description": "Message to crosspost." }
+      ],
+      "returns": "empty string", "lazy": [],
+      "examples": [{ "code": "$publishMessage[$channelID;$messageID]", "output": "" }]
     }
 
   ]
