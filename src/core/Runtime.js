@@ -121,6 +121,13 @@ class Runtime {
       'Execution timed out'
     );
 
+    // Handle $addPage pagination — send pages and return empty so index.js sends nothing extra
+    if (context._out._paginated && context._out._pages?.length) {
+      const { sendPaginated } = require('../functions/message/addPage');
+      await sendPaginated(message, context._out._pages);
+      return { text: '', embed: null, components: [] };
+    }
+
     // $onlyIf error message takes priority over accumulated text
     const text = (context._out.stopMessage !== null)
       ? context._out.stopMessage
