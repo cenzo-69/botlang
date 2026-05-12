@@ -3,6 +3,11 @@
   "version": "1.0.0",
   "description": "Professional Discord bot scripting language runtime — like BDFD/ForgeScript but fully open, extensible, and npm-publishable.",
   "main": "src/index.js",
+  "files": [
+    "src/",
+    "functions.json",
+    "Read.md"
+  ],
   "scripts": {
     "start": "node index.js",
     "test": "node test.js"
@@ -20,6 +25,9 @@
   ],
   "author": "Cenzo",
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "dependencies": {
     "discord.js": "^14.19.3",
     "dotenv": "^17.2.1"
