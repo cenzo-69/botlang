@@ -14,7 +14,7 @@ module.exports = {
     '  time  cooldown  reactions  emojis  random',
     '  http  webhooks  threads  permissions  errorhandling  blacklist',
     '  vc  giveaway  invites  events',
-    '  json  ai  slash  tickets  misc',
+    '  json  misc',
     '',
     '  !find <keyword>      — search by keyword in name or description',
   ].join('\n'),
