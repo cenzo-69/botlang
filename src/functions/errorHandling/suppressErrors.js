@@ -1,7 +1,7 @@
 'use strict';
 
 // $suppressErrors[code]
-// Executes `code` and silences all [error: ...] output and thrown exceptions.
+// Executes `code` and silences all formatted errors and thrown exceptions.
 // Returns the clean output, or empty string on failure.
 // Arg 0 is LAZY.
 module.exports = {
@@ -13,10 +13,12 @@ module.exports = {
 
     try {
       const result = await context.child().executeNodes(bodyNodes);
-      // Strip all [error: ...] segments from output
-      return String(result).replace(/\[error:[^\]]*\]/gi, '').trim();
-    } catch (err) {
-      // Silently swallow any thrown errors
+      // Strip all formatted error blocks from output
+      return String(result)
+        .replace(/⛔[^\n]*\n?(?:┌[^\n]*\n?(?:│[^\n]*\n?)*└[^\n]*\n?)?/g, '')
+        .replace(/\[error:[^\]]*\]/gi, '')
+        .trim();
+    } catch {
       return '';
     }
   },

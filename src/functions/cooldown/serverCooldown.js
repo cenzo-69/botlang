@@ -1,26 +1,35 @@
 'use strict';
 
-// $serverCooldown[duration]
-// Per-server, per-command cooldown — all users in this guild share one cooldown slot.
-// Duration format: 10s | 5m | 2h | 1d
+const parseTime = require('../../core/parseTime');
+const fnError   = require('../../core/fnError');
+
+// $serverCooldown[duration;message?]
+// Per-server cooldown — all users in this guild share one cooldown slot.
+// Duration: 10s | 5m | 2h | 1d
 
 const cooldowns = new Map(); // key: `guildID:cmdName` → expiry timestamp
 
-function parseMs(str) {
-  const m = String(str).match(/^(\d+)(ms|s|m|h|d)?$/i);
-  if (!m) return 0;
-  const n     = parseInt(m[1]);
-  const units = { ms: 1, s: 1000, m: 60_000, h: 3_600_000, d: 86_400_000 };
-  return n * (units[(m[2] || 's').toLowerCase()] ?? 1000);
-}
-
 module.exports = async (context, args) => {
-  const ms      = parseMs(args[0] || '0');
-  if (!ms) return '';
+  const raw     = String(args[0] !== undefined ? args[0] : '').trim();
+  const ms      = parseTime(raw);
+  const message = args[1] !== undefined ? String(args[1]) : null;
 
-  const guildID = context.message?.guild?.id;
+  if (!ms) {
+    return fnError('serverCooldown', 'invalid or missing duration', {
+      got:      raw || '(empty)',
+      expected: 'a duration like `30s`, `5m`, `1h`, `1d`',
+      example:  '$serverCooldown[1h]',
+    });
+  }
+
+  const guildID = context.message?.guild?.id ?? context.interaction?.guildId;
   const cmdName = context.commandName || 'cmd';
-  if (!guildID) return '';
+
+  if (!guildID) {
+    return fnError('serverCooldown', 'could not determine guild ID', {
+      tip: 'This function only works inside a server',
+    });
+  }
 
   const key    = `${guildID}:${cmdName}`;
   const now    = Date.now();
@@ -28,7 +37,8 @@ module.exports = async (context, args) => {
 
   if (now < expiry) {
     const remaining = ((expiry - now) / 1000).toFixed(1);
-    context._out.stopMessage = `⏳ This command is on a server cooldown. Try again in ${remaining}s.`;
+    const reply = message ?? `⏳ This command is on a server cooldown. Try again in **${remaining}s**.`;
+    context._out.stopMessage = reply;
     context.stop();
     return '';
   }

@@ -1,33 +1,28 @@
 'use strict';
 
-// $cooldown[duration]
-//
-// Per-user, per-command cooldown.
-// If the calling user is on cooldown, stops execution and returns a message.
-//
-// Duration format: 10s | 5m | 2h | 1d  (default unit: seconds)
-//
-// Cooldown state is in-memory — resets when the bot restarts.
-//
-// Example:
-//   $cooldown[30s]
-//   You used this command! It's on a 30-second cooldown per user.
+const parseTime = require('../../core/parseTime');
+const fnError   = require('../../core/fnError');
 
-const cooldowns = new Map(); // key: `${cmdName}:${userID}` → expiry timestamp
+// $cooldown[duration;message?]
+// Per-user, per-command cooldown. Stops execution if user is on cooldown.
+// Duration: 10s | 5m | 2h | 1d
 
-function parseMs(str) {
-  const m = String(str).match(/^(\d+)(ms|s|m|h|d)?$/i);
-  if (!m) return 0;
-  const n = parseInt(m[1]);
-  const units = { ms: 1, s: 1000, m: 60_000, h: 3_600_000, d: 86_400_000 };
-  return n * (units[(m[2] || 's').toLowerCase()] ?? 1000);
-}
+const cooldowns = new Map(); // key: `cmdName:userID` → expiry timestamp
 
 module.exports = async (context, args) => {
-  const ms = parseMs(args[0] || '0');
-  if (!ms) return '';
+  const raw     = String(args[0] !== undefined ? args[0] : '').trim();
+  const ms      = parseTime(raw);
+  const message = args[1] !== undefined ? String(args[1]) : null;
 
-  const userID  = context.message?.author?.id;
+  if (!ms) {
+    return fnError('cooldown', 'invalid or missing duration', {
+      got:      raw || '(empty)',
+      expected: 'a duration like `30s`, `5m`, `1h`, `1d`',
+      example:  '$cooldown[30s]  or  $cooldown[1m;Slow down!]',
+    });
+  }
+
+  const userID  = context.message?.author?.id ?? context.interaction?.user?.id ?? 'unknown';
   const cmdName = context.commandName || 'cmd';
   const key     = `${cmdName}:${userID}`;
   const now     = Date.now();
@@ -35,7 +30,8 @@ module.exports = async (context, args) => {
 
   if (now < expiry) {
     const remaining = ((expiry - now) / 1000).toFixed(1);
-    context._out.stopMessage = `⏳ You're on cooldown. Try again in ${remaining}s.`;
+    const reply = message ?? `⏳ You're on cooldown. Try again in **${remaining}s**.`;
+    context._out.stopMessage = reply;
     context.stop();
     return '';
   }

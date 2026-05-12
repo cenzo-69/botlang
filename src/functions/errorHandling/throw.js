@@ -1,11 +1,18 @@
 'use strict';
 
-// $throw[message;code?]
-// Emits a detailed error string and stops execution.
-// Optional code arg provides extra context (function name, usage info, etc).
+const fnError = require('../../core/fnError');
+
+// $throw[message;tip?]
+// Emits a rich formatted error, stores it in __lastError__, and halts execution.
 module.exports = async (context, args) => {
-  const message = String(args[0] !== undefined ? args[0] : 'An error occurred');
-  const code    = args[1] !== undefined ? ` (${args[1]})` : '';
+  const message = String(args[0] !== undefined ? args[0] : 'An error occurred').trim();
+  const tip     = args[1] !== undefined ? String(args[1]).trim() : undefined;
+
+  context.variables.set('__lastError__', message);
   context.stop();
-  return `[error: ${message}${code}]`;
+
+  return fnError('throw', message, {
+    ...(tip ? { tip } : {}),
+    example: '$throw[Something went wrong]',
+  });
 };

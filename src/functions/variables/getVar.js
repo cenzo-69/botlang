@@ -1,10 +1,18 @@
 'use strict';
 
-// $getVar[name]            — get a session variable
-// $getVar[name;default]    — with fallback default
+const fnError = require('../../core/fnError');
+
+// $getVar[name]           — returns the session variable's value ('' if unset)
+// $getVar[name;default]   — returns fallback if variable is not set
 module.exports = async (context, args) => {
-  const name = args[0];
-  if (!name) return '';
+  const name = String(args[0] !== undefined ? args[0] : '').trim();
+
+  if (!name) {
+    return fnError('getVar', 'variable name is required', {
+      expected: '`name` (string)',
+      example:  '$getVar[score]  or  $getVar[score;0]',
+    });
+  }
 
   const value = context.getVariable(name);
   if (value === undefined || value === null) {

@@ -5,7 +5,7 @@ const MAX_DEPTH = 128;
 /**
  * Execution context — the single object threaded through every function call.
  *
- * Shared by reference across the whole execution tree (same as variables/embed):
+ * Shared by reference across the whole execution tree:
  *   _out        — output-control container  { stopMessage: null | string }
  *   variables   — session variable Map
  *   embed       — embed builder state
@@ -21,6 +21,7 @@ class Context {
   constructor({
     // Discord
     message,
+    interaction,
     client,
     // Command parsing
     commandName,
@@ -31,11 +32,11 @@ class Context {
     variables,
     depth,
     runtime,
-    // Output control (shared object — $onlyIf stopMessage lives here)
+    // Output control (shared object)
     _out,
-    // Embed state (shared object — mutated by $title, $color, etc.)
+    // Embed state (shared object)
     embed,
-    // Component state (shared array — $button, $selectMenu push here)
+    // Component state (shared array)
     components,
     // Loop state
     loopIndex,
@@ -45,8 +46,9 @@ class Context {
     callStack,
   } = {}) {
     // ── Discord ───────────────────────────────────────────────────────────────
-    this.message = message || null;
-    this.client  = client  || message?.client || null;
+    this.message     = message     || null;
+    this.interaction = interaction || null;
+    this.client      = client || message?.client || interaction?.client || null;
 
     // ── Command parsing ───────────────────────────────────────────────────────
     this.commandName    = commandName    || null;
@@ -61,10 +63,7 @@ class Context {
     this.stopped   = false;
 
     // ── Output control (shared) ───────────────────────────────────────────────
-    // $onlyIf[cond;errorMsg] stores errorMsg here; runForCommandFull checks it
-    // after execution and uses it as the final text (replacing any accumulated
-    // output), so only the error message is sent.
-    this._out = _out || { stopMessage: null };
+    this._out = _out || { stopMessage: null, _paginated: false, _pages: [] };
 
     // ── Embed state (shared) ──────────────────────────────────────────────────
     this.embed = embed || {
@@ -81,8 +80,6 @@ class Context {
     };
 
     // ── Component state (shared) ──────────────────────────────────────────────
-    // $button, $selectMenu etc. push descriptor objects here.
-    // Runtime._buildComponents() converts them to ActionRowBuilders.
     this.components = components || [];
 
     // ── Loop state ────────────────────────────────────────────────────────────
@@ -107,22 +104,23 @@ class Context {
     }
 
     return new Context({
-      message:         this.message,
-      client:          this.client,
-      commandName:     this.commandName,
-      commandInput:    this.commandInput,
-      commandArgs:     this.commandArgs,
-      noMentionInput:  this.noMentionInput,
-      variables:       this.variables,    // shared Map
-      _out:            this._out,         // shared output control
-      embed:           this.embed,        // shared embed object
-      components:      this.components,   // shared components array
-      depth:           this.depth + 1,
-      runtime:         this.runtime,
-      loopIndex:       this.loopIndex,
-      loopNumber:      this.loopNumber,
-      loopCount:       this.loopCount,
-      callStack:       [...this.callStack], // snapshot for tracing
+      message:        this.message,
+      interaction:    this.interaction,
+      client:         this.client,
+      commandName:    this.commandName,
+      commandInput:   this.commandInput,
+      commandArgs:    this.commandArgs,
+      noMentionInput: this.noMentionInput,
+      variables:      this.variables,    // shared Map
+      _out:           this._out,         // shared output control
+      embed:          this.embed,        // shared embed object
+      components:     this.components,   // shared components array
+      depth:          this.depth + 1,
+      runtime:        this.runtime,
+      loopIndex:      this.loopIndex,
+      loopNumber:     this.loopNumber,
+      loopCount:      this.loopCount,
+      callStack:      [...this.callStack],
     });
   }
 

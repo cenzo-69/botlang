@@ -1,30 +1,26 @@
 'use strict';
 
-// $globalCooldown[duration]
-//
-// Server-wide cooldown — applies to ALL users for this command.
-// If ANY user triggered this command recently, everyone is blocked until
-// the cooldown expires.
-//
-// Duration format: 10s | 5m | 2h | 1d  (default unit: seconds)
-//
-// Example:
-//   $globalCooldown[5m]
-//   This command was just used. Try again in a few minutes!
+const parseTime = require('../../core/parseTime');
+const fnError   = require('../../core/fnError');
+
+// $globalCooldown[duration;message?]
+// Bot-wide cooldown for a command. Blocks ALL users until it expires.
+// Duration: 10s | 5m | 2h | 1d
 
 const globalCooldowns = new Map(); // key: cmdName → expiry timestamp
 
-function parseMs(str) {
-  const m = String(str).match(/^(\d+)(ms|s|m|h|d)?$/i);
-  if (!m) return 0;
-  const n = parseInt(m[1]);
-  const units = { ms: 1, s: 1000, m: 60_000, h: 3_600_000, d: 86_400_000 };
-  return n * (units[(m[2] || 's').toLowerCase()] ?? 1000);
-}
-
 module.exports = async (context, args) => {
-  const ms = parseMs(args[0] || '0');
-  if (!ms) return '';
+  const raw     = String(args[0] !== undefined ? args[0] : '').trim();
+  const ms      = parseTime(raw);
+  const message = args[1] !== undefined ? String(args[1]) : null;
+
+  if (!ms) {
+    return fnError('globalCooldown', 'invalid or missing duration', {
+      got:      raw || '(empty)',
+      expected: 'a duration like `30s`, `5m`, `1h`, `1d`',
+      example:  '$globalCooldown[5m]',
+    });
+  }
 
   const cmdName = context.commandName || 'cmd';
   const now     = Date.now();
@@ -32,7 +28,8 @@ module.exports = async (context, args) => {
 
   if (now < expiry) {
     const remaining = ((expiry - now) / 1000).toFixed(1);
-    context._out.stopMessage = `⏳ This command is on a global cooldown. Try again in ${remaining}s.`;
+    const reply = message ?? `⏳ This command is on a global cooldown. Try again in **${remaining}s**.`;
+    context._out.stopMessage = reply;
     context.stop();
     return '';
   }

@@ -1,15 +1,26 @@
 'use strict';
 
-// $reply[content]
-module.exports = async (context, args) => {
-  if (!context.message) return '';
+const fnError = require('../../core/fnError');
 
-  const content = args[0] || '';
+// $reply[content]  — replies to the triggering message (or responds to interaction)
+module.exports = async (context, args) => {
+  const content = String(args[0] !== undefined ? args[0] : '').trim();
+
+  if (!content) {
+    return fnError('reply', 'reply content is required', {
+      expected: 'a non-empty string',
+      example:  '$reply[Hello there!]',
+    });
+  }
 
   try {
-    await context.message.reply(content);
+    if (context.interaction && !context.interaction.replied && !context.interaction.deferred) {
+      await context.interaction.reply({ content, ephemeral: false });
+    } else if (context.message) {
+      await context.message.reply(content);
+    }
   } catch (err) {
-    console.error(`[$reply] ${err.message}`);
+    return fnError('reply', err.message, { tip: 'Check bot permissions and interaction state' });
   }
 
   return '';

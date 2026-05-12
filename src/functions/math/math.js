@@ -1,29 +1,33 @@
 'use strict';
 
+const fnError = require('../../core/fnError');
+
 // $math[expression]
-// Safely evaluates a math expression.  Supports: + - * / % ** ( )
-// No require, no eval tricks — uses a custom safe evaluator.
+// Safely evaluates a math expression. Supports: + - * / % ^ ()
 module.exports = async (context, args) => {
-  const expr = String(args[0] || '').trim();
+  const expr = String(args[0] !== undefined ? args[0] : '').trim();
   if (!expr) return '0';
 
   try {
     const result = safeMath(expr);
-    // Return integer if whole number, else up to 10 decimal places
     return Number.isInteger(result)
       ? String(result)
       : String(parseFloat(result.toFixed(10)));
-  } catch {
-    return '[math error]';
+  } catch (err) {
+    return fnError('math', 'could not evaluate expression', {
+      got:      expr,
+      tip:      err.message,
+      expected: 'a valid math expression using `+ - * / % ^ ( )`',
+      example:  '$math[10 * (2 + 3)]',
+    });
   }
 };
 
-// Tokenize and parse the expression with proper precedence
 function safeMath(expr) {
   const tokens = tokenize(expr);
-  const pos = { i: 0 };
+  const pos    = { i: 0 };
   const result = parseExpr(tokens, pos);
-  if (pos.i !== tokens.length) throw new Error('Unexpected token');
+  if (pos.i !== tokens.length) throw new Error('Unexpected token after expression');
   return result;
 }
 
@@ -39,18 +43,18 @@ function tokenize(expr) {
     } else if ('+-*/%^()'.includes(expr[i])) {
       tokens.push({ type: 'op', value: expr[i++] });
     } else {
-      throw new Error(`Unknown character: ${expr[i]}`);
+      throw new Error(`Unknown character: "${expr[i]}"`);
     }
   }
   return tokens;
 }
 
-function parseExpr(tokens, pos) { return parseAddSub(tokens, pos); }
+function parseExpr(tokens, pos)    { return parseAddSub(tokens, pos); }
 
 function parseAddSub(tokens, pos) {
   let left = parseMulDiv(tokens, pos);
   while (pos.i < tokens.length && '+-'.includes(tokens[pos.i].value)) {
-    const op = tokens[pos.i++].value;
+    const op    = tokens[pos.i++].value;
     const right = parseMulDiv(tokens, pos);
     left = op === '+' ? left + right : left - right;
   }
@@ -60,11 +64,11 @@ function parseAddSub(tokens, pos) {
 function parseMulDiv(tokens, pos) {
   let left = parsePow(tokens, pos);
   while (pos.i < tokens.length && '*/%'.includes(tokens[pos.i].value)) {
-    const op = tokens[pos.i++].value;
+    const op    = tokens[pos.i++].value;
     const right = parsePow(tokens, pos);
-    if (op === '*') left *= right;
+    if (op === '*')      left *= right;
     else if (op === '/') left /= right;
-    else left %= right;
+    else                 left %= right;
   }
   return left;
 }
@@ -73,21 +77,14 @@ function parsePow(tokens, pos) {
   let base = parseUnary(tokens, pos);
   if (pos.i < tokens.length && tokens[pos.i].value === '^') {
     pos.i++;
-    const exp = parsePow(tokens, pos); // right-associative
-    base = Math.pow(base, exp);
+    base = Math.pow(base, parsePow(tokens, pos));
   }
   return base;
 }
 
 function parseUnary(tokens, pos) {
-  if (pos.i < tokens.length && tokens[pos.i].value === '-') {
-    pos.i++;
-    return -parsePrimary(tokens, pos);
-  }
-  if (pos.i < tokens.length && tokens[pos.i].value === '+') {
-    pos.i++;
-    return parsePrimary(tokens, pos);
-  }
+  if (pos.i < tokens.length && tokens[pos.i].value === '-') { pos.i++; return -parsePrimary(tokens, pos); }
+  if (pos.i < tokens.length && tokens[pos.i].value === '+') { pos.i++; return  parsePrimary(tokens, pos); }
   return parsePrimary(tokens, pos);
 }
 
@@ -98,9 +95,9 @@ function parsePrimary(tokens, pos) {
   if (tok.value === '(') {
     pos.i++;
     const val = parseExpr(tokens, pos);
-    if (!tokens[pos.i] || tokens[pos.i].value !== ')') throw new Error("Missing ')'");
+    if (!tokens[pos.i] || tokens[pos.i].value !== ')') throw new Error("Missing closing ')'");
     pos.i++;
     return val;
   }
-  throw new Error(`Unexpected token: ${tok.value}`);
+  throw new Error(`Unexpected token: "${tok.value}"`);
 }
