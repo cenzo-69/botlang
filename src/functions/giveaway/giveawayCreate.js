@@ -1,29 +1,31 @@
 'use strict';
 
 const db = require('../../core/db');
+const parseTime = require('../../core/parseTime');
 const { EmbedBuilder } = require('discord.js');
 
-// $giveawayCreate[prize;durationMs;winnerCount;channelID?]
-// Creates a giveaway in the specified channel. Members react with 🎉 to enter.
-// Returns the giveaway message ID (use it with $giveawayEnd, $giveawayReroll, etc.)
+// $giveawayCreate[prize;duration;winnerCount;channelID?]
+// Duration uses s/h/d format: 1h | 30m | 1d | 86400s
+// Creates a giveaway. Members react with 🎉 to enter.
+// Returns the giveaway message ID.
 module.exports = async (context, args) => {
   const prize       = String(args[0] !== undefined ? args[0] : '').trim();
-  const durationMs  = parseInt(args[1]) || 0;
+  const durationMs  = parseTime(args[1]);
   const winnerCount = parseInt(args[2]) || 1;
   const channelID   = String(args[3] !== undefined ? args[3] : '').trim();
 
-  if (!prize)            return '[error: $giveawayCreate requires a prize]';
-  if (durationMs < 1000) return '[error: $giveawayCreate requires a duration >= 1000ms]';
-  if (!context.client)   return '[error: $giveawayCreate — no client]';
+  if (!prize)          return '[error: $giveawayCreate — prize is required. Usage: $giveawayCreate[prize;duration;winners;channelID?]]';
+  if (durationMs < 1000) return '[error: $giveawayCreate — duration too short. Minimum: 1s. Examples: 1h, 30m, 1d]';
+  if (!context.client) return '[error: $giveawayCreate — no Discord client available]';
 
   try {
     const channel = channelID
       ? await context.client.channels.fetch(channelID)
       : context.message?.channel;
 
-    if (!channel) return '[error: $giveawayCreate — channel not found]';
+    if (!channel) return `[error: $giveawayCreate — channel not found: "${channelID || 'current'}"]`;
 
-    const endsAt = Date.now() + durationMs;
+    const endsAt    = Date.now() + durationMs;
     const endsAtStr = `<t:${Math.floor(endsAt / 1000)}:R>`;
 
     const embed = new EmbedBuilder()

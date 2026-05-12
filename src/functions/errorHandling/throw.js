@@ -1,10 +1,11 @@
 'use strict';
 
-// $throw[message]
-// Produces an [error: message] string and stops execution.
-// Useful for explicit error signalling inside $try blocks.
+// $throw[message;code?]
+// Emits a detailed error string and stops execution.
+// Optional code arg provides extra context (function name, usage info, etc).
 module.exports = async (context, args) => {
-  const message = String(args[0] !== undefined ? args[0] : 'error');
+  const message = String(args[0] !== undefined ? args[0] : 'An error occurred');
+  const code    = args[1] !== undefined ? ` (${args[1]})` : '';
   context.stop();
-  return `[error: ${message}]`;
+  return `[error: ${message}${code}]`;
 };

@@ -1,9 +1,9 @@
 'use strict';
 
 // $suppressErrors[code]
-// Executes `code` and strips any [error: ...] strings from the output.
-// Execution errors (thrown exceptions) are also silenced — returns empty string.
-// The arg is LAZY.
+// Executes `code` and silences all [error: ...] output and thrown exceptions.
+// Returns the clean output, or empty string on failure.
+// Arg 0 is LAZY.
 module.exports = {
   lazy: [0],
 
@@ -13,8 +13,10 @@ module.exports = {
 
     try {
       const result = await context.child().executeNodes(bodyNodes);
-      return result.replace(/\[error:[^\]]*\]/g, '').trim();
-    } catch {
+      // Strip all [error: ...] segments from output
+      return String(result).replace(/\[error:[^\]]*\]/gi, '').trim();
+    } catch (err) {
+      // Silently swallow any thrown errors
       return '';
     }
   },

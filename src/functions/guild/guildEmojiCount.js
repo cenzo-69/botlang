@@ -1,0 +1,10 @@
+'use strict';
+// $guildEmojiCount[guildID?]  — returns count of custom emojis
+module.exports = async (context, args) => {
+  const guildID = String(args[0] !== undefined ? args[0] : '').trim();
+  try {
+    const guild = guildID ? await context.client?.guilds.fetch(guildID) : context.message?.guild;
+    if (!guild) return '[error: $guildEmojiCount — guild not found]';
+    return String(guild.emojis.cache.size);
+  } catch (err) { return `[error: $guildEmojiCount — ${err.message}]`; }
+};
