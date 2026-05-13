@@ -1,7 +1,7 @@
 'use strict';
 
 const { FrameworkError, RuntimeError } = require('./errors');
-const evaluateCondition = require('./evaluateCondition');
+const evaluateCondition                = require('./evaluateCondition');
 
 class Interpreter {
   constructor(functions) {
@@ -31,18 +31,14 @@ class Interpreter {
   }
 
   // ── Block $if execution ───────────────────────────────────────────────────
-  // Evaluates branches in order; executes only the first matching branch.
-  // condition === null means $else (always matches if reached).
   async executeBlockIf(node, context) {
     for (const branch of node.branches) {
       if (context.stopped) break;
 
       if (branch.condition === null) {
-        // $else branch — unconditional
         return this.executeNodes(branch.body, context);
       }
 
-      // Resolve any nested $functions inside the condition expression
       const condStr = await this.executeNodes(branch.condition, context);
       if (evaluateCondition(condStr)) {
         return this.executeNodes(branch.body, context);
@@ -66,13 +62,10 @@ class Interpreter {
     const execute     = typeof fn === 'function' ? fn : fn.execute;
     const lazyIndices = (typeof fn === 'object' && fn.lazy) ? fn.lazy : [];
 
-    // Resolve args BEFORE creating child context —
-    // args are evaluated in the caller's scope, not the function's scope.
     const resolvedArgs = args
       ? await this.resolveArgs(args, lazyIndices, context)
       : [];
 
-    // Create child context; push this function onto the call stack for tracing.
     const childCtx        = context.child();
     childCtx.functionName = originalName;
     childCtx.callStack    = [...context.callStack, originalName];
@@ -80,19 +73,24 @@ class Interpreter {
     try {
       const result = await execute(childCtx, resolvedArgs);
 
-      // Propagate stop signal and output control from child back to caller
+      // Propagate stop signal from child back to caller
       if (childCtx.stopped) context.stop();
 
       if (result === null || result === undefined) return '';
       return String(result);
     } catch (err) {
+      // Enrich existing framework/runtime errors with call stack info
       if (err instanceof FrameworkError || err instanceof RuntimeError) {
         if (!err.callStack || err.callStack.length === 0) {
           err.callStack = childCtx.callStack;
         }
         throw err;
       }
-      throw new RuntimeError(err.message, originalName, childCtx.callStack);
+
+      // Wrap unexpected JS errors in RuntimeError with full context
+      const rErr = new RuntimeError(err.message, originalName, childCtx.callStack);
+      // Copy line info if available (future: from parser)
+      throw rErr;
     }
   }
 

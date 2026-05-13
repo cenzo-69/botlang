@@ -12,9 +12,9 @@ const {
 const path = require('path');
 const fs   = require('fs');
 
-const { Runtime }                    = require('./src');
-const { registerSlashCommands }      = require('./src/core/SlashRegistry');
-const EventLoader                    = require('./src/core/EventLoader');
+const { Runtime }               = require('./src');
+const { registerSlashCommands } = require('./src/core/SlashRegistry');
+const EventLoader               = require('./src/core/EventLoader');
 
 // ─── Client ────────────────────────────────────────────────────────────────────
 
@@ -24,6 +24,7 @@ const client = new Client({
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.GuildVoiceStates,
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.DirectMessages,
   ],
@@ -36,19 +37,36 @@ const runtime = new Runtime();
 
 // ─── Command loader ───────────────────────────────────────────────────────────
 
-const commands    = new Map();
-const CMD_EXTS    = ['.js', '.cj'];
-const commandDir  = path.join(__dirname, 'commands');
+const commands   = new Map();  // name → command def
+const handlers   = new Map();  // customID / type → command def (buttons, modals, etc.)
+const CMD_EXTS   = ['.js', '.cj'];
+const commandDir = path.join(__dirname, 'commands');
 
 if (fs.existsSync(commandDir)) {
   for (const file of fs.readdirSync(commandDir).filter(f => CMD_EXTS.some(e => f.endsWith(e)))) {
     try {
       const cmd = require(path.join(commandDir, file));
-      if (cmd.name && cmd.code) {
-        commands.set(cmd.name.toLowerCase(), cmd);
-        const tag = cmd.slash ? ' [slash]' : '';
-        console.log(`[Commands] Loaded: ${cmd.name} (${path.extname(file)})${tag}`);
+      if (!cmd.name || !cmd.code) continue;
+
+      const nameKey = cmd.name.toLowerCase();
+
+      // Register by type
+      if (cmd.type === 'button' && cmd.customID) {
+        handlers.set(`button:${cmd.customID}`, cmd);
+      } else if (cmd.type === 'modal' && cmd.customID) {
+        handlers.set(`modal:${cmd.customID}`, cmd);
+      } else if (cmd.type === 'selectmenu' && cmd.customID) {
+        handlers.set(`selectmenu:${cmd.customID}`, cmd);
+      } else {
+        commands.set(nameKey, cmd);
       }
+
+      const tag = cmd.slash || cmd.type === 'slash' ? ' [slash]'
+        : cmd.type === 'button'     ? ' [button]'
+        : cmd.type === 'modal'      ? ' [modal]'
+        : cmd.type === 'selectmenu' ? ' [selectMenu]'
+        : '';
+      console.log(`[Commands] Loaded: ${cmd.name} (${path.extname(file)})${tag}`);
     } catch (err) {
       console.error(`[Commands] Failed to load ${file}: ${err.message}`);
     }
@@ -71,150 +89,112 @@ client.on(Events.MessageCreate, async (message) => {
   const raw     = message.content.slice(PREFIX.length).trim();
   const cmdName = (raw.match(/\S+/) || [''])[0].toLowerCase();
   const cmd     = commands.get(cmdName);
-  if (!cmd || cmd.slash === true) return;   // skip slash-only commands
+  if (!cmd) return;
+  if (cmd.type === 'slash') return; // slash-only commands skip prefix
 
   try {
     const { text, embed, components } = await runtime.runForCommandFull(cmd.code, message, PREFIX);
-    const payload = {};
-    if (text?.trim())      payload.content    = text.trim();
-    if (embed)             payload.embeds     = [embed];
-    if (components.length) payload.components = components;
-
-    if (payload.content || payload.embeds || payload.components) {
-      await message.channel.send(payload);
-    }
+    await sendPayload(message.channel, { text, embed, components });
   } catch (err) {
-    const msg = err.format ? err.format() : err.message;
-    console.error(`[Runtime Error] ${msg}`);
-    await message.channel.send(`❌ **Runtime error:** ${err.message}`).catch(() => {});
+    const formatted = err.format?.() ?? err.message;
+    console.error(`[Runtime Error] ${formatted}`);
+    await message.channel.send(err.toDiscord?.() ?? `❌ **${err.name ?? 'Error'}:** ${err.message}`).catch(() => {});
   }
 });
 
-// ─── Slash command + interaction handler ──────────────────────────────────────
+// ─── Interaction handler ───────────────────────────────────────────────────────
 
 client.on(Events.InteractionCreate, async (interaction) => {
+
   // ── Slash commands ──────────────────────────────────────────────────────────
   if (interaction.isChatInputCommand()) {
     const cmd = commands.get(interaction.commandName.toLowerCase());
     if (!cmd) return;
 
-    // Build a synthetic "message-like" object for the runtime
-    const fakeMessage = buildFakeMessage(interaction, client);
+    await deferIfNeeded(interaction, cmd.ephemeral ?? false);
+    await runInteraction(interaction, cmd, buildSlashArgs(interaction));
+    return;
+  }
 
+  // ── Context menu commands ───────────────────────────────────────────────────
+  if (interaction.isContextMenuCommand()) {
+    const cmd = commands.get(interaction.commandName.toLowerCase());
+    if (!cmd) return;
+    await deferIfNeeded(interaction, cmd.ephemeral ?? false);
+    await runInteraction(interaction, cmd, []);
+    return;
+  }
+
+  // ── Autocomplete ────────────────────────────────────────────────────────────
+  if (interaction.isAutocomplete()) {
+    const cmd = commands.get(interaction.commandName.toLowerCase());
+    if (!cmd?.autocomplete) return;
     try {
-      if (!interaction.deferred && !interaction.replied) {
-        await interaction.deferReply({ ephemeral: cmd.ephemeral ?? false });
-      }
-
-      const ast     = runtime.parse(cmd.code);
-      const Context = require('./src/core/Context');
-
-      // Build option args from slash command options
-      const rawOptions = interaction.options?.data ?? [];
-      const cmdArgs    = rawOptions.map(o => String(o.value ?? ''));
-      const cmdInput   = cmdArgs.join(' ');
-
-      const context = new Context({
-        message:        fakeMessage,
-        interaction,
-        client,
-        variables:      new Map(),
-        depth:          0,
-        runtime,
-        commandName:    interaction.commandName,
-        commandInput:   cmdInput,
-        commandArgs:    cmdArgs,
-        noMentionInput: cmdInput,
-      });
-
-      const rawText = await runtime.executeAST(ast, context);
-
-      const text       = context._out?.stopMessage !== null
-        ? (context._out?.stopMessage ?? rawText)
-        : rawText;
-      const embed      = runtime._buildEmbed(context);
-      const components = runtime._buildComponents(context);
-
-      const payload = {};
-      if (text?.trim())      payload.content    = text.trim();
-      if (embed)             payload.embeds     = [embed];
-      if (components.length) payload.components = components;
-
-      if (!payload.content && !payload.embeds && !payload.components) {
-        payload.content = '\u200b'; // zero-width space so Discord doesn't complain
-      }
-
-      await interaction.editReply(payload);
+      await cmd.autocomplete(interaction);
     } catch (err) {
-      const msg = err.format ? err.format() : err.message;
-      console.error(`[Slash Error] ${interaction.commandName}: ${msg}`);
-      const errPayload = { content: `❌ **Error:** ${err.message}`, ephemeral: true };
-      if (interaction.deferred || interaction.replied) {
-        await interaction.editReply(errPayload).catch(() => {});
-      } else {
-        await interaction.reply({ ...errPayload }).catch(() => {});
-      }
+      console.error(`[Autocomplete:${interaction.commandName}] ${err.message}`);
     }
     return;
   }
 
-  // ── Button interactions ─────────────────────────────────────────────────────
+  // ── Buttons ─────────────────────────────────────────────────────────────────
   if (interaction.isButton()) {
-    await runInteractionCode(interaction, 'button', client, runtime, commands);
+    const prefix    = interaction.customId.split(':')[0];
+    const handlerCmd = handlers.get(`button:${prefix}`) ?? handlers.get(`button:${interaction.customId}`);
+    if (!handlerCmd) return;
+    await deferIfNeeded(interaction, handlerCmd.ephemeral ?? false, true);
+    await runInteraction(interaction, handlerCmd, interaction.customId.split(':').slice(1));
     return;
   }
 
-  // ── Select menu interactions ────────────────────────────────────────────────
-  if (interaction.isStringSelectMenu()) {
-    await runInteractionCode(interaction, 'selectMenu', client, runtime, commands);
+  // ── Select menus ────────────────────────────────────────────────────────────
+  if (interaction.isAnySelectMenu()) {
+    const prefix     = interaction.customId.split(':')[0];
+    const handlerCmd = handlers.get(`selectmenu:${prefix}`) ?? handlers.get(`selectmenu:${interaction.customId}`);
+    if (!handlerCmd) return;
+    await deferIfNeeded(interaction, handlerCmd.ephemeral ?? false, true);
+    await runInteraction(interaction, handlerCmd, interaction.values ?? []);
     return;
   }
 
-  // ── Modal submit ────────────────────────────────────────────────────────────
+  // ── Modal submits ────────────────────────────────────────────────────────────
   if (interaction.isModalSubmit()) {
-    await runInteractionCode(interaction, 'modal', client, runtime, commands);
+    const prefix     = interaction.customId.split(':')[0];
+    const handlerCmd = handlers.get(`modal:${prefix}`) ?? handlers.get(`modal:${interaction.customId}`);
+    if (!handlerCmd) return;
+    await deferIfNeeded(interaction, handlerCmd.ephemeral ?? false);
+    await runInteraction(interaction, handlerCmd, []);
     return;
   }
 });
 
-// ─── Helper: run command code triggered by an interaction ─────────────────────
+// ─── Core interaction runner ──────────────────────────────────────────────────
 
-async function runInteractionCode(interaction, type, client, runtime, commands) {
-  // Find a handler command whose name matches the customId (or a registered handler)
-  const handlerName = interaction.customId?.split(':')[0]?.toLowerCase();
-  const cmd = commands.get(handlerName);
-  if (!cmd) return;
-
-  const fakeMessage = buildFakeMessage(interaction, client);
+async function runInteraction(interaction, cmd, extraArgs = []) {
+  const Context = require('./src/core/Context');
+  const fakeMsg = buildFakeMessage(interaction);
 
   try {
-    const Context = require('./src/core/Context');
-    const ast     = runtime.parse(cmd.code);
-
-    const context = new Context({
-      message:     fakeMessage,
+    const ast  = runtime.parse(cmd.code);
+    const ctx  = new Context({
+      message:        fakeMsg,
       interaction,
       client,
-      variables:   new Map(),
-      depth:       0,
+      variables:      new Map(),
+      depth:          0,
       runtime,
-      commandName: handlerName,
-      commandInput:  interaction.customId ?? '',
-      commandArgs:   interaction.customId ? interaction.customId.split(':').slice(1) : [],
-      noMentionInput: '',
+      commandName:    interaction.commandName ?? interaction.customId ?? cmd.name,
+      commandInput:   extraArgs.join(' '),
+      commandArgs:    extraArgs,
+      noMentionInput: extraArgs.join(' '),
     });
 
-    const rawText = await runtime.executeAST(ast, context);
-    const text       = context._out?.stopMessage ?? rawText;
-    const embed      = runtime._buildEmbed(context);
-    const components = runtime._buildComponents(context);
+    const rawText = await runtime.executeAST(ast, ctx);
+    const text    = ctx._out?.stopMessage !== null ? (ctx._out?.stopMessage ?? rawText) : rawText;
+    const embed   = runtime._buildEmbed(ctx);
+    const comps   = runtime._buildComponents(ctx);
 
-    const payload = {};
-    if (text?.trim())      payload.content    = text.trim();
-    if (embed)             payload.embeds     = [embed];
-    if (components.length) payload.components = components;
-
-    if (!payload.content && !payload.embeds && !payload.components) payload.content = '\u200b';
+    const payload = buildPayload(text, embed, comps);
 
     if (interaction.deferred || interaction.replied) {
       await interaction.editReply(payload).catch(() => {});
@@ -222,35 +202,72 @@ async function runInteractionCode(interaction, type, client, runtime, commands) 
       await interaction.reply({ ...payload, ephemeral: cmd.ephemeral ?? false }).catch(() => {});
     }
   } catch (err) {
-    console.error(`[Interaction:${type}] ${interaction.customId}: ${err.message}`);
-    const errPayload = { content: `❌ **Error:** ${err.message}`, ephemeral: true };
+    const formatted = err.format?.() ?? err.message;
+    console.error(`[Interaction Error] ${formatted}`);
+
+    const errPayload = {
+      content:   err.toDiscord?.() ?? `❌ **${err.name ?? 'Error'}:** ${err.message}`,
+      ephemeral: true,
+    };
     if (interaction.deferred || interaction.replied) {
       await interaction.editReply(errPayload).catch(() => {});
     } else {
-      await interaction.reply({ ...errPayload }).catch(() => {});
+      await interaction.reply(errPayload).catch(() => {});
     }
   }
 }
 
-// ─── Helper: build a message-like proxy from an interaction ───────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function buildFakeMessage(interaction, client) {
+async function deferIfNeeded(interaction, ephemeral = false, update = false) {
+  if (interaction.deferred || interaction.replied) return;
+  try {
+    if (update && interaction.deferUpdate) {
+      await interaction.deferUpdate();
+    } else {
+      await interaction.deferReply({ ephemeral });
+    }
+  } catch {}
+}
+
+function buildSlashArgs(interaction) {
+  return (interaction.options?.data ?? []).map(o => String(o.value ?? ''));
+}
+
+function buildPayload(text, embed, components) {
+  const payload = {};
+  if (text?.trim())      payload.content    = text.trim();
+  if (embed)             payload.embeds     = [embed];
+  if (components.length) payload.components = components;
+  if (!payload.content && !payload.embeds && !payload.components) {
+    payload.content = '\u200b'; // zero-width space — prevents Discord "interaction failed"
+  }
+  return payload;
+}
+
+async function sendPayload(channel, { text, embed, components }) {
+  const payload = buildPayload(text, embed, components);
+  if (payload.content === '\u200b') return; // nothing to send for message commands
+  await channel.send(payload);
+}
+
+function buildFakeMessage(interaction) {
   const user    = interaction.user ?? interaction.member?.user;
   const channel = interaction.channel;
   const guild   = interaction.guild;
-
   return {
-    author:    user,
-    member:    interaction.member,
+    author:         user,
+    member:         interaction.member ?? null,
     channel,
     guild,
-    guildId:   interaction.guildId,
-    channelId: interaction.channelId,
+    guildId:        interaction.guildId,
+    channelId:      interaction.channelId,
     client,
-    content:   '',
-    mentions:  { users: new Map(), roles: new Map(), channels: new Map() },
-    id:        interaction.id,
-    createdAt: new Date(),
+    content:        '',
+    mentions:       { users: new Map(), roles: new Map(), channels: new Map(), has: () => false },
+    id:             interaction.id,
+    createdAt:      new Date(),
+    deletable:      false,
     _isInteraction: true,
   };
 }
@@ -260,14 +277,14 @@ function buildFakeMessage(interaction, client) {
 client.once(Events.ClientReady, async (c) => {
   console.log(`✅ Logged in as ${c.user.tag}`);
   console.log(`📦 Loaded ${runtime.loader.list().length} functions`);
-  console.log(`🤖 Commands: ${[...commands.keys()].join(', ') || 'none'}`);
 
-  // Register slash commands
+  const cmdList  = [...commands.keys()];
+  const hndList  = [...handlers.keys()].map(k => k.replace(':', ':'));
+  console.log(`🤖 Commands: ${cmdList.join(', ') || 'none'}`);
+  if (hndList.length) console.log(`🔘 Handlers: ${hndList.join(', ')}`);
+
   const token    = process.env.DISCORD_TOKEN || process.env.TOKEN;
   const clientId = c.user.id;
-
-  // SLASH_GUILD_IDS=123,456  → instant guild registration (for dev)
-  // Leave blank for global registration
   const guildIds = (process.env.SLASH_GUILD_IDS || '')
     .split(',').map(s => s.trim()).filter(Boolean);
 
