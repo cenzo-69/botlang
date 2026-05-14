@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $setNick[userID;nickname;reason?]
 // Sets or resets a member's server nickname. Pass empty string to clear nick.
 module.exports = async (context, args) => {
@@ -7,7 +9,7 @@ module.exports = async (context, args) => {
   const nickname = String(args[1] !== undefined ? args[1] : '').trim() || null;
   const reason   = String(args[2] !== undefined ? args[2] : '').trim() || 'No reason provided';
 
-  if (!userID) return '[error: $setNick requires a userID]';
+  if (!userID) return argError(context, 'user ID', 'Snowflake', userID);
   if (!context.message?.guild) return '[error: $setNick — not in a guild]';
 
   try {

@@ -1,4 +1,6 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $clearMessages[channelID;amount;deletePinned?;deleteBots?]  — bulk deletes messages
 // Returns the count of messages deleted.
 module.exports = async (context, args) => {
@@ -6,7 +8,7 @@ module.exports = async (context, args) => {
   const amount       = Math.min(100, Math.max(1, parseInt(args[1]) || 1));
   const deletePinned = args[2] === 'true';
   const deleteBots   = args[3] !== 'false';
-  if (!id) return '[error: $clearMessages — channelID is required]';
+  if (!id) return argError(context, 'id', 'string', id);
   try {
     const ch = await context.client?.channels.fetch(id);
     if (!ch) return '[error: $clearMessages — channel not found]';

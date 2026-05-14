@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $createWebhook[channelID;name;avatarURL?]
 // Creates a webhook in the given channel and returns its ID and token
 // as a JSON string: {"id":"...","token":"..."}
@@ -8,7 +10,7 @@ module.exports = async (context, args) => {
   const name      = String(args[1] !== undefined ? args[1] : 'Webhook').trim();
   const avatar    = String(args[2] !== undefined ? args[2] : '').trim();
 
-  if (!channelID) return '[error: $createWebhook requires a channelID]';
+  if (!channelID) return argError(context, 'channel ID', 'TextChannel', channelID);
   if (!context.client) return '[error: $createWebhook — no client available]';
 
   try {

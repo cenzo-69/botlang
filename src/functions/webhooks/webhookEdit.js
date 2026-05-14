@@ -1,4 +1,6 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $webhookEdit[webhookID;name?;avatarURL?;channelID?;reason?]  — edits a webhook
 module.exports = async (context, args) => {
   const id        = String(args[0] !== undefined ? args[0] : '').trim();
@@ -6,7 +8,7 @@ module.exports = async (context, args) => {
   const avatar    = args[2] !== undefined ? String(args[2]).trim() : undefined;
   const channelID = args[3] !== undefined ? String(args[3]).trim() : undefined;
   const reason    = args[4] !== undefined ? String(args[4]) : undefined;
-  if (!id) return '[error: $webhookEdit — webhookID is required]';
+  if (!id) return argError(context, 'id', 'string', id);
   try {
     const wh = await context.client?.fetchWebhook(id);
     if (!wh) return '[error: $webhookEdit — webhook not found]';

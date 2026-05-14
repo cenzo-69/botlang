@@ -1,8 +1,10 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $threadIsArchived[channelID]  — returns "true" if the thread is archived
 module.exports = async (context, args) => {
   const id = String(args[0] !== undefined ? args[0] : '').trim();
-  if (!id) return '[error: $threadIsArchived — channelID is required]';
+  if (!id) return argError(context, 'id', 'string', id);
   try {
     const ch = await context.client?.channels.fetch(id);
     if (!ch) return '[error: $threadIsArchived — thread not found]';

@@ -1,12 +1,14 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $unban[userID;reason?]
 // Removes a ban from a user, allowing them to rejoin the server.
 module.exports = async (context, args) => {
   const userID = String(args[0] !== undefined ? args[0] : '').trim();
   const reason = String(args[1] !== undefined ? args[1] : '').trim() || 'No reason provided';
 
-  if (!userID) return '[error: $unban requires a userID]';
+  if (!userID) return argError(context, 'user ID', 'Snowflake', userID);
   if (!context.message?.guild) return '[error: $unban — not in a guild]';
 
   try {

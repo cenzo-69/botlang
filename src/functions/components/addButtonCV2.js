@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 
 const STYLES = {
@@ -21,8 +23,8 @@ module.exports = async (context, args) => {
   const emoji      = String(args[4] !== undefined ? args[4] : '').trim() || undefined;
   const rowID      = parseInt(args[5]) || 0;
 
-  if (!idOrURL) return '[error: $addButtonCV2 requires a button ID or URL]';
-  if (!label)   return '[error: $addButtonCV2 requires a label]';
+  if (!idOrURL) return argError(context, 'id or u r l', 'URL', idOrURL);
+  if (!label)   return argError(context, 'label', 'string', label);
 
   const style = STYLES[styleRaw] ?? ButtonStyle.Primary;
 

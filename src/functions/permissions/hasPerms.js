@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $hasPerms[userID;perm1;perm2;...]
 // Returns "true" if the member has ALL listed permissions, otherwise "false".
 // Permissions use Discord.js PermissionFlagsBits names (e.g. Administrator, BanMembers).
@@ -7,7 +9,7 @@ module.exports = async (context, args) => {
   const userID = String(args[0] !== undefined ? args[0] : '').trim();
   const perms  = args.slice(1).map(p => String(p).trim()).filter(Boolean);
 
-  if (!userID) return '[error: $hasPerms requires a userID]';
+  if (!userID) return argError(context, 'user ID', 'Snowflake', userID);
   if (!perms.length) return '[error: $hasPerms requires at least one permission]';
   if (!context.client) return '[error: $hasPerms — no client available]';
 

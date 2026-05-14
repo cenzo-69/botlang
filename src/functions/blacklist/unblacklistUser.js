@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 const db = require('../../core/db');
 
 // $unblacklistUser[userID;guildID?]
@@ -10,7 +12,7 @@ module.exports = async (context, args) => {
     || context.message?.guildId
     || 'global';
 
-  if (!userID) return '[error: $unblacklistUser requires a userID]';
+  if (!userID) return argError(context, 'user ID', 'Snowflake', userID);
 
   db.delete(`__bl_${guildID}_${userID}`);
   return '';

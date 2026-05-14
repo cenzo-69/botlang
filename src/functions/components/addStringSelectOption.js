@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 const { ActionRowBuilder } = require('discord.js');
 
 // $addStringSelectOption[label;value;description?;emoji?;default?;menuID?]
@@ -12,8 +14,8 @@ module.exports = async (context, args) => {
   const isDefault   = String(args[4] !== undefined ? args[4] : '').trim().toLowerCase() === 'true';
   const menuID      = String(args[5] !== undefined ? args[5] : '').trim();
 
-  if (!label) return '[error: $addStringSelectOption requires a label]';
-  if (!value) return '[error: $addStringSelectOption requires a value]';
+  if (!label) return argError(context, 'label', 'string', label);
+  if (!value) return argError(context, 'value', 'string', value);
 
   const menus = context.variables.get('__select_menus__') || {};
   const keys  = Object.keys(menus);

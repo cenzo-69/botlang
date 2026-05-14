@@ -1,8 +1,10 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $splitText[index]  — gets element at 1-based index from __textsplit__ array
 module.exports = async (context, args) => {
   const index = parseInt(args[0]);
-  if (isNaN(index)) return '[error: $splitText — index must be a valid integer]';
+  if (isNaN(index)) return argError(context, 'index', 'number', index);
   const raw = context.variables.get('__textsplit__');
   if (!raw) return '[error: $splitText — no $textSplit has been called yet]';
   try {

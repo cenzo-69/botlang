@@ -1,12 +1,14 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 const { ChannelType } = require('discord.js');
 
 // $categoryID[categoryName]
 // Returns the ID of a category channel by name.
 module.exports = async (context, args) => {
   const name  = String(args[0] || '').trim();
-  if (!name) return '[error: $categoryID requires a category name]';
+  if (!name) return argError(context, 'name', 'string', name);
   const guild = context.message?.guild;
   if (!guild) return '[error: no guild]';
   const cat = guild.channels.cache.find(

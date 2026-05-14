@@ -1,8 +1,10 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $parseDigital[ms]  — converts milliseconds to HH:MM:SS format
 module.exports = async (context, args) => {
   const ms = parseInt(args[0]);
-  if (isNaN(ms)) return '[error: $parseDigital — argument must be a valid number of milliseconds]';
+  if (isNaN(ms)) return argError(context, 'value', 'number', args[0]);
   const totalSec = Math.floor(Math.abs(ms) / 1000);
   const h = Math.floor(totalSec / 3600);
   const m = Math.floor((totalSec % 3600) / 60);

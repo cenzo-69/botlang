@@ -1,8 +1,10 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $emojiGuildID[emojiID]  — returns the guild ID where the emoji belongs
 module.exports = async (context, args) => {
   const id = String(args[0] !== undefined ? args[0] : '').trim();
-  if (!id) return '[error: $emojiGuildID — emojiID is required]';
+  if (!id) return argError(context, 'id', 'string', id);
   try {
     const emoji = context.client?.emojis.cache.get(id);
     if (!emoji) return '[error: $emojiGuildID — emoji not found]';

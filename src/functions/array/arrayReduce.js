@@ -1,4 +1,6 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $arrayReduce[variable;itemVar;accVar;code;initial?]  — reduces array to single value
 module.exports = {
   lazy: [1, 2, 3],
@@ -8,7 +10,7 @@ module.exports = {
     const accNodes   = args[2];
     const codeNodes  = args[3];
     const initial    = args[4] !== undefined ? String(args[4]) : '0';
-    if (!name) return '[error: $arrayReduce — variable name is required]';
+    if (!name) return argError(context, 'name', 'string', name);
     const raw = context.variables.get(`__array_${name}__`);
     if (!raw) return `[error: $arrayReduce — array "${name}" does not exist]`;
     let arr;

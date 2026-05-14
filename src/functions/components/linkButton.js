@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 const { ButtonBuilder, ButtonStyle, ActionRowBuilder } = require('discord.js');
 
 // $linkButton[label;url;emoji?;disabled?]
@@ -11,8 +13,8 @@ module.exports = async (context, args) => {
   const emoji    = String(args[2] !== undefined ? args[2] : '').trim();
   const disabled = String(args[3] !== undefined ? args[3] : '').trim().toLowerCase() === 'true';
 
-  if (!label) return '[error: $linkButton requires a label]';
-  if (!url)   return '[error: $linkButton requires a URL]';
+  if (!label) return argError(context, 'label', 'string', label);
+  if (!url)   return argError(context, 'url', 'URL', url);
 
   try {
     new URL(url); // validate URL format

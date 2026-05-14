@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $setRoleHoist[roleID;true/false;reason?]
 // Sets whether a role is displayed separately in the member list.
 module.exports = async (context, args) => {
@@ -7,7 +9,7 @@ module.exports = async (context, args) => {
   const hoist  = String(args[1] !== undefined ? args[1] : '').trim().toLowerCase() === 'true';
   const reason = String(args[2] !== undefined ? args[2] : '').trim() || 'No reason provided';
 
-  if (!roleID) return '[error: $setRoleHoist requires a roleID]';
+  if (!roleID) return argError(context, 'role ID', 'Role', roleID);
   if (!context.message?.guild) return '[error: $setRoleHoist — not in a guild]';
 
   try {

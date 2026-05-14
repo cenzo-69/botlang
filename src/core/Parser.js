@@ -25,6 +25,10 @@ const { ParseError } = require('./errors');
  *
  * Escape sequences:
  *   \$ \; \] \[ \\  — produce the literal character
+ *
+ * Each function AST node carries a `raw` field containing the original source
+ * text of the entire call (e.g. "$ban[$mentioned[1];Spam]"). This is used by
+ * the Interpreter to produce "at `$func[...]`" in error messages.
  */
 class Parser {
   constructor(source) {
@@ -106,6 +110,8 @@ class Parser {
 
   // ── Function parser ────────────────────────────────────────────────────────
   parseFunction() {
+    const startPos = this.pos; // capture start of '$funcName[...]' for raw text
+
     this.pos++; // consume '$'
 
     let name = '';
@@ -142,6 +148,7 @@ class Parser {
       name:         name.toLowerCase(),
       originalName: name,
       args,
+      raw:          this.source.slice(startPos, this.pos), // full raw source text of this call
     };
   }
 

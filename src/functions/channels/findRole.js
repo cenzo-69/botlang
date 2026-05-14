@@ -1,11 +1,13 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $findRole[ID/Name/Mention]
 // Resolves a role by mention, ID, or name and returns its ID.
 module.exports = async (context, args) => {
   const query = String(args[0] || '').trim();
   const guild = context.message?.guild;
-  if (!query || !guild) return '[error: $findRole requires a query and a guild]';
+  if (!query || !guild) return argError(context, 'query', 'string', query);
 
   const mentionMatch = query.match(/^<@&(\d+)>$/);
   if (mentionMatch) return mentionMatch[1];

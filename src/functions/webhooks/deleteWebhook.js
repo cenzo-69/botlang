@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 const { WebhookClient } = require('discord.js');
 
 // $deleteWebhook[webhookID;token]
@@ -8,7 +10,7 @@ module.exports = async (context, args) => {
   const id    = String(args[0] !== undefined ? args[0] : '').trim();
   const token = String(args[1] !== undefined ? args[1] : '').trim();
 
-  if (!id || !token) return '[error: $deleteWebhook requires webhookID and token]';
+  if (!id || !token) return argError(context, 'id', 'string', id);
 
   try {
     const wh = new WebhookClient({ id, token });

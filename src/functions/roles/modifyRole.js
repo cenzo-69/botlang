@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $modifyRole[roleID;name?;color?;hoist?;mentionable?;reason?]
 // Edits multiple role properties in one call. Pass empty string to skip a field.
 module.exports = async (context, args) => {
@@ -10,7 +12,7 @@ module.exports = async (context, args) => {
   const mentionable = String(args[4] !== undefined ? args[4] : '').trim().toLowerCase();
   const reason      = String(args[5] !== undefined ? args[5] : '').trim() || 'No reason provided';
 
-  if (!roleID) return '[error: $modifyRole requires a roleID]';
+  if (!roleID) return argError(context, 'role ID', 'Role', roleID);
   if (!context.message?.guild) return '[error: $modifyRole — not in a guild]';
 
   try {

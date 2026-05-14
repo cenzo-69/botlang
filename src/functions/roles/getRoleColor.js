@@ -1,10 +1,12 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $getRoleColor[roleID]
 // Returns the hex color of a role (e.g. "#ff0000"). Returns "#000000" if no color is set.
 module.exports = async (context, args) => {
   const roleID = String(args[0] !== undefined ? args[0] : '').trim();
-  if (!roleID) return '[error: $getRoleColor requires a roleID]';
+  if (!roleID) return argError(context, 'role ID', 'Role', roleID);
   if (!context.message?.guild) return '[error: $getRoleColor — not in a guild]';
 
   try {

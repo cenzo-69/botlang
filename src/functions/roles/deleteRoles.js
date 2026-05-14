@@ -1,9 +1,11 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $deleteRoles[guildID;roleID1;roleID2;...;reason?]  — deletes multiple roles, returns count
 module.exports = async (context, args) => {
   const guildID = String(args[0] !== undefined ? args[0] : '').trim();
   const roleIDs = args.slice(1).map(a => String(a).trim()).filter(Boolean);
-  if (!guildID) return '[error: $deleteRoles — guildID is required]';
+  if (!guildID) return argError(context, 'guild ID', 'Snowflake', guildID);
   if (!roleIDs.length) return '[error: $deleteRoles — at least one roleID is required]';
   try {
     const guild = await context.client?.guilds.fetch(guildID);

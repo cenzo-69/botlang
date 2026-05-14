@@ -1,8 +1,10 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $abbreviateNumber[number]  — shortens large numbers (1000 → 1K, 1000000 → 1M)
 module.exports = async (context, args) => {
   const n = parseFloat(args[0]);
-  if (isNaN(n)) return '[error: $abbreviateNumber — argument must be a valid number]';
+  if (isNaN(n)) return argError(context, 'n', 'number', n);
   const abs = Math.abs(n);
   const sign = n < 0 ? '-' : '';
   if (abs >= 1e12) return sign + parseFloat((abs / 1e12).toFixed(2)) + 'T';

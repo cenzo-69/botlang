@@ -1,9 +1,11 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $deleteEmojis[guildID;emojiID1;emojiID2;...]  — deletes emojis and returns count deleted
 module.exports = async (context, args) => {
   const guildID  = String(args[0] !== undefined ? args[0] : '').trim();
   const emojiIDs = args.slice(1).map(a => String(a).trim()).filter(Boolean);
-  if (!guildID) return '[error: $deleteEmojis — guildID is required]';
+  if (!guildID) return argError(context, 'guild ID', 'Snowflake', guildID);
   if (!emojiIDs.length) return '[error: $deleteEmojis — at least one emojiID is required]';
   try {
     const guild = await context.client?.guilds.fetch(guildID);

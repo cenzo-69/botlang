@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $onlyRoles[roleID;errorMessage?]
 //
 // Stops execution if the message author does NOT have the specified role.
@@ -8,7 +10,7 @@
 //   $onlyRoles[123456789012345678;You need the Member role!]
 module.exports = async (context, args) => {
   const roleID = String(args[0] || '').trim();
-  if (!roleID) return '[error: $onlyRoles requires a roleID]';
+  if (!roleID) return argError(context, 'role ID', 'Role', roleID);
 
   const member = context.message?.member;
   if (!member) return '[error: $onlyRoles requires a guild context]';

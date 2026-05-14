@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 const { EmbedBuilder } = require('discord.js');
 
 // $editButton[buttonID/URL;label;style;disabled?;emoji?;messageID?]
@@ -13,7 +15,7 @@ module.exports = async (context, args) => {
   const emoji    = String(args[4] !== undefined ? args[4] : '').trim() || undefined;
   const messageID= String(args[5] !== undefined ? args[5] : '').trim();
 
-  if (!idOrURL) return '[error: $editButton requires a button ID or URL]';
+  if (!idOrURL) return argError(context, 'id or u r l', 'URL', idOrURL);
   if (!context.client) return '[error: $editButton — no client]';
 
   const { ButtonStyle } = require('discord.js');

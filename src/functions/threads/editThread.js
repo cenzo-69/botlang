@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $editThread[threadID;name?;archived?;archiveDuration?;locked?;slowmode?;reason?]
 // Edits a thread's properties. Pass empty string to skip a field.
 // archiveDuration: 60|1440|4320|10080 (minutes)
@@ -12,7 +14,7 @@ module.exports = async (context, args) => {
   const slowmodeRaw    = String(args[5] !== undefined ? args[5] : '').trim();
   const reason         = String(args[6] !== undefined ? args[6] : '').trim() || 'No reason provided';
 
-  if (!threadID) return '[error: $editThread requires a threadID]';
+  if (!threadID) return argError(context, 'thread ID', 'Snowflake', threadID);
   if (!context.client) return '[error: $editThread — no client]';
 
   try {

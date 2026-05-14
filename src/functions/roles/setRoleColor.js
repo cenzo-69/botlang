@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $setRoleColor[roleID;color;reason?]
 // Sets a role's color. color can be a hex code (#FF0000), decimal int, or color name.
 module.exports = async (context, args) => {
@@ -7,8 +9,8 @@ module.exports = async (context, args) => {
   const color  = String(args[1] !== undefined ? args[1] : '').trim();
   const reason = String(args[2] !== undefined ? args[2] : '').trim() || 'No reason provided';
 
-  if (!roleID) return '[error: $setRoleColor requires a roleID]';
-  if (!color)  return '[error: $setRoleColor requires a color]';
+  if (!roleID) return argError(context, 'role ID', 'Role', roleID);
+  if (!color)  return argError(context, 'color', 'HexColor', color);
   if (!context.message?.guild) return '[error: $setRoleColor — not in a guild]';
 
   try {

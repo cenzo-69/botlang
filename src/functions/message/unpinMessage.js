@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $unpinMessage[messageID;channelID?;reason?]
 // Unpins a message by ID.
 module.exports = async (context, args) => {
@@ -7,7 +9,7 @@ module.exports = async (context, args) => {
   const channelID = String(args[1] !== undefined ? args[1] : '').trim();
   const reason    = String(args[2] !== undefined ? args[2] : '').trim() || 'Unpinned via bot';
 
-  if (!messageID)  return '[error: $unpinMessage requires a messageID]';
+  if (!messageID)  return argError(context, 'message ID', 'Snowflake', messageID);
   if (!context.client) return '[error: $unpinMessage — no client]';
 
   try {

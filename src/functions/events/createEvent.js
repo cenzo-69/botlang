@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 const { GuildScheduledEventEntityType, GuildScheduledEventPrivacyLevel } = require('discord.js');
 
 // $createEvent[name;startTimestamp;endTimestamp;description?;channelID?]
@@ -13,7 +15,7 @@ module.exports = async (context, args) => {
   const desc      = String(args[3] !== undefined ? args[3] : '').trim() || '';
   const channelID = String(args[4] !== undefined ? args[4] : '').trim();
 
-  if (!name)          return '[error: $createEvent requires a name]';
+  if (!name)          return argError(context, 'name', 'string', name);
   if (isNaN(startMs)) return '[error: $createEvent requires a valid start timestamp (ms)]';
   if (!context.message?.guild) return '[error: $createEvent — not in a guild]';
 

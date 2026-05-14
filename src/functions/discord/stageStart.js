@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $stageStart[channelID;topic]
 // Starts a stage instance in a Stage channel.
 // Returns the stage instance ID.
@@ -7,8 +9,8 @@ module.exports = async (context, args) => {
   const channelID = String(args[0] !== undefined ? args[0] : '').trim();
   const topic     = String(args[1] !== undefined ? args[1] : '').trim();
 
-  if (!channelID) return '[error: $stageStart requires a channelID]';
-  if (!topic)     return '[error: $stageStart requires a topic]';
+  if (!channelID) return argError(context, 'channel ID', 'TextChannel', channelID);
+  if (!topic)     return argError(context, 'topic', 'string', topic);
   if (!context.message?.guild) return '[error: $stageStart — not in a guild]';
 
   try {

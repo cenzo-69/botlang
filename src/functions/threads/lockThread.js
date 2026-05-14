@@ -1,11 +1,13 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $lockThread[threadID]
 // Locks a thread so only moderators can send messages in it.
 module.exports = async (context, args) => {
   const threadID = String(args[0] !== undefined ? args[0] : '').trim();
 
-  if (!threadID) return '[error: $lockThread requires a threadID]';
+  if (!threadID) return argError(context, 'thread ID', 'Snowflake', threadID);
   if (!context.client) return '[error: $lockThread — no client available]';
 
   try {

@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $vcMoveUser[userID;channelID;reason?]
 // Moves a member to a different voice channel.
 module.exports = async (context, args) => {
@@ -7,8 +9,8 @@ module.exports = async (context, args) => {
   const channelID = String(args[1] !== undefined ? args[1] : '').trim();
   const reason    = String(args[2] !== undefined ? args[2] : '').trim() || 'No reason provided';
 
-  if (!userID)    return '[error: $vcMoveUser requires a userID]';
-  if (!channelID) return '[error: $vcMoveUser requires a channelID]';
+  if (!userID)    return argError(context, 'user ID', 'Snowflake', userID);
+  if (!channelID) return argError(context, 'channel ID', 'TextChannel', channelID);
   if (!context.message?.guild) return '[error: $vcMoveUser — not in a guild]';
 
   try {

@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $setRoleMentionable[roleID;true/false;reason?]
 // Sets whether a role can be mentioned by regular users.
 module.exports = async (context, args) => {
@@ -7,7 +9,7 @@ module.exports = async (context, args) => {
   const mentionable  = String(args[1] !== undefined ? args[1] : '').trim().toLowerCase() === 'true';
   const reason       = String(args[2] !== undefined ? args[2] : '').trim() || 'No reason provided';
 
-  if (!roleID) return '[error: $setRoleMentionable requires a roleID]';
+  if (!roleID) return argError(context, 'role ID', 'Role', roleID);
   if (!context.message?.guild) return '[error: $setRoleMentionable — not in a guild]';
 
   try {

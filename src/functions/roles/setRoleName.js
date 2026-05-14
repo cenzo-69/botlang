@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $setRoleName[roleID;name;reason?]
 // Renames a role.
 module.exports = async (context, args) => {
@@ -7,8 +9,8 @@ module.exports = async (context, args) => {
   const name   = String(args[1] !== undefined ? args[1] : '').trim();
   const reason = String(args[2] !== undefined ? args[2] : '').trim() || 'No reason provided';
 
-  if (!roleID) return '[error: $setRoleName requires a roleID]';
-  if (!name)   return '[error: $setRoleName requires a name]';
+  if (!roleID) return argError(context, 'role ID', 'Role', roleID);
+  if (!name)   return argError(context, 'name', 'string', name);
   if (!context.message?.guild) return '[error: $setRoleName — not in a guild]';
 
   try {

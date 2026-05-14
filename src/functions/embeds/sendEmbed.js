@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $sendEmbed[channelID]
 //
 // Sends the currently built embed (via $title, $description, $color, etc.)
@@ -14,7 +16,7 @@ module.exports = async (context, args) => {
   if (!context.client) return '[error: no client]';
 
   const channelID = args[0];
-  if (!channelID) return '[error: $sendEmbed requires a channelID]';
+  if (!channelID) return argError(context, 'channel ID', 'TextChannel', channelID);
 
   const { EmbedBuilder } = require('discord.js');
   const e = context.embed;

@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 const db = require('../../core/db');
 const { EmbedBuilder } = require('discord.js');
 
@@ -10,7 +12,7 @@ module.exports = async (context, args) => {
   const messageID = String(args[0] !== undefined ? args[0] : '').trim();
   const channelID = String(args[1] !== undefined ? args[1] : '').trim();
 
-  if (!messageID)  return '[error: $giveawayEnd requires a messageID]';
+  if (!messageID)  return argError(context, 'message ID', 'Snowflake', messageID);
   if (!context.client) return '[error: $giveawayEnd — no client]';
 
   const raw = db.get(`__giveaway_${messageID}`, null);

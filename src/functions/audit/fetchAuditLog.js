@@ -1,4 +1,6 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $fetchAuditLog[guildID;type;property;index?;separator?]
 // type: 1=GuildUpdate, 20=MemberKick, 21=MemberPrune, 22=MemberBanAdd, etc.
 // property: id|userId|targetId|reason|actionType|createdAt
@@ -8,7 +10,7 @@ module.exports = async (context, args) => {
   const property = String(args[2] !== undefined ? args[2] : 'id').toLowerCase();
   const index    = parseInt(args[3] !== undefined ? args[3] : 0) || 0;
   const sep      = String(args[4] !== undefined ? args[4] : ', ');
-  if (!guildID)  return '[error: $fetchAuditLog — guildID is required]';
+  if (!guildID)  return argError(context, 'guild ID', 'Snowflake', guildID);
   if (isNaN(type)) return '[error: $fetchAuditLog — type must be an audit log action integer]';
   try {
     const guild = await context.client?.guilds.fetch(guildID);

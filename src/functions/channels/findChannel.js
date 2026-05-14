@@ -1,11 +1,13 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $findChannel[ID/Name/Mention]
 // Resolves a channel by mention, ID, or name and returns its ID.
 module.exports = async (context, args) => {
   const query = String(args[0] || '').trim();
   const guild = context.message?.guild;
-  if (!query) return '[error: $findChannel requires a query]';
+  if (!query) return argError(context, 'query', 'string', query);
 
   const mentionMatch = query.match(/^<#(\d+)>$/);
   if (mentionMatch) return mentionMatch[1];

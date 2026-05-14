@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $httpPost[url;body;headers?]
 // Sends an HTTP POST request with a body and returns the response body.
 // body    — string body (JSON, form-encoded, etc.)
@@ -9,7 +11,7 @@ module.exports = async (context, args) => {
   const body    = String(args[1] !== undefined ? args[1] : '');
   const headers = String(args[2] !== undefined ? args[2] : '').trim();
 
-  if (!url) return '[error: $httpPost requires a URL]';
+  if (!url) return argError(context, 'url', 'URL', url);
 
   let headersObj = { 'Content-Type': 'application/json' };
   if (headers) {

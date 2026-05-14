@@ -1,9 +1,11 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $arrayFill[variable;value]  — fills all elements of the array with value
 module.exports = async (context, args) => {
   const name  = String(args[0] !== undefined ? args[0] : '').trim();
   const value = args[1] !== undefined ? args[1] : null;
-  if (!name) return '[error: $arrayFill — variable name is required]';
+  if (!name) return argError(context, 'name', 'string', name);
   const raw = context.variables.get(`__array_${name}__`);
   if (!raw) return `[error: $arrayFill — array "${name}" does not exist]`;
   let arr;

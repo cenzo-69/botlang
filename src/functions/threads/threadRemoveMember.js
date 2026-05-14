@@ -1,12 +1,14 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $threadRemoveMember[threadID;userID]
 // Removes a member from a thread.
 module.exports = async (context, args) => {
   const threadID = String(args[0] !== undefined ? args[0] : '').trim();
   const userID   = String(args[1] !== undefined ? args[1] : '').trim();
-  if (!threadID) return '[error: $threadRemoveMember requires a threadID]';
-  if (!userID)   return '[error: $threadRemoveMember requires a userID]';
+  if (!threadID) return argError(context, 'thread ID', 'Snowflake', threadID);
+  if (!userID)   return argError(context, 'user ID', 'Snowflake', userID);
   if (!context.client) return '[error: $threadRemoveMember — no client]';
 
   try {

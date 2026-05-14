@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 const { ChannelSelectMenuBuilder, ActionRowBuilder, ChannelType } = require('discord.js');
 
 const CHANNEL_TYPE_MAP = {
@@ -23,7 +25,7 @@ module.exports = async (context, args) => {
   const rowID        = parseInt(args[5]) || 0;
   const typesRaw     = String(args[6] !== undefined ? args[6] : '').trim();
 
-  if (!menuID) return '[error: $addChannelSelect requires a menuID]';
+  if (!menuID) return argError(context, 'menu ID', 'string', menuID);
 
   const select = new ChannelSelectMenuBuilder()
     .setCustomId(menuID)

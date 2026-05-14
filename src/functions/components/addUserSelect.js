@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 const { UserSelectMenuBuilder, ActionRowBuilder } = require('discord.js');
 
 // $addUserSelect[menuID;placeholder;minValues;maxValues;disabled?;actionRowID?]
@@ -12,7 +14,7 @@ module.exports = async (context, args) => {
   const disabled    = String(args[4] !== undefined ? args[4] : '').trim().toLowerCase() === 'true';
   const rowID       = parseInt(args[5]) || 0;
 
-  if (!menuID) return '[error: $addUserSelect requires a menuID]';
+  if (!menuID) return argError(context, 'menu ID', 'string', menuID);
 
   const select = new UserSelectMenuBuilder()
     .setCustomId(menuID)

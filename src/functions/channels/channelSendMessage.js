@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $channelSendMessage[channelID;content]
 // Send a message to any channel by ID.
 module.exports = async (context, args) => {
@@ -8,7 +10,7 @@ module.exports = async (context, args) => {
   const channelID = args[0];
   const content   = args[1] || '';
 
-  if (!channelID) return '[error: $channelSendMessage requires a channelID]';
+  if (!channelID) return argError(context, 'channel ID', 'TextChannel', channelID);
 
   try {
     const channel = await context.client.channels.fetch(channelID);

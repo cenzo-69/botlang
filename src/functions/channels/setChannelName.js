@@ -1,11 +1,13 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $setChannelName[channelID;newName]
 // Renames a channel. Returns empty string on success.
 module.exports = async (context, args) => {
   const id      = String(args[0] || '').trim();
   const newName = String(args[1] || '').trim();
-  if (!id || !newName) return '[error: $setChannelName requires channelID and name]';
+  if (!id || !newName) return argError(context, 'id', 'string', id);
   try {
     const channel = await context.client.channels.fetch(id);
     await channel.setName(newName);

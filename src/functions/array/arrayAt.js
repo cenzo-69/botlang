@@ -1,10 +1,12 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $arrayAt[variable;index]  — returns element at index (negative counts from end)
 module.exports = async (context, args) => {
   const name  = String(args[0] !== undefined ? args[0] : '').trim();
   const index = parseInt(args[1]);
-  if (!name) return '[error: $arrayAt — variable name is required]';
-  if (isNaN(index)) return '[error: $arrayAt — index must be a valid integer]';
+  if (!name) return argError(context, 'name', 'string', name);
+  if (isNaN(index)) return argError(context, 'index', 'number', index);
   const raw = context.variables.get(`__array_${name}__`);
   if (!raw) return `[error: $arrayAt — array "${name}" does not exist]`;
   let arr;

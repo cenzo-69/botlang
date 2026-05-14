@@ -1,4 +1,6 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $arraySome[variable;itemVar;condition]  — returns "true" if any element passes condition
 module.exports = {
   lazy: [1, 2],
@@ -6,7 +8,7 @@ module.exports = {
     const name      = String(args[0] !== undefined ? args[0] : '').trim();
     const varNodes  = args[1];
     const condNodes = args[2];
-    if (!name) return '[error: $arraySome — variable name is required]';
+    if (!name) return argError(context, 'name', 'string', name);
     const raw = context.variables.get(`__array_${name}__`);
     if (!raw) return `[error: $arraySome — array "${name}" does not exist]`;
     let arr;

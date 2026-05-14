@@ -607,14 +607,25 @@
       "name": "$serverIcon",
       "key": "servericon",
       "category": "discord",
-      "description": "Returns the server icon URL. Empty string if the server has no icon.",
-      "syntax": "$serverIcon",
-      "args": [],
+      "description": "Returns the server icon URL. Pass an optional guildID to get another server's icon. Returns an empty string if the server has no icon.",
+      "syntax": "$serverIcon[guildID?]",
+      "args": [
+        {
+          "name": "guildID",
+          "type": "Snowflake",
+          "required": false,
+          "description": "ID of the guild to fetch the icon for. Defaults to the current guild."
+        }
+      ],
       "returns": "string (URL or empty)",
       "lazy": [],
       "examples": [
         {
           "code": "$thumbnail[$serverIcon]",
+          "output": ""
+        },
+        {
+          "code": "$thumbnail[$serverIcon[987654321012345678]]",
           "output": ""
         }
       ]

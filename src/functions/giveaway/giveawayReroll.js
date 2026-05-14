@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 const db = require('../../core/db');
 
 // $giveawayReroll[messageID;channelID?;winnerCount?]
@@ -10,7 +12,7 @@ module.exports = async (context, args) => {
   const channelID   = String(args[1] !== undefined ? args[1] : '').trim();
   const winnerCount = parseInt(args[2]) || null;
 
-  if (!messageID)  return '[error: $giveawayReroll requires a messageID]';
+  if (!messageID)  return argError(context, 'message ID', 'Snowflake', messageID);
   if (!context.client) return '[error: $giveawayReroll — no client]';
 
   const raw = db.get(`__giveaway_${messageID}`, null);

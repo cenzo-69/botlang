@@ -1,8 +1,10 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $ordinal[number]  — appends ordinal suffix: 1st, 2nd, 3rd, 4th...
 module.exports = async (context, args) => {
   const n = parseInt(args[0]);
-  if (isNaN(n)) return '[error: $ordinal — argument must be a valid integer]';
+  if (isNaN(n)) return argError(context, 'n', 'number', n);
   const abs = Math.abs(n);
   const mod100 = abs % 100;
   const mod10  = abs % 10;

@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 const { WebhookClient } = require('discord.js');
 
 // $webhookSend[webhookID;token;content;username?;avatarURL?]
@@ -11,8 +13,8 @@ module.exports = async (context, args) => {
   const username  = String(args[3] !== undefined ? args[3] : '').trim();
   const avatarURL = String(args[4] !== undefined ? args[4] : '').trim();
 
-  if (!id || !token) return '[error: $webhookSend requires webhookID and token]';
-  if (!content)      return '[error: $webhookSend requires content]';
+  if (!id || !token) return argError(context, 'id', 'string', id);
+  if (!content)      return argError(context, 'content', 'string', content);
 
   try {
     const wh      = new WebhookClient({ id, token });

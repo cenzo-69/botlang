@@ -1,9 +1,11 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 const parseTime = require('../../core/parseTime');
 // $parseString[duration]  — converts duration string (1h30m) to milliseconds
 module.exports = async (context, args) => {
   const str = String(args[0] !== undefined ? args[0] : '').trim();
-  if (!str) return '[error: $parseString — duration string is required. Example: 1h30m, 2d, 30s]';
+  if (!str) return argError(context, 'str', 'string', str);
   // Handle compound durations like 1h30m2s
   let total = 0;
   const matches = str.match(/(\d+(?:\.\d+)?)(ms|s|m|h|d)/gi);

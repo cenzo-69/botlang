@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 const { EmbedBuilder } = require('discord.js');
 
 // $editMessage[channelID;messageID;content;title?;description?;color?;footer?]
@@ -14,8 +16,8 @@ module.exports = async (context, args) => {
   const color     = String(args[5] !== undefined ? args[5] : '').trim();
   const footer    = String(args[6] !== undefined ? args[6] : '').trim();
 
-  if (!channelID) return '[error: $editMessage requires a channelID]';
-  if (!messageID) return '[error: $editMessage requires a messageID]';
+  if (!channelID) return argError(context, 'channel ID', 'TextChannel', channelID);
+  if (!messageID) return argError(context, 'message ID', 'Snowflake', messageID);
   if (!context.client) return '[error: $editMessage — no client]';
 
   try {

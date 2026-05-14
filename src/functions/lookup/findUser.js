@@ -1,9 +1,11 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $findUser[query;returnAuthor?]  — finds a user by username, globalName, or ID
 module.exports = async (context, args) => {
   const query = String(args[0] !== undefined ? args[0] : '').trim();
   const ret   = String(args[1] !== undefined ? args[1] : 'id').toLowerCase();
-  if (!query) return '[error: $findUser — query is required]';
+  if (!query) return argError(context, 'query', 'string', query);
   if (!context.client) return '[error: $findUser — no client available]';
   const q    = query.toLowerCase();
   const user = context.client.users.cache.find(u =>

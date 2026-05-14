@@ -1,11 +1,13 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $setUserRoles[userID;roleID;roleID;...;reason?]
 // Replaces all of a member's roles with the provided list.
 // The last arg is treated as the reason if it starts with a letter and doesn't look like a snowflake.
 module.exports = async (context, args) => {
   const userID = String(args[0] !== undefined ? args[0] : '').trim();
-  if (!userID) return '[error: $setUserRoles requires a userID]';
+  if (!userID) return argError(context, 'user ID', 'Snowflake', userID);
   if (!context.message?.guild) return '[error: $setUserRoles — not in a guild]';
 
   const rest = args.slice(1).map(a => String(a).trim()).filter(Boolean);

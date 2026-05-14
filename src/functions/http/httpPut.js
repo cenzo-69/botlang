@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $httpPut[url;body;headers?]
 // Sends an HTTP PUT request with a body and returns the response body.
 module.exports = async (context, args) => {
@@ -7,7 +9,7 @@ module.exports = async (context, args) => {
   const body    = String(args[1] !== undefined ? args[1] : '');
   const headers = String(args[2] !== undefined ? args[2] : '').trim();
 
-  if (!url) return '[error: $httpPut requires a URL]';
+  if (!url) return argError(context, 'url', 'URL', url);
 
   let headersObj = { 'Content-Type': 'application/json' };
   if (headers) {

@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $poll[question;option1;option2;...;option9]
 // Sends a formatted poll message to the channel and auto-adds number emoji reactions.
 // Supports 2–9 options.
@@ -7,7 +9,7 @@ module.exports = async (context, args) => {
   const question = String(args[0] !== undefined ? args[0] : '').trim();
   const options  = args.slice(1).filter(a => String(a).trim() !== '');
 
-  if (!question)          return '[error: $poll requires a question]';
+  if (!question)          return argError(context, 'question', 'string', question);
   if (options.length < 2) return '[error: $poll requires at least 2 options]';
   if (options.length > 9) return '[error: $poll supports up to 9 options]';
 

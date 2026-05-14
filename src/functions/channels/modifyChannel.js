@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $modifyChannel[channelID;name?;topic?;nsfw?;slowmode?;categoryID?;reason?]
 // Edits multiple channel properties in one call. Pass empty string to skip a field.
 module.exports = async (context, args) => {
@@ -11,7 +13,7 @@ module.exports = async (context, args) => {
   const categoryID = String(args[5] !== undefined ? args[5] : '').trim();
   const reason     = String(args[6] !== undefined ? args[6] : '').trim() || 'No reason provided';
 
-  if (!channelID) return '[error: $modifyChannel requires a channelID]';
+  if (!channelID) return argError(context, 'channel ID', 'TextChannel', channelID);
   if (!context.client) return '[error: $modifyChannel — no client]';
 
   try {

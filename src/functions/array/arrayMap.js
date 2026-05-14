@@ -1,4 +1,6 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $arrayMap[variable;itemVar;code;outputVar?]  — maps over array with code, stores result
 module.exports = {
   lazy: [1, 2],
@@ -7,7 +9,7 @@ module.exports = {
     const varNodes  = args[1];
     const codeNodes = args[2];
     const outVar    = args[3] !== undefined ? String(args[3]).trim() : '';
-    if (!name) return '[error: $arrayMap — variable name is required]';
+    if (!name) return argError(context, 'name', 'string', name);
     const raw = context.variables.get(`__array_${name}__`);
     if (!raw) return `[error: $arrayMap — array "${name}" does not exist]`;
     let arr;

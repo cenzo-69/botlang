@@ -1,10 +1,12 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $setGuildName[name;guildID?;reason?]  — renames the guild
 module.exports = async (context, args) => {
   const name    = String(args[0] !== undefined ? args[0] : '').trim();
   const guildID = String(args[1] !== undefined ? args[1] : '').trim();
   const reason  = args[2] !== undefined ? String(args[2]) : undefined;
-  if (!name) return '[error: $setGuildName — name is required]';
+  if (!name) return argError(context, 'name', 'string', name);
   try {
     const guild = guildID ? await context.client?.guilds.fetch(guildID) : context.message?.guild;
     if (!guild) return '[error: $setGuildName — guild not found]';

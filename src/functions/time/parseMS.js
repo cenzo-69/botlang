@@ -1,11 +1,13 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $parseMS[ms;limit?;separator?;and?]  — converts milliseconds to human-readable duration
 module.exports = async (context, args) => {
   const ms  = parseInt(args[0]);
   const limit = parseInt(args[1] !== undefined ? args[1] : 0) || 0;
   const sep = args[2] !== undefined ? String(args[2]) : ', ';
   const and = args[3] !== undefined ? String(args[3]) : '';
-  if (isNaN(ms)) return '[error: $parseMS — argument must be a valid number of milliseconds]';
+  if (isNaN(ms)) return argError(context, 'value', 'number', args[0]);
   const parts = [];
   const units = [
     [86400000, 'day'],

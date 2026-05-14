@@ -1,8 +1,10 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $arrayShuffle[variable]  — shuffles the array in place (Fisher-Yates)
 module.exports = async (context, args) => {
   const name = String(args[0] !== undefined ? args[0] : '').trim();
-  if (!name) return '[error: $arrayShuffle — variable name is required]';
+  if (!name) return argError(context, 'name', 'string', name);
   const raw = context.variables.get(`__array_${name}__`);
   if (!raw) return `[error: $arrayShuffle — array "${name}" does not exist]`;
   let arr;

@@ -1,8 +1,10 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $arrayRandomValue[variable]  — returns a random element from the array
 module.exports = async (context, args) => {
   const name = String(args[0] !== undefined ? args[0] : '').trim();
-  if (!name) return '[error: $arrayRandomValue — variable name is required]';
+  if (!name) return argError(context, 'name', 'string', name);
   const raw = context.variables.get(`__array_${name}__`);
   if (!raw) return `[error: $arrayRandomValue — array "${name}" does not exist]`;
   try {

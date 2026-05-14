@@ -1,4 +1,6 @@
 'use strict';
+
+const { argError } = require('../../core/fnError');
 // $fetchUserAuditLog[guildID;userID?;type;property;index?;separator?]
 module.exports = async (context, args) => {
   const guildID  = String(args[0] !== undefined ? args[0] : '').trim();
@@ -6,7 +8,7 @@ module.exports = async (context, args) => {
   const type     = parseInt(args[2] !== undefined ? args[2] : 0);
   const property = String(args[3] !== undefined ? args[3] : 'id').toLowerCase();
   const index    = parseInt(args[4] !== undefined ? args[4] : 0) || 0;
-  if (!guildID) return '[error: $fetchUserAuditLog — guildID is required]';
+  if (!guildID) return argError(context, 'guild ID', 'Snowflake', guildID);
   try {
     const guild = await context.client?.guilds.fetch(guildID);
     if (!guild) return '[error: $fetchUserAuditLog — guild not found]';

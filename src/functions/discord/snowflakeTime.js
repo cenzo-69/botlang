@@ -1,5 +1,7 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $snowflakeTime[id;format?]
 // Converts a Discord snowflake ID to a timestamp.
 // format: "ms" (ms since epoch) | "s" (seconds) | "discord" → <t:...> tag (default)
@@ -9,7 +11,7 @@ module.exports = async (context, args) => {
   const id     = String(args[0] !== undefined ? args[0] : '').trim();
   const format = String(args[1] !== undefined ? args[1] : '').trim().toLowerCase() || 'discord';
 
-  if (!id) return '[error: $snowflakeTime requires a snowflake ID]';
+  if (!id) return argError(context, 'id', 'string', id);
 
   try {
     const ms   = Number((BigInt(id) >> 22n) + DISCORD_EPOCH);

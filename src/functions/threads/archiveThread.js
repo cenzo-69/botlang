@@ -1,11 +1,13 @@
 'use strict';
 
+const { argError } = require('../../core/fnError');
+
 // $archiveThread[threadID]
 // Archives a thread channel by ID.
 module.exports = async (context, args) => {
   const threadID = String(args[0] !== undefined ? args[0] : '').trim();
 
-  if (!threadID) return '[error: $archiveThread requires a threadID]';
+  if (!threadID) return argError(context, 'thread ID', 'Snowflake', threadID);
   if (!context.client) return '[error: $archiveThread — no client available]';
 
   try {
