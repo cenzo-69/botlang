@@ -5,7 +5,7 @@
 // Defaults to the current user's VC if no channelID is given.
 module.exports = async (context, args) => {
   const channelID = String(args[0] !== undefined ? args[0] : '').trim();
-  if (!context.client) return '[error: $vcUserCount — no client]';
+  if (!context.client) return '[error: No client!]';
 
   try {
     let channel;
@@ -18,6 +18,6 @@ module.exports = async (context, args) => {
     if (!channel) return '0';
     return String(channel.members.size);
   } catch (err) {
-    return `[error: $vcUserCount — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

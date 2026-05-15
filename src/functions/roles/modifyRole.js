@@ -13,11 +13,11 @@ module.exports = async (context, args) => {
   const reason      = String(args[5] !== undefined ? args[5] : '').trim() || 'No reason provided';
 
   if (!roleID) return argError(context, 'role ID', 'Role', roleID);
-  if (!context.message?.guild) return '[error: $modifyRole — not in a guild]';
+  if (!context.message?.guild) return '[error: Not in a guild!]';
 
   try {
     const role = await context.message.guild.roles.fetch(roleID);
-    if (!role) return '[error: $modifyRole — role not found]';
+    if (!role) return '[error: Role not found!]';
 
     const edits = {};
     if (name)                     edits.name        = name;
@@ -28,6 +28,6 @@ module.exports = async (context, args) => {
     await role.edit(edits, reason);
     return '';
   } catch (err) {
-    return `[error: $modifyRole — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

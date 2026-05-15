@@ -19,7 +19,7 @@ module.exports = async (context, args) => {
   try {
     new URL(url); // validate URL format
   } catch {
-    return '[error: $linkButton — invalid URL]';
+    return '[error: Invalid URL!]';
   }
 
   const btn = new ButtonBuilder()

@@ -7,6 +7,6 @@ module.exports = async (context, args) => {
   if (!id) return argError(context, 'id', 'string', id);
   try {
     const wh = await context.client?.fetchWebhook(id);
-    return wh?.token ?? '[error: $webhookToken — no token (bot-created webhooks may lack tokens)]';
-  } catch (err) { return `[error: $webhookToken — ${err.message}]`; }
+    return wh?.token ?? '[error: No token (bot-created webhooks may lack tokens)!]';
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

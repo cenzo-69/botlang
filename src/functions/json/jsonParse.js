@@ -11,7 +11,7 @@ module.exports = async (context, args) => {
   try {
     obj = JSON.parse(json);
   } catch {
-    return '[error: $jsonParse — invalid JSON]';
+    return '[error: Invalid JSON!]';
   }
 
   context.variables.set('__json_ctx__', obj);

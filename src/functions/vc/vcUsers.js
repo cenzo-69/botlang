@@ -5,7 +5,7 @@
 module.exports = async (context, args) => {
   const channelID = String(args[0] !== undefined ? args[0] : '').trim();
   const sep       = String(args[1] !== undefined ? args[1] : ', ');
-  if (!context.client) return '[error: $vcUsers — no client]';
+  if (!context.client) return '[error: No client!]';
 
   try {
     let channel;
@@ -18,6 +18,6 @@ module.exports = async (context, args) => {
     if (!channel) return '';
     return [...channel.members.keys()].join(sep);
   } catch (err) {
-    return `[error: $vcUsers — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

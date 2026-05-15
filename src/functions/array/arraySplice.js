@@ -10,9 +10,9 @@ module.exports = async (context, args) => {
   if (!name) return argError(context, 'name', 'string', name);
   if (isNaN(index)) return argError(context, 'index', 'number', index);
   const raw = context.variables.get(`__array_${name}__`);
-  if (!raw) return `[error: $arraySplice — array "${name}" does not exist]`;
+  if (!raw) return `[error: Array "${name}" does not exist!]`;
   let arr;
-  try { arr = JSON.parse(raw); } catch { return '[error: $arraySplice — corrupted array data]'; }
+  try { arr = JSON.parse(raw); } catch { return '[error: Corrupted array data!]'; }
   const deleted = arr.splice(index, isNaN(deleteCount) ? 0 : deleteCount, ...elements);
   context.variables.set(`__array_${name}__`, JSON.stringify(arr));
   return JSON.stringify(deleted);

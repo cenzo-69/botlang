@@ -9,11 +9,11 @@ module.exports = async (context, args) => {
   if (!guildID) return argError(context, 'guild ID', 'Snowflake', guildID);
   try {
     const guild = await context.client?.guilds.fetch(guildID);
-    if (!guild) return '[error: $fetchAuditLogCount — guild not found]';
+    if (!guild) return '[error: Guild not found!]';
     const opts = { type, limit: 100 };
     const logs  = await guild.fetchAuditLogs(opts);
     let entries = [...logs.entries.values()];
     if (userID) entries = entries.filter(e => e.executor?.id === userID);
     return String(entries.length);
-  } catch (err) { return `[error: $fetchAuditLogCount — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

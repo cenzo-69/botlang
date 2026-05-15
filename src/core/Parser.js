@@ -26,9 +26,10 @@ const { ParseError } = require('./errors');
  * Escape sequences:
  *   \$ \; \] \[ \\  — produce the literal character
  *
- * Each function AST node carries a `raw` field containing the original source
- * text of the entire call (e.g. "$ban[$mentioned[1];Spam]"). This is used by
- * the Interpreter to produce "at `$func[...]`" in error messages.
+ * Each function AST node carries:
+ *   - `raw`  — the original source text of the call (e.g. "$ban[$mentioned;Spam]")
+ *   - `line` — 1-based line number where the call starts
+ *   - `col`  — 1-based column number where the call starts
  */
 class Parser {
   constructor(source) {
@@ -108,9 +109,18 @@ class Parser {
     }
   }
 
+  // ── Position helper ────────────────────────────────────────────────────────
+  // Compute 1-based line and column for a given character offset in source.
+  _posToLineCol(pos) {
+    const before = this.source.slice(0, pos);
+    const lines  = before.split('\n');
+    return { line: lines.length, col: lines[lines.length - 1].length + 1 };
+  }
+
   // ── Function parser ────────────────────────────────────────────────────────
   parseFunction() {
-    const startPos = this.pos; // capture start of '$funcName[...]' for raw text
+    const startPos        = this.pos;
+    const { line, col }   = this._posToLineCol(startPos);
 
     this.pos++; // consume '$'
 
@@ -140,7 +150,7 @@ class Parser {
     // Exactly 1 arg  → block-style:  $if[cond] body $endif
     // 2 or more args → inline-style: $if[cond;then;else?]  (existing path)
     if (name.toLowerCase() === 'if' && args !== null && args.length === 1) {
-      return this.parseBlockIf(args[0]);
+      return this.parseBlockIf(args[0], line, col);
     }
 
     return {
@@ -148,12 +158,14 @@ class Parser {
       name:         name.toLowerCase(),
       originalName: name,
       args,
-      raw:          this.source.slice(startPos, this.pos), // full raw source text of this call
+      raw:          this.source.slice(startPos, this.pos),
+      line,
+      col,
     };
   }
 
   // ── Block $if / $elseif / $else / $endif ──────────────────────────────────
-  parseBlockIf(conditionNodes) {
+  parseBlockIf(conditionNodes, line, col) {
     const branches = [];
     const BLOCK_STOP = ['elseif', 'else', 'endif'];
 
@@ -204,7 +216,7 @@ class Parser {
       break;
     }
 
-    return { type: 'block_if', originalName: 'if', branches };
+    return { type: 'block_if', originalName: 'if', branches, line, col };
   }
 
   // ── Arg list parser ────────────────────────────────────────────────────────

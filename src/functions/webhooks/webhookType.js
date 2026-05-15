@@ -9,5 +9,5 @@ module.exports = async (context, args) => {
     const wh    = await context.client?.fetchWebhook(id);
     const types = { 1: 'Incoming', 2: 'ChannelFollower', 3: 'Application' };
     return types[wh?.type] ?? String(wh?.type ?? '');
-  } catch (err) { return `[error: $webhookType — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

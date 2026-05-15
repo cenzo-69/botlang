@@ -16,8 +16,8 @@ module.exports = async (context, args) => {
   const channelID = String(args[4] !== undefined ? args[4] : '').trim();
 
   if (!name)          return argError(context, 'name', 'string', name);
-  if (isNaN(startMs)) return '[error: $createEvent requires a valid start timestamp (ms)]';
-  if (!context.message?.guild) return '[error: $createEvent — not in a guild]';
+  if (isNaN(startMs)) return '[error: $createEvent requires a valid start timestamp (ms)!]';
+  if (!context.message?.guild) return '[error: Not in a guild!]';
 
   try {
     const options = {
@@ -42,6 +42,6 @@ module.exports = async (context, args) => {
     const event = await context.message.guild.scheduledEvents.create(options);
     return event.id;
   } catch (err) {
-    return `[error: $createEvent — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

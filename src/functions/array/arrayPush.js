@@ -6,11 +6,11 @@ module.exports = async (context, args) => {
   const name = String(args[0] !== undefined ? args[0] : '').trim();
   if (!name) return argError(context, 'name', 'string', name);
   const raw = context.variables.get(`__array_${name}__`);
-  if (!raw) return `[error: $arrayPush — array "${name}" does not exist. Create it first with $arrayCreate]`;
+  if (!raw) return `[error: Array "${name}" does not exist. Create it first with $arrayCreate!]`;
   let arr;
-  try { arr = JSON.parse(raw); } catch { return '[error: $arrayPush — corrupted array data]'; }
+  try { arr = JSON.parse(raw); } catch { return '[error: Corrupted array data!]'; }
   const values = args.slice(1);
-  if (!values.length) return '[error: $arrayPush — at least one value is required]';
+  if (!values.length) return '[error: At least one value is required!]';
   arr.push(...values);
   context.variables.set(`__array_${name}__`, JSON.stringify(arr));
   return '';

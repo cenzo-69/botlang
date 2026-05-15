@@ -7,7 +7,7 @@ module.exports = async (context, args) => {
   const sep  = args[1] !== undefined ? String(args[1]) : ', ';
   if (!name) return argError(context, 'name', 'string', name);
   const raw = context.variables.get(`__array_${name}__`);
-  if (!raw) return `[error: $arrayJoin — array "${name}" does not exist]`;
+  if (!raw) return `[error: Array "${name}" does not exist!]`;
   try { return JSON.parse(raw).join(sep); }
-  catch { return '[error: $arrayJoin — corrupted array data]'; }
+  catch { return '[error: Corrupted array data!]'; }
 };

@@ -9,9 +9,9 @@ module.exports = async (context, args) => {
   if (!userID)  return argError(context, 'user ID', 'Snowflake', userID);
   try {
     const guild  = await context.client?.guilds.fetch(guildID);
-    if (!guild) return '[error: $memberAvatar — guild not found]';
+    if (!guild) return '[error: Guild not found!]';
     const member = await guild.members.fetch(userID);
-    if (!member) return '[error: $memberAvatar — member not found]';
+    if (!member) return '[error: Member not found!]';
     return member.displayAvatarURL({ size: 1024 }) ?? '';
-  } catch (err) { return `[error: $memberAvatar — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

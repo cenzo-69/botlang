@@ -9,18 +9,18 @@ module.exports = async (context, args) => {
   const maxUses   = parseInt(args[2]) || 0;
   const temporary = String(args[3] !== undefined ? args[3] : '').trim().toLowerCase() === 'true';
 
-  if (!context.client) return '[error: $createInvite — no client]';
+  if (!context.client) return '[error: No client!]';
 
   try {
     const channel = channelID
       ? await context.client.channels.fetch(channelID)
       : context.message?.channel;
 
-    if (!channel) return '[error: $createInvite — channel not found]';
+    if (!channel) return '[error: Channel not found!]';
 
     const invite = await channel.createInvite({ maxAge, maxUses, temporary, unique: true });
     return invite.url;
   } catch (err) {
-    return `[error: $createInvite — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

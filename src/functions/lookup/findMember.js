@@ -4,10 +4,10 @@ module.exports = async (context, args) => {
   const guildID = String(args[0] !== undefined ? args[0] : '').trim();
   const query   = String(args[1] !== undefined ? args[1] : '').trim();
   const ret     = String(args[2] !== undefined ? args[2] : 'id').toLowerCase();
-  if (!guildID || !query) return '[error: $findMember — guildID and query are required]';
+  if (!guildID || !query) return '[error: GuildID and query are required!]';
   try {
     const guild = await context.client?.guilds.fetch(guildID);
-    if (!guild) return '[error: $findMember — guild not found]';
+    if (!guild) return '[error: Guild not found!]';
     await guild.members.fetch();
     const q = query.toLowerCase();
     const member = guild.members.cache.find(m =>
@@ -23,5 +23,5 @@ module.exports = async (context, args) => {
       case 'tag':         return member.user.tag;
       default:            return member.id;
     }
-  } catch (err) { return `[error: $findMember — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

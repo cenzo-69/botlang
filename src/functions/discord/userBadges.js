@@ -13,6 +13,6 @@ module.exports = async (context, args) => {
     const flags = user.flags?.toArray() ?? [];
     return flags.length ? flags.join(sep) : 'None';
   } catch (err) {
-    return `[error: $userBadges — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

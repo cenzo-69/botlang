@@ -6,7 +6,7 @@ module.exports = async (context, args) => {
   try {
     const t = JSON.parse(target);
     const s = JSON.parse(source);
-    if (typeof t !== 'object' || typeof s !== 'object') return '[error: $jsonAssign — both arguments must be JSON objects]';
+    if (typeof t !== 'object' || typeof s !== 'object') return '[error: Both arguments must be JSON objects!]';
     return JSON.stringify(Object.assign(t, s));
-  } catch (err) { return `[error: $jsonAssign — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

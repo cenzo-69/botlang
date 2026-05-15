@@ -12,6 +12,6 @@ module.exports = async (context, args) => {
     const dmChannel = await user.createDM();
     return dmChannel.id;
   } catch (err) {
-    return `[error: $dmChannelID — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

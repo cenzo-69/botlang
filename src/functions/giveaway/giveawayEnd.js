@@ -13,14 +13,14 @@ module.exports = async (context, args) => {
   const channelID = String(args[1] !== undefined ? args[1] : '').trim();
 
   if (!messageID)  return argError(context, 'message ID', 'Snowflake', messageID);
-  if (!context.client) return '[error: $giveawayEnd — no client]';
+  if (!context.client) return '[error: No client!]';
 
   const raw = db.get(`__giveaway_${messageID}`, null);
-  if (!raw) return '[error: $giveawayEnd — giveaway not found]';
+  if (!raw) return '[error: Giveaway not found!]';
 
   let data;
-  try { data = JSON.parse(raw); } catch { return '[error: $giveawayEnd — corrupt giveaway data]'; }
-  if (!data.active) return '[error: $giveawayEnd — giveaway already ended]';
+  try { data = JSON.parse(raw); } catch { return '[error: Corrupt giveaway data!]'; }
+  if (!data.active) return '[error: Giveaway already ended!]';
 
   try {
     const chID    = channelID || data.channelID;
@@ -79,6 +79,6 @@ module.exports = async (context, args) => {
 
     return mentions;
   } catch (err) {
-    return `[error: $giveawayEnd — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

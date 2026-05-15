@@ -5,16 +5,16 @@
 module.exports = async (context, args) => {
   const perms = args.map(p => String(p).trim()).filter(Boolean);
 
-  if (!perms.length) return '[error: $botHasPerms requires at least one permission]';
-  if (!context.client) return '[error: $botHasPerms — no client available]';
+  if (!perms.length) return '[error: $botHasPerms requires at least one permission!]';
+  if (!context.client) return '[error: No client available!]';
 
   try {
     const guild   = context.message?.guild;
     const channel = context.message?.channel;
-    if (!guild || !channel) return '[error: $botHasPerms — not in a guild channel]';
+    if (!guild || !channel) return '[error: Not in a guild channel!]';
 
     const botMember = guild.members.me;
-    if (!botMember) return '[error: $botHasPerms — bot member not found]';
+    if (!botMember) return '[error: Bot member not found!]';
 
     const channelPerms = botMember.permissionsIn(channel);
     for (const perm of perms) {
@@ -22,6 +22,6 @@ module.exports = async (context, args) => {
     }
     return 'true';
   } catch (err) {
-    return `[error: $botHasPerms — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

@@ -5,11 +5,11 @@ module.exports = async (context, args) => {
   const roleID  = String(args[1] !== undefined ? args[1] : '').trim();
   const name    = args[2] !== undefined ? String(args[2]).trim() : undefined;
   const reason  = args[3] !== undefined ? String(args[3]) : undefined;
-  if (!guildID || !roleID) return '[error: $cloneRole — guildID and roleID are required]';
+  if (!guildID || !roleID) return '[error: GuildID and roleID are required!]';
   try {
     const guild = await context.client?.guilds.fetch(guildID);
     const role  = guild?.roles.cache.get(roleID);
-    if (!role) return '[error: $cloneRole — role not found]';
+    if (!role) return '[error: Role not found!]';
     const clone = await guild.roles.create({
       name:        name || role.name + ' (copy)',
       color:       role.color,
@@ -19,5 +19,5 @@ module.exports = async (context, args) => {
       reason,
     });
     return clone.id;
-  } catch (err) { return `[error: $cloneRole — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

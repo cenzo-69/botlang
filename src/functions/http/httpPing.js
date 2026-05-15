@@ -9,5 +9,5 @@ module.exports = async (context, args) => {
     const start = Date.now();
     const resp  = await fetch(url, { method: 'HEAD', signal: AbortSignal.timeout(10000) });
     return String(Date.now() - start);
-  } catch (err) { return `[error: $httpPing — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

@@ -13,6 +13,6 @@ module.exports = async (context, args) => {
     const msg     = await channel.messages.fetch(messageID);
     return msg.editedAt ? msg.editedAt.toISOString() : '';
   } catch (err) {
-    return `[error: $messageEditedTimestamp — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

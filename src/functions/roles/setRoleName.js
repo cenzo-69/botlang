@@ -11,14 +11,14 @@ module.exports = async (context, args) => {
 
   if (!roleID) return argError(context, 'role ID', 'Role', roleID);
   if (!name)   return argError(context, 'name', 'string', name);
-  if (!context.message?.guild) return '[error: $setRoleName — not in a guild]';
+  if (!context.message?.guild) return '[error: Not in a guild!]';
 
   try {
     const role = await context.message.guild.roles.fetch(roleID);
-    if (!role) return '[error: $setRoleName — role not found]';
+    if (!role) return '[error: Role not found!]';
     await role.setName(name, reason);
     return '';
   } catch (err) {
-    return `[error: $setRoleName — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

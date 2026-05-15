@@ -18,7 +18,7 @@ module.exports = async (context, args) => {
 
   if (!channelID) return argError(context, 'channel ID', 'TextChannel', channelID);
   if (!messageID) return argError(context, 'message ID', 'Snowflake', messageID);
-  if (!context.client) return '[error: $editMessage — no client]';
+  if (!context.client) return '[error: No client!]';
 
   try {
     const channel = await context.client.channels.fetch(channelID);
@@ -39,6 +39,6 @@ module.exports = async (context, args) => {
     await msg.edit(payload);
     return '';
   } catch (err) {
-    return `[error: $editMessage — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

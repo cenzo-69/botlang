@@ -6,7 +6,7 @@
 // Returns "" if the key path doesn't exist.
 module.exports = async (context, args) => {
   const raw = context.variables.get('__json_ctx__');
-  if (raw === undefined) return '[error: $json — no JSON context loaded; use $jsonParse first]';
+  if (raw === undefined) return '[error: No JSON context loaded; use $jsonParse first!]';
 
   let obj = raw;
   for (const key of args) {

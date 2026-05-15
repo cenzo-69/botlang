@@ -8,7 +8,7 @@ module.exports = async (context, args) => {
   const channelID = String(args[0] !== undefined ? args[0] : '').trim();
 
   if (!channelID) return argError(context, 'channel ID', 'TextChannel', channelID);
-  if (!context.message?.guild) return '[error: $stageEnd — not in a guild]';
+  if (!context.message?.guild) return '[error: Not in a guild!]';
 
   try {
     const channel = await context.client.channels.fetch(channelID);
@@ -16,6 +16,6 @@ module.exports = async (context, args) => {
     await stage.delete();
     return '';
   } catch (err) {
-    return `[error: $stageEnd — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

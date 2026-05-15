@@ -8,10 +8,10 @@ const { argError } = require('../../core/fnError');
 module.exports = async (context, args) => {
   const userID = String(args[0] !== undefined ? args[0] : '').trim();
   if (!userID) return argError(context, 'user ID', 'Snowflake', userID);
-  if (!context.message?.guild) return '[error: $setUserRoles — not in a guild]';
+  if (!context.message?.guild) return '[error: Not in a guild!]';
 
   const rest = args.slice(1).map(a => String(a).trim()).filter(Boolean);
-  if (!rest.length) return '[error: $setUserRoles requires at least one roleID]';
+  if (!rest.length) return '[error: $setUserRoles requires at least one roleID!]';
 
   const snowflakeRe = /^\d{15,20}$/;
   let roleIDs = rest;
@@ -23,10 +23,10 @@ module.exports = async (context, args) => {
 
   try {
     const member = await context.message.guild.members.fetch(userID).catch(() => null);
-    if (!member) return '[error: $setUserRoles — member not found]';
+    if (!member) return '[error: Member not found!]';
     await member.roles.set(roleIDs, reason);
     return '';
   } catch (err) {
-    return `[error: $setUserRoles — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

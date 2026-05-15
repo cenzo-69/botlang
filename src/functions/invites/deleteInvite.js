@@ -9,13 +9,13 @@ module.exports = async (context, args) => {
   const reason = String(args[1] !== undefined ? args[1] : '').trim() || 'No reason provided';
 
   if (!code) return argError(context, 'code', 'string', code);
-  if (!context.client) return '[error: $deleteInvite — no client]';
+  if (!context.client) return '[error: No client!]';
 
   try {
     const invite = await context.client.fetchInvite(code);
     await invite.delete(reason);
     return '';
   } catch (err) {
-    return `[error: $deleteInvite — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

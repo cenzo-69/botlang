@@ -10,5 +10,5 @@ module.exports = async (context, args) => {
       return String(msg?.type ?? '');
     }
     return String(context.message?.type ?? '');
-  } catch (err) { return `[error: $messageType — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

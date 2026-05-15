@@ -7,8 +7,8 @@ module.exports = async (context, args) => {
   if (!id) return argError(context, 'id', 'string', id);
   try {
     const emoji = context.client?.emojis.cache.get(id);
-    if (!emoji) return '[error: $emojiAuthorID — emoji not found]';
+    if (!emoji) return '[error: Emoji not found!]';
     const fetched = await emoji.fetchAuthor().catch(() => null);
     return fetched?.id ?? '';
-  } catch (err) { return `[error: $emojiAuthorID — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

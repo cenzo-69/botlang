@@ -12,7 +12,7 @@ module.exports = async (context, args) => {
 
   let headersObj = {};
   if (headers) {
-    try { headersObj = JSON.parse(headers); } catch { return '[error: $httpDelete — invalid headers JSON]'; }
+    try { headersObj = JSON.parse(headers); } catch { return '[error: Invalid headers JSON!]'; }
   }
 
   try {
@@ -22,6 +22,6 @@ module.exports = async (context, args) => {
     context.variables.set('__http_status__', String(res.status));
     return text;
   } catch (err) {
-    return `[error: $httpDelete — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

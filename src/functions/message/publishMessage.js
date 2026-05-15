@@ -14,6 +14,6 @@ module.exports = async (context, args) => {
     await msg.crosspost();
     return '';
   } catch (err) {
-    return `[error: $publishMessage — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

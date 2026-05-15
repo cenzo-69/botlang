@@ -4,8 +4,8 @@ module.exports = async (context, args) => {
   const guildID = String(args[0] !== undefined ? args[0] : '').trim();
   const userID  = String(args[1] !== undefined ? args[1] : '').trim();
   const roleIDs = args.slice(2).map(a => String(a).trim()).filter(Boolean);
-  if (!guildID || !userID) return '[error: $hasAnyRole — guildID and userID are required]';
-  if (!roleIDs.length) return '[error: $hasAnyRole — at least one roleID is required]';
+  if (!guildID || !userID) return '[error: GuildID and userID are required!]';
+  if (!roleIDs.length) return '[error: At least one roleID is required!]';
   try {
     const guild  = await context.client?.guilds.fetch(guildID);
     const member = await guild?.members.fetch(userID);

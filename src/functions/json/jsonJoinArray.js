@@ -5,9 +5,9 @@
 // Last argument is always the separator.
 module.exports = async (context, args) => {
   const root = context.variables.get('__json_ctx__');
-  if (root === undefined) return '[error: $jsonJoinArray — no JSON context]';
+  if (root === undefined) return '[error: No JSON context!]';
   const all = args.filter(k => k !== '');
-  if (!all.length) return '[error: $jsonJoinArray requires a key path and separator]';
+  if (!all.length) return '[error: $jsonJoinArray requires a key path and separator!]';
   const sep  = all[all.length - 1];
   const keys = all.slice(0, -1);
   let cur = root;

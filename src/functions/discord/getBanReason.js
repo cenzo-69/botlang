@@ -10,13 +10,13 @@ module.exports = async (context, args) => {
   if (!userID) return argError(context, 'user ID', 'Snowflake', userID);
   let guild = context.message?.guild;
   if (guildID) {
-    try { guild = await context.client.guilds.fetch(guildID); } catch { return '[error: guild not found]'; }
+    try { guild = await context.client.guilds.fetch(guildID); } catch { return '[error: Guild not found!]'; }
   }
-  if (!guild) return '[error: no guild]';
+  if (!guild) return '[error: No guild!]';
   try {
     const ban = await guild.bans.fetch(userID);
     return ban.reason ?? '';
   } catch (err) {
-    return `[error: $getBanReason — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

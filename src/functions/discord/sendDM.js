@@ -11,12 +11,12 @@ module.exports = async (context, args) => {
   if (!message) return argError(context, 'message', 'string', message);
   try {
     const user    = await context.client?.users.fetch(userID);
-    if (!user)    return '[error: $sendDM — user not found]';
+    if (!user)    return '[error: User not found!]';
     const channel = await user.createDM();
     const sent    = await channel.send(message);
     return sent.id;
   } catch (err) {
     if (allowFail) return '';
-    return `[error: $sendDM — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

@@ -7,7 +7,7 @@ module.exports = async (context, args) => {
   if (!id) return argError(context, 'id', 'string', id);
   try {
     const ch = await context.client?.channels.fetch(id);
-    if (!ch) return '[error: $threadIsArchived — thread not found]';
+    if (!ch) return '[error: Thread not found!]';
     return String(ch.archived ?? false);
-  } catch (err) { return `[error: $threadIsArchived — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

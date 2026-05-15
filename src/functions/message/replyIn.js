@@ -6,7 +6,7 @@ const parseTime = require('../../core/parseTime');
 // Duration: 30s | 5m | 2h | 1d
 module.exports = async (context, args) => {
   const ms = parseTime(args[0]);
-  if (!ms) return '[error: $replyIn — invalid duration. Usage: $replyIn[30s] | $replyIn[5m] | $replyIn[1h] | $replyIn[1d]]';
+  if (!ms) return '[error: Invalid duration. Usage: $replyIn[30s!] | $replyIn[5m] | $replyIn[1h] | $replyIn[1d]]';
   context.variables.set('__reply_delay__', ms);
   return '';
 };

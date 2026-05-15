@@ -10,7 +10,7 @@ module.exports = async (context, args) => {
   if (!name) return argError(context, 'name', 'string', name);
 
   const code = context.variables.get(`__async_block_${name}__`);
-  if (!code) return `[error: $await — block "${name}" not found]`;
+  if (!code) return `[error: Block "${name}" not found!]`;
 
   try {
     const { Interpreter } = require('../../../src/core/Interpreter');
@@ -18,6 +18,6 @@ module.exports = async (context, args) => {
     const interp = new Interpreter(context.loader, context.client);
     return await interp.run(code, child);
   } catch (err) {
-    return `[error: $await — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

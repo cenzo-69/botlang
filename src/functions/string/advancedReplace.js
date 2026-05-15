@@ -23,7 +23,7 @@ module.exports = async (context, args) => {
       }
       return text.replace(re, replacement);
     } catch {
-      return '[error: $advancedReplace — invalid regex pattern]';
+      return '[error: Invalid regex pattern!]';
     }
   }
 

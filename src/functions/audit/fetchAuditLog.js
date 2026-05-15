@@ -11,10 +11,10 @@ module.exports = async (context, args) => {
   const index    = parseInt(args[3] !== undefined ? args[3] : 0) || 0;
   const sep      = String(args[4] !== undefined ? args[4] : ', ');
   if (!guildID)  return argError(context, 'guild ID', 'Snowflake', guildID);
-  if (isNaN(type)) return '[error: $fetchAuditLog — type must be an audit log action integer]';
+  if (isNaN(type)) return '[error: Type must be an audit log action integer!]';
   try {
     const guild = await context.client?.guilds.fetch(guildID);
-    if (!guild) return '[error: $fetchAuditLog — guild not found]';
+    if (!guild) return '[error: Guild not found!]';
     const logs  = await guild.fetchAuditLogs({ type, limit: Math.max(1, index + 1) });
     const entry = [...logs.entries.values()][index];
     if (!entry) return '';
@@ -27,5 +27,5 @@ module.exports = async (context, args) => {
       case 'createdat':  return entry.createdAt.toISOString();
       default:           return entry.id;
     }
-  } catch (err) { return `[error: $fetchAuditLog — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

@@ -5,7 +5,7 @@ module.exports = async (context, args) => {
   const sep = String(args[1] !== undefined ? args[1] : ', ');
   try {
     const ch = id ? await context.client?.channels.fetch(id) : context.message?.channel;
-    if (!ch) return '[error: $channelVoiceMemberIDs — channel not found]';
+    if (!ch) return '[error: Channel not found!]';
     return [...(ch.members?.keys() ?? [])].join(sep);
-  } catch (err) { return `[error: $channelVoiceMemberIDs — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

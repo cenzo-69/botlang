@@ -1,7 +1,7 @@
 'use strict';
 // $bigintDivide[a;b;...]  — integer-divides BigInts left to right
 module.exports = async (context, args) => {
-  if (args.length < 2) return '[error: $bigintDivide — requires at least 2 integers]';
+  if (args.length < 2) return '[error: Requires at least 2 integers!]';
   try {
     return String(args.reduce((acc, a, i) => {
       if (i === 0) return BigInt(String(a).trim());
@@ -10,6 +10,6 @@ module.exports = async (context, args) => {
       return acc / divisor;
     }));
   } catch (err) {
-    return `[error: $bigintDivide — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

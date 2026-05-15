@@ -5,7 +5,7 @@ const parseTime = require('../../core/parseTime');
 module.exports = async (context, args) => {
   const ms      = parseTime(args[0]);
   const message = args[1] !== undefined ? String(args[1]) : 'You are on cooldown!';
-  if (!ms) return '[error: $userCooldown — invalid duration. Usage: $userCooldown[30s] or $userCooldown[5m]]';
+  if (!ms) return '[error: Invalid duration. Usage: $userCooldown[30s!] or $userCooldown[5m]]';
   const userID = context.message?.author?.id ?? 'unknown';
   const key    = `__cd_user_${userID}__`;
   const now    = Date.now();

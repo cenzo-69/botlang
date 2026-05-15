@@ -8,5 +8,5 @@ module.exports = async (context, args) => {
     const obj = JSON.parse(json);
     for (const key of keys) delete obj[key];
     return JSON.stringify(obj);
-  } catch (err) { return `[error: $jsonDelete — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

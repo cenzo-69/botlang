@@ -13,13 +13,13 @@ module.exports = async (context, args) => {
   const winnerCount = parseInt(args[2]) || null;
 
   if (!messageID)  return argError(context, 'message ID', 'Snowflake', messageID);
-  if (!context.client) return '[error: $giveawayReroll — no client]';
+  if (!context.client) return '[error: No client!]';
 
   const raw = db.get(`__giveaway_${messageID}`, null);
-  if (!raw) return '[error: $giveawayReroll — giveaway not found]';
+  if (!raw) return '[error: Giveaway not found!]';
 
   let data;
-  try { data = JSON.parse(raw); } catch { return '[error: $giveawayReroll — corrupt data]'; }
+  try { data = JSON.parse(raw); } catch { return '[error: Corrupt data!]'; }
 
   try {
     const chID    = channelID || data.channelID;
@@ -54,6 +54,6 @@ module.exports = async (context, args) => {
 
     return mentions;
   } catch (err) {
-    return `[error: $giveawayReroll — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

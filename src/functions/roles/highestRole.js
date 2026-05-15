@@ -5,11 +5,11 @@
 module.exports = async (context, args) => {
   const userID = String(args[0] || '').trim() || context.message?.author?.id;
   const guild  = context.message?.guild;
-  if (!guild) return '[error: no guild]';
+  if (!guild) return '[error: No guild!]';
   try {
     const member = await guild.members.fetch(userID);
     return member.roles.highest?.name ?? '';
   } catch (err) {
-    return `[error: $highestRole — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

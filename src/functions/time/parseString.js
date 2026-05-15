@@ -14,6 +14,6 @@ module.exports = async (context, args) => {
     return String(total);
   }
   const ms = parseTime(str);
-  if (!ms) return '[error: $parseString — invalid duration format. Examples: 30s, 5m, 2h, 1d, 1h30m]';
+  if (!ms) return '[error: Invalid duration format. Examples: 30s, 5m, 2h, 1d, 1h30m!]';
   return String(ms);
 };

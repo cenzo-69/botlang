@@ -16,10 +16,10 @@ function setPath(obj, keys, value) {
 
 module.exports = async (context, args) => {
   let root = context.variables.get('__json_ctx__');
-  if (root === undefined) return '[error: $jsonSetString — no JSON context loaded]';
+  if (root === undefined) return '[error: No JSON context loaded!]';
 
   const all = args.filter(k => k !== '');
-  if (all.length < 2) return '[error: $jsonSetString requires at least a key and a value]';
+  if (all.length < 2) return '[error: $jsonSetString requires at least a key and a value!]';
 
   const value = String(all[all.length - 1]);
   const keys  = all.slice(0, -1);

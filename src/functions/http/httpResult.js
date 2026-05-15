@@ -6,14 +6,14 @@
 // With key args, parses as JSON and navigates the key path.
 module.exports = async (context, args) => {
   const raw = context.variables.get('__http_response__');
-  if (raw === undefined) return '[error: $httpResult — no HTTP response stored; make a request first]';
+  if (raw === undefined) return '[error: No HTTP response stored; make a request first!]';
 
   const keys = args.filter(k => k !== '');
   if (!keys.length) return raw;
 
   let obj;
   try { obj = JSON.parse(raw); }
-  catch { return '[error: $httpResult — response is not valid JSON]'; }
+  catch { return '[error: Response is not valid JSON!]'; }
 
   let cur = obj;
   for (const key of keys) {

@@ -10,7 +10,7 @@ module.exports = async (context, args) => {
   try {
     const guild  = await context.client?.guilds.fetch(guildID);
     const member = await guild?.members.fetch(userID);
-    if (!member) return '[error: $memberPerms — member not found]';
+    if (!member) return '[error: Member not found!]';
     return [...member.permissions.toArray()].join(sep);
-  } catch (err) { return `[error: $memberPerms — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

@@ -7,16 +7,16 @@ module.exports = async (context, args) => {
   const channelID = String(args[1] !== undefined ? args[1] : '').trim();
   const reason    = String(args[2] !== undefined ? args[2] : '').trim() || 'No reason provided';
 
-  if (!context.client) return '[error: $setChannelTopic — no client]';
+  if (!context.client) return '[error: No client!]';
 
   try {
     const channel = channelID
       ? await context.client.channels.fetch(channelID)
       : context.message?.channel;
-    if (!channel) return '[error: $setChannelTopic — channel not found]';
+    if (!channel) return '[error: Channel not found!]';
     await channel.setTopic(topic || null, reason);
     return '';
   } catch (err) {
-    return `[error: $setChannelTopic — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

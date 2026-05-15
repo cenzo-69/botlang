@@ -6,5 +6,5 @@ module.exports = async (context, args) => {
   try {
     const obj = JSON.parse(json);
     return Object.entries(obj).map(([k, v]) => `${k}=${JSON.stringify(v)}`).join(sep);
-  } catch (err) { return `[error: $jsonEntries — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

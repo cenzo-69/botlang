@@ -11,9 +11,9 @@ module.exports = {
     const outVar = args[3] !== undefined ? String(args[3]).trim() : '';
     if (!name) return argError(context, 'name', 'string', name);
     const raw = context.variables.get(`__array_${name}__`);
-    if (!raw) return `[error: $arrayFilter — array "${name}" does not exist]`;
+    if (!raw) return `[error: Array "${name}" does not exist!]`;
     let arr;
-    try { arr = JSON.parse(raw); } catch { return '[error: $arrayFilter — corrupted array data]'; }
+    try { arr = JSON.parse(raw); } catch { return '[error: Corrupted array data!]'; }
     const itemVar = Array.isArray(varNodes) ? await context.child().executeNodes(varNodes) : String(varNodes);
     const filtered = [];
     for (const item of arr) {

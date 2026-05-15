@@ -21,15 +21,15 @@ const TYPE_NAMES = {
 // Returns the type of a channel as a string (text, voice, category, etc.)
 module.exports = async (context, args) => {
   const channelID = String(args[0] !== undefined ? args[0] : '').trim();
-  if (!context.client) return '[error: $channelType — no client]';
+  if (!context.client) return '[error: No client!]';
 
   try {
     const channel = channelID
       ? await context.client.channels.fetch(channelID)
       : context.message?.channel;
-    if (!channel) return '[error: $channelType — channel not found]';
+    if (!channel) return '[error: Channel not found!]';
     return TYPE_NAMES[channel.type] ?? String(channel.type);
   } catch (err) {
-    return `[error: $channelType — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

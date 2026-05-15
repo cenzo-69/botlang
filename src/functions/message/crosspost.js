@@ -7,7 +7,7 @@ module.exports = async (context, args) => {
   const messageID = String(args[0] !== undefined ? args[0] : '').trim();
   const channelID = String(args[1] !== undefined ? args[1] : '').trim();
 
-  if (!context.client) return '[error: $crosspost — no client]';
+  if (!context.client) return '[error: No client!]';
 
   try {
     let msg;
@@ -19,10 +19,10 @@ module.exports = async (context, args) => {
     } else {
       msg = context.message;
     }
-    if (!msg) return '[error: $crosspost — message not found]';
+    if (!msg) return '[error: Message not found!]';
     await msg.crosspost();
     return '';
   } catch (err) {
-    return `[error: $crosspost — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

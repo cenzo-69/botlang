@@ -25,6 +25,6 @@ module.exports = async (context, args) => {
     wh.destroy();
     return '';
   } catch (err) {
-    return `[error: $webhookSend — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

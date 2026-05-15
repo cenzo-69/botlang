@@ -4,7 +4,7 @@
 module.exports = async (context, args) => {
   const ms   = parseInt(args[0] !== undefined ? args[0] : Date.now());
   const type = String(args[1] !== undefined ? args[1] : 'iso').toLowerCase();
-  if (isNaN(ms)) return '[error: $parseDate — first argument must be a valid timestamp in milliseconds]';
+  if (isNaN(ms)) return '[error: First argument must be a valid timestamp in milliseconds!]';
   const d = new Date(ms);
   const pad = n => String(n).padStart(2, '0');
   switch (type) {

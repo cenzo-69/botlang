@@ -14,16 +14,16 @@ module.exports = async (context, args) => {
   const winnerCount = parseInt(args[2]) || 1;
   const channelID   = String(args[3] !== undefined ? args[3] : '').trim();
 
-  if (!prize)          return '[error: $giveawayCreate — prize is required. Usage: $giveawayCreate[prize;duration;winners;channelID?]]';
-  if (durationMs < 1000) return '[error: $giveawayCreate — duration too short. Minimum: 1s. Examples: 1h, 30m, 1d]';
-  if (!context.client) return '[error: $giveawayCreate — no Discord client available]';
+  if (!prize)          return '[error: Prize is required. Usage: $giveawayCreate[prize;duration;winners;channelID?]]';
+  if (durationMs < 1000) return '[error: Duration too short. Minimum: 1s. Examples: 1h, 30m, 1d!]';
+  if (!context.client) return '[error: No Discord client available!]';
 
   try {
     const channel = channelID
       ? await context.client.channels.fetch(channelID)
       : context.message?.channel;
 
-    if (!channel) return `[error: $giveawayCreate — channel not found: "${channelID || 'current'}"]`;
+    if (!channel) return `[error: Channel not found: "${channelID || 'current'}"!]`;
 
     const endsAt    = Date.now() + durationMs;
     const endsAtStr = `<t:${Math.floor(endsAt / 1000)}:R>`;
@@ -57,6 +57,6 @@ module.exports = async (context, args) => {
 
     return msg.id;
   } catch (err) {
-    return `[error: $giveawayCreate — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

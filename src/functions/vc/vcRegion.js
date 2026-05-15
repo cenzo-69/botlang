@@ -5,7 +5,7 @@
 // Defaults to the author's current VC.
 module.exports = async (context, args) => {
   const channelID = String(args[0] !== undefined ? args[0] : '').trim();
-  if (!context.client) return '[error: $vcRegion — no client]';
+  if (!context.client) return '[error: No client!]';
 
   try {
     let channel;
@@ -15,9 +15,9 @@ module.exports = async (context, args) => {
       const member = context.message?.member;
       channel = member?.voice?.channel;
     }
-    if (!channel) return '[error: $vcRegion — channel not found]';
+    if (!channel) return '[error: Channel not found!]';
     return channel.rtcRegion ?? 'automatic';
   } catch (err) {
-    return `[error: $vcRegion — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

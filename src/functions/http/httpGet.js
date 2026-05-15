@@ -15,7 +15,7 @@ module.exports = async (context, args) => {
   const headersObj = { ...ctxHeaders };
   if (headers) {
     try { Object.assign(headersObj, JSON.parse(headers)); }
-    catch { return '[error: $httpGet — invalid headers JSON]'; }
+    catch { return '[error: Invalid headers JSON!]'; }
   }
 
   try {
@@ -25,6 +25,6 @@ module.exports = async (context, args) => {
     context.variables.set('__http_status__', String(res.status));
     return text;
   } catch (err) {
-    return `[error: $httpGet — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

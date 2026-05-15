@@ -10,9 +10,9 @@ module.exports = {
     const condNodes = args[2];
     if (!name) return argError(context, 'name', 'string', name);
     const raw = context.variables.get(`__array_${name}__`);
-    if (!raw) return `[error: $arrayFindIndex — array "${name}" does not exist]`;
+    if (!raw) return `[error: Array "${name}" does not exist!]`;
     let arr;
-    try { arr = JSON.parse(raw); } catch { return '[error: $arrayFindIndex — corrupted array data]'; }
+    try { arr = JSON.parse(raw); } catch { return '[error: Corrupted array data!]'; }
     const itemVar = Array.isArray(varNodes) ? await context.child().executeNodes(varNodes) : String(varNodes);
     for (let i = 0; i < arr.length; i++) {
       const child = context.child();

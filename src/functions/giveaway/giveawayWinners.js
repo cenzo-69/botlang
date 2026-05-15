@@ -13,10 +13,10 @@ module.exports = async (context, args) => {
   if (!messageID) return argError(context, 'message ID', 'Snowflake', messageID);
 
   const raw = db.get(`__giveaway_${messageID}`, null);
-  if (!raw) return '[error: $giveawayWinners — giveaway not found]';
+  if (!raw) return '[error: Giveaway not found!]';
 
   let data;
-  try { data = JSON.parse(raw); } catch { return '[error: $giveawayWinners — corrupt data]'; }
+  try { data = JSON.parse(raw); } catch { return '[error: Corrupt data!]'; }
 
   if (!data.winners?.length) return '';
   return data.winners.join(sep);

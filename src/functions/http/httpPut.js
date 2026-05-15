@@ -14,7 +14,7 @@ module.exports = async (context, args) => {
   let headersObj = { 'Content-Type': 'application/json' };
   if (headers) {
     try { headersObj = { ...headersObj, ...JSON.parse(headers) }; }
-    catch { return '[error: $httpPut — invalid headers JSON]'; }
+    catch { return '[error: Invalid headers JSON!]'; }
   }
 
   try {
@@ -24,6 +24,6 @@ module.exports = async (context, args) => {
     context.variables.set('__http_status__', String(res.status));
     return text;
   } catch (err) {
-    return `[error: $httpPut — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

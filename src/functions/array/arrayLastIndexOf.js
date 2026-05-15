@@ -7,7 +7,7 @@ module.exports = async (context, args) => {
   const value = args[1] !== undefined ? String(args[1]) : '';
   if (!name) return argError(context, 'name', 'string', name);
   const raw = context.variables.get(`__array_${name}__`);
-  if (!raw) return `[error: $arrayLastIndexOf — array "${name}" does not exist]`;
+  if (!raw) return `[error: Array "${name}" does not exist!]`;
   try { return String(JSON.parse(raw).map(String).lastIndexOf(value)); }
-  catch { return '[error: $arrayLastIndexOf — corrupted array data]'; }
+  catch { return '[error: Corrupted array data!]'; }
 };

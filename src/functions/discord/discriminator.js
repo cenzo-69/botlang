@@ -9,7 +9,7 @@ module.exports = async (context, args) => {
       const user = await context.client.users.fetch(userID);
       return user.discriminator || '0';
     } catch (err) {
-      return `[error: $discriminator — ${err.message}]`;
+      return `[error: ${err.message}!]`;
     }
   }
   return context.message?.author?.discriminator || '0';

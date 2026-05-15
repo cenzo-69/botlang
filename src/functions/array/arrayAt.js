@@ -8,9 +8,9 @@ module.exports = async (context, args) => {
   if (!name) return argError(context, 'name', 'string', name);
   if (isNaN(index)) return argError(context, 'index', 'number', index);
   const raw = context.variables.get(`__array_${name}__`);
-  if (!raw) return `[error: $arrayAt — array "${name}" does not exist]`;
+  if (!raw) return `[error: Array "${name}" does not exist!]`;
   let arr;
-  try { arr = JSON.parse(raw); } catch { return '[error: $arrayAt — corrupted array data]'; }
+  try { arr = JSON.parse(raw); } catch { return '[error: Corrupted array data!]'; }
   const val = arr.at(index);
   return val !== undefined ? String(val) : '';
 };

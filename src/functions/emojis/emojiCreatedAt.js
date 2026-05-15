@@ -7,7 +7,7 @@ module.exports = async (context, args) => {
   if (!id) return argError(context, 'id', 'string', id);
   try {
     const emoji = context.client?.emojis.cache.get(id);
-    if (!emoji) return '[error: $emojiCreatedAt — emoji not found]';
+    if (!emoji) return '[error: Emoji not found!]';
     return emoji.createdAt.toISOString();
-  } catch (err) { return `[error: $emojiCreatedAt — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

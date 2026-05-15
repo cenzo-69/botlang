@@ -4,7 +4,7 @@ module.exports = async (context, args) => {
   const guildID = String(args[0] !== undefined ? args[0] : '').trim();
   try {
     const guild = guildID ? await context.client?.guilds.fetch(guildID) : context.message?.guild;
-    if (!guild) return '[error: $guildVanityCode — guild not found]';
+    if (!guild) return '[error: Guild not found!]';
     return guild.vanityURLCode ?? '';
-  } catch (err) { return `[error: $guildVanityCode — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

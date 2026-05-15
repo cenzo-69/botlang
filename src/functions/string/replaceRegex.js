@@ -20,6 +20,6 @@ module.exports = async (context, args) => {
     }
     return text.replace(re, replacement);
   } catch (err) {
-    return `[error: $replaceRegex — invalid pattern: ${err.message}]`;
+    return `[error: Invalid pattern: ${err.message}!]`;
   }
 };

@@ -5,20 +5,20 @@
 // Last arg is always the value to append.
 module.exports = async (context, args) => {
   let root = context.variables.get('__json_ctx__');
-  if (root === undefined) return '[error: $jsonArrayAppend — no JSON context loaded]';
+  if (root === undefined) return '[error: No JSON context loaded!]';
 
   const all = args.filter(k => k !== '');
-  if (all.length < 2) return '[error: $jsonArrayAppend requires a key and a value]';
+  if (all.length < 2) return '[error: $jsonArrayAppend requires a key and a value!]';
 
   const value = all[all.length - 1];
   const keys  = all.slice(0, -1);
 
   let cur = root;
   for (const key of keys) {
-    if (cur === null || cur === undefined || typeof cur !== 'object') return '[error: $jsonArrayAppend — invalid path]';
+    if (cur === null || cur === undefined || typeof cur !== 'object') return '[error: Invalid path!]';
     cur = cur[key];
   }
-  if (!Array.isArray(cur)) return '[error: $jsonArrayAppend — target is not an array]';
+  if (!Array.isArray(cur)) return '[error: Target is not an array!]';
   cur.push(value);
   context.variables.set('__json_ctx__', root);
   return '';

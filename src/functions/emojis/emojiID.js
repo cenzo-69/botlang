@@ -8,5 +8,5 @@ module.exports = async (context, args) => {
   try {
     const emoji = context.client?.emojis.cache.find(e => e.name?.toLowerCase() === name.toLowerCase());
     return emoji?.id ?? '';
-  } catch (err) { return `[error: $emojiID — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

@@ -20,6 +20,6 @@ module.exports = async (context, args) => {
     if (format === 's')       return String(unix);
     return `<t:${unix}:f>`;
   } catch {
-    return '[error: $snowflakeTime — invalid snowflake ID]';
+    return '[error: Invalid snowflake ID!]';
   }
 };

@@ -13,14 +13,14 @@ module.exports = async (context, args) => {
   const autoArchive   = parseInt(args[3]) || 1440;
 
   if (!name) return argError(context, 'name', 'string', name);
-  if (!context.client) return '[error: $createThread — no client available]';
+  if (!context.client) return '[error: No client available!]';
 
   try {
     const channel = channelID
       ? await context.client.channels.fetch(channelID)
       : context.message?.channel;
 
-    if (!channel) return '[error: $createThread — channel not found]';
+    if (!channel) return '[error: Channel not found!]';
 
     let thread;
     if (messageID) {
@@ -32,6 +32,6 @@ module.exports = async (context, args) => {
 
     return thread.id;
   } catch (err) {
-    return `[error: $createThread — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

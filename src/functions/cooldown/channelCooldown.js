@@ -4,7 +4,7 @@ const parseTime = require('../../core/parseTime');
 module.exports = async (context, args) => {
   const ms      = parseTime(args[0]);
   const message = args[1] !== undefined ? String(args[1]) : 'This channel is on cooldown!';
-  if (!ms) return '[error: $channelCooldown — invalid duration. Usage: $channelCooldown[30s]]';
+  if (!ms) return '[error: Invalid duration. Usage: $channelCooldown[30s!]]';
   const channelID = context.message?.channelId ?? 'unknown';
   const key       = `__cd_channel_${channelID}__`;
   const now       = Date.now();

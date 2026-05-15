@@ -10,21 +10,21 @@ module.exports = async (context, args) => {
   const perms  = args.slice(1).map(p => String(p).trim()).filter(Boolean);
 
   if (!userID) return argError(context, 'user ID', 'Snowflake', userID);
-  if (!perms.length) return '[error: $hasPerms requires at least one permission]';
-  if (!context.client) return '[error: $hasPerms — no client available]';
+  if (!perms.length) return '[error: $hasPerms requires at least one permission!]';
+  if (!context.client) return '[error: No client available!]';
 
   try {
     const guild  = context.message?.guild;
-    if (!guild) return '[error: $hasPerms — not in a guild]';
+    if (!guild) return '[error: Not in a guild!]';
 
     const member = await guild.members.fetch(userID).catch(() => null);
-    if (!member) return '[error: $hasPerms — member not found]';
+    if (!member) return '[error: Member not found!]';
 
     for (const perm of perms) {
       if (!member.permissions.has(perm)) return 'false';
     }
     return 'true';
   } catch (err) {
-    return `[error: $hasPerms — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

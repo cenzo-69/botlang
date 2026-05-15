@@ -13,6 +13,6 @@ module.exports = async (context, args) => {
     const msg     = await channel.messages.fetch(messageID);
     return String(msg.editedAt !== null);
   } catch (err) {
-    return `[error: $isMessageEdited — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

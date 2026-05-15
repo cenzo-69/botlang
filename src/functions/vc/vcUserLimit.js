@@ -4,7 +4,7 @@
 // Returns the user limit of a voice channel. 0 means unlimited.
 module.exports = async (context, args) => {
   const channelID = String(args[0] !== undefined ? args[0] : '').trim();
-  if (!context.client) return '[error: $vcUserLimit — no client]';
+  if (!context.client) return '[error: No client!]';
 
   try {
     let channel;
@@ -14,9 +14,9 @@ module.exports = async (context, args) => {
       const member = context.message?.member;
       channel = member?.voice?.channel;
     }
-    if (!channel) return '[error: $vcUserLimit — channel not found]';
+    if (!channel) return '[error: Channel not found!]';
     return String(channel.userLimit || 0);
   } catch (err) {
-    return `[error: $vcUserLimit — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

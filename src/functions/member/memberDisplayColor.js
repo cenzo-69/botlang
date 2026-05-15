@@ -9,7 +9,7 @@ module.exports = async (context, args) => {
   try {
     const guild  = await context.client?.guilds.fetch(guildID);
     const member = await guild?.members.fetch(userID);
-    if (!member) return '[error: $memberDisplayColor — member not found]';
+    if (!member) return '[error: Member not found!]';
     return '#' + member.displayColor.toString(16).padStart(6, '0').toUpperCase();
-  } catch (err) { return `[error: $memberDisplayColor — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

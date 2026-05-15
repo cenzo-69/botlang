@@ -11,12 +11,12 @@ module.exports = async (context, args) => {
 
   if (!channelID) return argError(context, 'channel ID', 'TextChannel', channelID);
   if (!topic)     return argError(context, 'topic', 'string', topic);
-  if (!context.message?.guild) return '[error: $stageStart — not in a guild]';
+  if (!context.message?.guild) return '[error: Not in a guild!]';
 
   try {
     const stage = await context.message.guild.stageInstances.create(channelID, { topic });
     return stage.id;
   } catch (err) {
-    return `[error: $stageStart — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

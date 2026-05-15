@@ -9,9 +9,9 @@ module.exports = async (context, args) => {
   const end    = args[3] !== undefined ? parseInt(args[3]) : undefined;
   if (!name) return argError(context, 'name', 'string', name);
   const raw = context.variables.get(`__array_${name}__`);
-  if (!raw) return `[error: $arraySlice — array "${name}" does not exist]`;
+  if (!raw) return `[error: Array "${name}" does not exist!]`;
   let arr;
-  try { arr = JSON.parse(raw); } catch { return '[error: $arraySlice — corrupted array data]'; }
+  try { arr = JSON.parse(raw); } catch { return '[error: Corrupted array data!]'; }
   const sliced = (!isNaN(end) && end !== undefined) ? arr.slice(start, end) : arr.slice(start);
   if (outVar) context.variables.set(`__array_${outVar}__`, JSON.stringify(sliced));
   return JSON.stringify(sliced);

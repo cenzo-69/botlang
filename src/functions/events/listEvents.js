@@ -7,7 +7,7 @@ module.exports = async (context, args) => {
   const sep    = String(args[0] !== undefined ? args[0] : ', ');
   const format = String(args[1] !== undefined ? args[1] : '').trim().toLowerCase() || 'id';
 
-  if (!context.message?.guild) return '[error: $listEvents — not in a guild]';
+  if (!context.message?.guild) return '[error: Not in a guild!]';
 
   try {
     const events = await context.message.guild.scheduledEvents.fetch();
@@ -17,6 +17,6 @@ module.exports = async (context, args) => {
       return ev.id;
     }).join(sep);
   } catch (err) {
-    return `[error: $listEvents — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

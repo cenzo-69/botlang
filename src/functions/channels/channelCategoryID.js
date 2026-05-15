@@ -6,7 +6,7 @@ module.exports = async (context, args) => {
     const ch = id
       ? await context.client?.channels.fetch(id)
       : context.message?.channel;
-    if (!ch) return '[error: $channelCategoryID — channel not found]';
+    if (!ch) return '[error: Channel not found!]';
     return ch.parentId ?? '';
-  } catch (err) { return `[error: $channelCategoryID — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

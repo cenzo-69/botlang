@@ -4,7 +4,7 @@
 // Deletes a key (or nested key path) from the current JSON context.
 module.exports = async (context, args) => {
   let obj = context.variables.get('__json_ctx__');
-  if (obj === undefined) return '[error: $jsonUnset — no JSON context loaded]';
+  if (obj === undefined) return '[error: No JSON context loaded!]';
 
   const keys = args.filter(k => k !== '');
   if (!keys.length) return '';

@@ -8,5 +8,5 @@ module.exports = async (context, args) => {
   try {
     const wh = await context.client?.fetchWebhook(id);
     return String(wh?.type === 1 && !wh?.applicationId);
-  } catch (err) { return `[error: $webhookIsUserCreated — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

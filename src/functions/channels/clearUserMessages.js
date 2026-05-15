@@ -5,10 +5,10 @@ module.exports = async (context, args) => {
   const userID       = String(args[1] !== undefined ? args[1] : '').trim();
   const amount       = Math.min(100, Math.max(1, parseInt(args[2]) || 1));
   const deletePinned = args[3] === 'true';
-  if (!id || !userID) return '[error: $clearUserMessages — channelID and userID are required]';
+  if (!id || !userID) return '[error: ChannelID and userID are required!]';
   try {
     const ch = await context.client?.channels.fetch(id);
-    if (!ch) return '[error: $clearUserMessages — channel not found]';
+    if (!ch) return '[error: Channel not found!]';
     let msgs = await ch.messages.fetch({ limit: 100 });
     msgs = msgs.filter(m => m.author?.id === userID);
     if (!deletePinned) msgs = msgs.filter(m => !m.pinned);
@@ -16,5 +16,5 @@ module.exports = async (context, args) => {
     if (!toDelete.length) return '0';
     await ch.bulkDelete(toDelete, true);
     return String(toDelete.length);
-  } catch (err) { return `[error: $clearUserMessages — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

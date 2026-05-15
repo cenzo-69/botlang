@@ -12,9 +12,9 @@ module.exports = {
     const initial    = args[4] !== undefined ? String(args[4]) : '0';
     if (!name) return argError(context, 'name', 'string', name);
     const raw = context.variables.get(`__array_${name}__`);
-    if (!raw) return `[error: $arrayReduce — array "${name}" does not exist]`;
+    if (!raw) return `[error: Array "${name}" does not exist!]`;
     let arr;
-    try { arr = JSON.parse(raw); } catch { return '[error: $arrayReduce — corrupted array data]'; }
+    try { arr = JSON.parse(raw); } catch { return '[error: Corrupted array data!]'; }
     const itemVar = Array.isArray(varNodes) ? await context.child().executeNodes(varNodes) : String(varNodes);
     const accVar  = Array.isArray(accNodes)  ? await context.child().executeNodes(accNodes)  : String(accNodes);
     let acc = initial;

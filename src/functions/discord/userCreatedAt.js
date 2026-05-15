@@ -8,5 +8,5 @@ module.exports = async (context, args) => {
   try {
     const user = await context.client?.users.fetch(userID);
     return user?.createdAt.toISOString() ?? '';
-  } catch (err) { return `[error: $userCreatedAt — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

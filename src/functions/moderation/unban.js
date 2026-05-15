@@ -9,12 +9,12 @@ module.exports = async (context, args) => {
   const reason = String(args[1] !== undefined ? args[1] : '').trim() || 'No reason provided';
 
   if (!userID) return argError(context, 'user ID', 'Snowflake', userID);
-  if (!context.message?.guild) return '[error: $unban — not in a guild]';
+  if (!context.message?.guild) return '[error: Not in a guild!]';
 
   try {
     await context.message.guild.members.unban(userID, reason);
     return '';
   } catch (err) {
-    return `[error: $unban — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

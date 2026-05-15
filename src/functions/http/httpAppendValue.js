@@ -20,5 +20,5 @@ module.exports = async (context, args) => {
     else current[lastKey] = value;
     context.variables.set('__http_body__', JSON.stringify(obj));
     return '';
-  } catch (err) { return `[error: $httpAppendValue — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

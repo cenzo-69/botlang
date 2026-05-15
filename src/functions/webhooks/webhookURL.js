@@ -7,6 +7,6 @@ module.exports = async (context, args) => {
   if (!id) return argError(context, 'id', 'string', id);
   try {
     const wh = await context.client?.fetchWebhook(id);
-    return wh?.url ?? '[error: $webhookURL — could not retrieve URL (missing token)]';
-  } catch (err) { return `[error: $webhookURL — ${err.message}]`; }
+    return wh?.url ?? '[error: Could not retrieve URL (missing token)!]';
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

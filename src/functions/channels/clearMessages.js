@@ -11,7 +11,7 @@ module.exports = async (context, args) => {
   if (!id) return argError(context, 'id', 'string', id);
   try {
     const ch = await context.client?.channels.fetch(id);
-    if (!ch) return '[error: $clearMessages — channel not found]';
+    if (!ch) return '[error: Channel not found!]';
     let msgs = await ch.messages.fetch({ limit: amount + 10 });
     if (!deletePinned) msgs = msgs.filter(m => !m.pinned);
     if (!deleteBots)   msgs = msgs.filter(m => !m.author?.bot);
@@ -19,5 +19,5 @@ module.exports = async (context, args) => {
     if (!toDelete.length) return '0';
     await ch.bulkDelete(toDelete, true);
     return String(toDelete.length);
-  } catch (err) { return `[error: $clearMessages — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

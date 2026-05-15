@@ -9,14 +9,14 @@ module.exports = async (context, args) => {
   const reason = String(args[1] !== undefined ? args[1] : '').trim() || 'No reason provided';
 
   if (!userID) return argError(context, 'user ID', 'Snowflake', userID);
-  if (!context.message?.guild) return '[error: $vcUnmuteUser — not in a guild]';
+  if (!context.message?.guild) return '[error: Not in a guild!]';
 
   try {
     const member = await context.message.guild.members.fetch(userID).catch(() => null);
-    if (!member) return '[error: $vcUnmuteUser — member not found]';
+    if (!member) return '[error: Member not found!]';
     await member.voice.setMute(false, reason);
     return '';
   } catch (err) {
-    return `[error: $vcUnmuteUser — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

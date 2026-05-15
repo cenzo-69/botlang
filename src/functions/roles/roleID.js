@@ -7,9 +7,9 @@ const { argError } = require('../../core/fnError');
 module.exports = async (context, args) => {
   const roleName = String(args[0] !== undefined ? args[0] : '').trim().toLowerCase();
   if (!roleName) return argError(context, 'role name', 'Role', roleName);
-  if (!context.message?.guild) return '[error: $roleID — not in a guild]';
+  if (!context.message?.guild) return '[error: Not in a guild!]';
 
   const roles = await context.message.guild.roles.fetch();
   const role  = [...roles.values()].find(r => r.name.toLowerCase() === roleName);
-  return role?.id ?? '[error: $roleID — role not found]';
+  return role?.id ?? '[error: Role not found!]';
 };

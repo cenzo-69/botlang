@@ -8,7 +8,7 @@ module.exports = async (context, args) => {
   if (!id) return argError(context, 'id', 'string', id);
   try {
     const ch = await context.client?.channels.fetch(id);
-    if (!ch) return '[error: $channelChildrenIDs — channel not found]';
+    if (!ch) return '[error: Channel not found!]';
     return [...(ch.children?.cache.keys() ?? [])].join(sep);
-  } catch (err) { return `[error: $channelChildrenIDs — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

@@ -4,6 +4,6 @@ module.exports = async (context, args) => {
   try {
     return String(args.reduce((acc, a) => acc + BigInt(String(a).trim()), 0n));
   } catch (err) {
-    return `[error: $bigintSum — invalid integer: ${err.message}]`;
+    return `[error: Invalid integer: ${err.message}!]`;
   }
 };

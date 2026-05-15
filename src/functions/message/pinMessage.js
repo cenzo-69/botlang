@@ -7,7 +7,7 @@ module.exports = async (context, args) => {
   const channelID = String(args[1] !== undefined ? args[1] : '').trim();
   const reason    = String(args[2] !== undefined ? args[2] : '').trim() || 'Pinned via bot';
 
-  if (!context.client) return '[error: $pinMessage — no client]';
+  if (!context.client) return '[error: No client!]';
 
   try {
     let msg;
@@ -15,15 +15,15 @@ module.exports = async (context, args) => {
       const ch = channelID
         ? await context.client.channels.fetch(channelID)
         : context.message?.channel;
-      if (!ch) return '[error: $pinMessage — channel not found]';
+      if (!ch) return '[error: Channel not found!]';
       msg = await ch.messages.fetch(messageID);
     } else {
       msg = context.message;
     }
-    if (!msg) return '[error: $pinMessage — message not found]';
+    if (!msg) return '[error: Message not found!]';
     await msg.pin(reason);
     return '';
   } catch (err) {
-    return `[error: $pinMessage — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

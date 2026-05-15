@@ -9,5 +9,5 @@ module.exports = async (context, args) => {
   try {
     const obj = JSON.parse(json);
     return String(Object.prototype.hasOwnProperty.call(obj, key));
-  } catch (err) { return `[error: $jsonHas — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

@@ -9,8 +9,8 @@ module.exports = {
     const codeNodes = args[0];
     const ms        = parseTime(args[1]);
     const name      = args[2] !== undefined ? String(args[2]).trim() : String(Date.now());
-    if (!ms) return '[error: $setTimeout — invalid duration. Usage: $setTimeout[code;5s;myTimer]]';
-    if (!Array.isArray(codeNodes)) return '[error: $setTimeout — code block is required]';
+    if (!ms) return '[error: Invalid duration. Usage: $setTimeout[code;5s;myTimer!]]';
+    if (!Array.isArray(codeNodes)) return '[error: Code block is required!]';
     const handle = setTimeout(async () => {
       activeTimeouts.delete(name);
       try { await context.child().executeNodes(codeNodes); } catch {}

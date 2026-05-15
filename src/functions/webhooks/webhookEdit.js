@@ -11,7 +11,7 @@ module.exports = async (context, args) => {
   if (!id) return argError(context, 'id', 'string', id);
   try {
     const wh = await context.client?.fetchWebhook(id);
-    if (!wh) return '[error: $webhookEdit — webhook not found]';
+    if (!wh) return '[error: Webhook not found!]';
     const opts = {};
     if (name)      opts.name   = name;
     if (avatar)    opts.avatar = avatar;
@@ -19,5 +19,5 @@ module.exports = async (context, args) => {
     if (reason)    opts.reason  = reason;
     await wh.edit(opts);
     return '';
-  } catch (err) { return `[error: $webhookEdit — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

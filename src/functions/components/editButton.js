@@ -16,7 +16,7 @@ module.exports = async (context, args) => {
   const messageID= String(args[5] !== undefined ? args[5] : '').trim();
 
   if (!idOrURL) return argError(context, 'id or u r l', 'URL', idOrURL);
-  if (!context.client) return '[error: $editButton — no client]';
+  if (!context.client) return '[error: No client!]';
 
   const { ButtonStyle } = require('discord.js');
   const STYLES = {
@@ -29,7 +29,7 @@ module.exports = async (context, args) => {
     const msg = messageID
       ? await context.message.channel.messages.fetch(messageID)
       : context.message;
-    if (!msg) return '[error: $editButton — message not found]';
+    if (!msg) return '[error: Message not found!]';
 
     const newComponents = msg.components.map(row => {
       const updated = row.components.map(comp => {
@@ -48,6 +48,6 @@ module.exports = async (context, args) => {
     await msg.edit({ components: newComponents });
     return '';
   } catch (err) {
-    return `[error: $editButton — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

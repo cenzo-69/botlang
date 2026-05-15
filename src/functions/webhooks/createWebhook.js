@@ -11,11 +11,11 @@ module.exports = async (context, args) => {
   const avatar    = String(args[2] !== undefined ? args[2] : '').trim();
 
   if (!channelID) return argError(context, 'channel ID', 'TextChannel', channelID);
-  if (!context.client) return '[error: $createWebhook — no client available]';
+  if (!context.client) return '[error: No client available!]';
 
   try {
     const channel = await context.client.channels.fetch(channelID);
-    if (!channel || !channel.createWebhook) return '[error: $createWebhook — channel not found or not a text channel]';
+    if (!channel || !channel.createWebhook) return '[error: Channel not found or not a text channel!]';
 
     const options = { name };
     if (avatar) options.avatar = avatar;
@@ -23,6 +23,6 @@ module.exports = async (context, args) => {
     const wh = await channel.createWebhook(options);
     return JSON.stringify({ id: wh.id, token: wh.token });
   } catch (err) {
-    return `[error: $createWebhook — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

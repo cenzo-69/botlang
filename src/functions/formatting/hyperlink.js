@@ -3,6 +3,6 @@
 module.exports = async (context, args) => {
   const text = String(args[0] !== undefined ? args[0] : '');
   const url  = String(args[1] !== undefined ? args[1] : '');
-  if (!url) return '[error: $hyperlink — url is required. Usage: $hyperlink[text;https://example.com]]';
+  if (!url) return '[error: Url is required. Usage: $hyperlink[text;https://example.com!]]';
   return `[${text}](${url})`;
 };

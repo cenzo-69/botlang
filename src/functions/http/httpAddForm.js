@@ -13,5 +13,5 @@ module.exports = async (context, args) => {
     context.variables.set('__http_form__', JSON.stringify(form));
     context.variables.set('__http_content_type__', 'application/x-www-form-urlencoded');
     return '';
-  } catch { return '[error: $httpAddForm — form data corrupted]'; }
+  } catch { return '[error: Form data corrupted!]'; }
 };

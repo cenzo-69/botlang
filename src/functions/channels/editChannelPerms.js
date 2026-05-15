@@ -23,6 +23,6 @@ module.exports = async (context, args) => {
     await channel.permissionOverwrites.edit(targetID, overrides);
     return '';
   } catch (err) {
-    return `[error: $editChannelPerms — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

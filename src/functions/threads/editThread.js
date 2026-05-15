@@ -15,11 +15,11 @@ module.exports = async (context, args) => {
   const reason         = String(args[6] !== undefined ? args[6] : '').trim() || 'No reason provided';
 
   if (!threadID) return argError(context, 'thread ID', 'Snowflake', threadID);
-  if (!context.client) return '[error: $editThread — no client]';
+  if (!context.client) return '[error: No client!]';
 
   try {
     const thread = await context.client.channels.fetch(threadID);
-    if (!thread) return '[error: $editThread — thread not found]';
+    if (!thread) return '[error: Thread not found!]';
 
     const edits = {};
     if (name)                                      edits.name              = name;
@@ -37,6 +37,6 @@ module.exports = async (context, args) => {
     await thread.edit(edits, reason);
     return '';
   } catch (err) {
-    return `[error: $editThread — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

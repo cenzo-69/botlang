@@ -11,7 +11,7 @@ module.exports = async (context, args) => {
   if (!guildID) return argError(context, 'guild ID', 'Snowflake', guildID);
   try {
     const guild = await context.client?.guilds.fetch(guildID);
-    if (!guild) return '[error: $fetchUserAuditLog — guild not found]';
+    if (!guild) return '[error: Guild not found!]';
     const logs  = await guild.fetchAuditLogs({ type, limit: 100 });
     let entries = [...logs.entries.values()];
     if (userID) entries = entries.filter(e => e.executor?.id === userID);
@@ -26,5 +26,5 @@ module.exports = async (context, args) => {
       case 'createdat':  return entry.createdAt.toISOString();
       default:           return entry.id;
     }
-  } catch (err) { return `[error: $fetchUserAuditLog — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

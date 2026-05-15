@@ -9,8 +9,8 @@ module.exports = async (context, args) => {
   if (!name) return argError(context, 'name', 'string', name);
   try {
     const guild = guildID ? await context.client?.guilds.fetch(guildID) : context.message?.guild;
-    if (!guild) return '[error: $setGuildName — guild not found]';
+    if (!guild) return '[error: Guild not found!]';
     await guild.setName(name, reason);
     return '';
-  } catch (err) { return `[error: $setGuildName — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

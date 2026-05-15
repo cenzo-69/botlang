@@ -19,6 +19,6 @@ module.exports = async (context, args) => {
       default:          return msg.content ?? '';
     }
   } catch (err) {
-    return `[error: $getMessage — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

@@ -1,82 +1,41 @@
 'use strict';
 
 /**
- * CenzoJS unified error formatter.
+ * CenzoJS error helpers.
  *
- * Two modes:
+ * Both functions return a plain [error: message] string.
+ * The Interpreter intercepts these and formats them as:
  *
- * 1. fnError(funcName, reason, details?)
- *    General function error — shows reason + optional Got/Expected/Example/Tip block.
+ *   ❌ Function `$funcName` at `line:col` returned an error: message
  *
- *    ⛔ `$funcName` — reason
- *    ┌─────────────────────────────────
- *    │ Got      › value
- *    │ Expected › format
- *    │ Example  › $func[usage]
- *    └─────────────────────────────────
+ * fnError(funcName, reason)
+ *   General-purpose error — use for logic failures, missing resources, etc.
  *
- * 2. argError(context, argName, expectedType, gotValue)
- *    Argument type/value error — matches the detailed Discord error style.
- *
- *    Given value `<got>` for argument `<argName>` is not of type `<expectedType>`
- *    at `$funcName[raw source args]`
- *
- * The `context` passed to argError must be the child context received by the
- * executing function — it carries `callSiteRaw` set by the Interpreter.
+ * argError(context, argName, expectedType, gotValue)
+ *   Argument validation error — use when an argument is missing or wrong type.
  */
 
-// ── General function error ─────────────────────────────────────────────────
-
-function fnError(funcName, reason, details = {}) {
-  const name = funcName.startsWith('$') ? funcName : `$${funcName}`;
-
-  const lines = [];
-  if (details.got      !== undefined) lines.push(`│ **Got**      › \`${String(details.got).slice(0, 80)}\``);
-  if (details.expected !== undefined) lines.push(`│ **Expected** › ${details.expected}`);
-  if (details.example  !== undefined) lines.push(`│ **Example**  › \`${details.example}\``);
-  if (details.tip      !== undefined) lines.push(`│ **Tip**      › ${details.tip}`);
-
-  const header = `⛔ \`${name}\` — ${reason}`;
-
-  if (!lines.length) return header;
-
-  return [
-    header,
-    '┌─────────────────────────────────',
-    ...lines,
-    '└─────────────────────────────────',
-  ].join('\n');
+function fnError(funcName, reason) {
+  return `[error: ${reason}]`;
 }
 
-// ── Argument type/value error ──────────────────────────────────────────────
-
-/**
- * Produces a detailed argument error in the style shown in error messages:
- *
- *   Given value `<got>` for argument `<argName>` is not of type `<expectedType>`
- *   at `$funcName[raw source]`
- *
- * @param {object} context       — child context received by the function
- * @param {string} argName       — human-readable argument name (e.g. "userID")
- * @param {string} expectedType  — expected type label (e.g. "Snowflake", "string", "number")
- * @param {*}      gotValue      — the value that was actually received
- * @returns {string}
- */
 function argError(context, argName, expectedType, gotValue) {
-  const callSite = context.callSiteRaw || `$${context.functionName || '?'}`;
+  const isEmpty =
+    gotValue === undefined ||
+    gotValue === null      ||
+    gotValue === ''        ||
+    gotValue !== gotValue; // NaN check
 
-  // Format the received value: show empty string clearly, truncate long values
-  let valDisplay;
-  if (gotValue === undefined || gotValue === null || gotValue === '') {
-    valDisplay = '';
-  } else {
-    valDisplay = String(gotValue).slice(0, 80);
+  if (isEmpty) {
+    if (expectedType === 'number')    return `[error: \`${argName}\` must be a valid number!]`;
+    if (expectedType === 'Snowflake') return `[error: \`${argName}\` must be a valid Discord ID!]`;
+    return `[error: \`${argName}\` is required!]`;
   }
 
-  return [
-    `Given value \`${valDisplay}\` for argument \`${argName}\` is not of type \`${expectedType}\``,
-    `at \`${callSite}\``,
-  ].join('\n');
+  const val = String(gotValue).slice(0, 80);
+  if (expectedType === 'number')    return `[error: \`${argName}\` must be a valid number, got \`${val}\`!]`;
+  if (expectedType === 'Snowflake') return `[error: \`${argName}\` must be a valid Discord ID, got \`${val}\`!]`;
+  return `[error: \`${argName}\` must be of type \`${expectedType}\`, got \`${val}\`!]`;
 }
 
 module.exports = fnError;

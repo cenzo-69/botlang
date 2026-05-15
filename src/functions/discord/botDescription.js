@@ -4,5 +4,5 @@ module.exports = async (context) => {
   try {
     const app = await context.client?.application?.fetch();
     return app?.description ?? '';
-  } catch (err) { return `[error: $botDescription — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

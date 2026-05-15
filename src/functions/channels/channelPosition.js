@@ -4,7 +4,7 @@ module.exports = async (context, args) => {
   const id = String(args[0] !== undefined ? args[0] : '').trim();
   try {
     const ch = id ? await context.client?.channels.fetch(id) : context.message?.channel;
-    if (!ch) return '[error: $channelPosition — channel not found]';
+    if (!ch) return '[error: Channel not found!]';
     return String(ch.position ?? 0);
-  } catch (err) { return `[error: $channelPosition — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

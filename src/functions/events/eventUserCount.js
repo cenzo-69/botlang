@@ -7,12 +7,12 @@ const { argError } = require('../../core/fnError');
 module.exports = async (context, args) => {
   const eventID = String(args[0] !== undefined ? args[0] : '').trim();
   if (!eventID) return argError(context, 'event ID', 'string', eventID);
-  if (!context.message?.guild) return '[error: $eventUserCount — not in a guild]';
+  if (!context.message?.guild) return '[error: Not in a guild!]';
 
   try {
     const event = await context.message.guild.scheduledEvents.fetch(eventID);
     return String(event.userCount ?? 0);
   } catch (err) {
-    return `[error: $eventUserCount — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

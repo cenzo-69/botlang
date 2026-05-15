@@ -7,7 +7,7 @@ const { argError } = require('../../core/fnError');
 module.exports = async (context, args) => {
   const userID = String(args[0] !== undefined ? args[0] : '').trim();
   if (!userID) return argError(context, 'user ID', 'Snowflake', userID);
-  if (!context.message?.guild) return '[error: $isBanned — not in a guild]';
+  if (!context.message?.guild) return '[error: Not in a guild!]';
 
   try {
     await context.message.guild.bans.fetch(userID);

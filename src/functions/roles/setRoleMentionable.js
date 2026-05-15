@@ -10,14 +10,14 @@ module.exports = async (context, args) => {
   const reason       = String(args[2] !== undefined ? args[2] : '').trim() || 'No reason provided';
 
   if (!roleID) return argError(context, 'role ID', 'Role', roleID);
-  if (!context.message?.guild) return '[error: $setRoleMentionable — not in a guild]';
+  if (!context.message?.guild) return '[error: Not in a guild!]';
 
   try {
     const role = await context.message.guild.roles.fetch(roleID);
-    if (!role) return '[error: $setRoleMentionable — role not found]';
+    if (!role) return '[error: Role not found!]';
     await role.setMentionable(mentionable, reason);
     return '';
   } catch (err) {
-    return `[error: $setRoleMentionable — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

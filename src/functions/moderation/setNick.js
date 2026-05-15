@@ -10,14 +10,14 @@ module.exports = async (context, args) => {
   const reason   = String(args[2] !== undefined ? args[2] : '').trim() || 'No reason provided';
 
   if (!userID) return argError(context, 'user ID', 'Snowflake', userID);
-  if (!context.message?.guild) return '[error: $setNick — not in a guild]';
+  if (!context.message?.guild) return '[error: Not in a guild!]';
 
   try {
     const member = await context.message.guild.members.fetch(userID).catch(() => null);
-    if (!member) return '[error: $setNick — member not found]';
+    if (!member) return '[error: Member not found!]';
     await member.setNickname(nickname, reason);
     return '';
   } catch (err) {
-    return `[error: $setNick — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

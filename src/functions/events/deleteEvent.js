@@ -9,13 +9,13 @@ module.exports = async (context, args) => {
   const reason  = String(args[1] !== undefined ? args[1] : '').trim() || 'No reason provided';
 
   if (!eventID) return argError(context, 'event ID', 'string', eventID);
-  if (!context.message?.guild) return '[error: $deleteEvent — not in a guild]';
+  if (!context.message?.guild) return '[error: Not in a guild!]';
 
   try {
     const event = await context.message.guild.scheduledEvents.fetch(eventID);
     await event.delete();
     return '';
   } catch (err) {
-    return `[error: $deleteEvent — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

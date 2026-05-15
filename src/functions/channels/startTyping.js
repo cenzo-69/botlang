@@ -4,8 +4,8 @@ module.exports = async (context, args) => {
   const id = String(args[0] !== undefined ? args[0] : '').trim();
   try {
     const ch = id ? await context.client?.channels.fetch(id) : context.message?.channel;
-    if (!ch) return '[error: $startTyping — channel not found]';
+    if (!ch) return '[error: Channel not found!]';
     await ch.sendTyping();
     return '';
-  } catch (err) { return `[error: $startTyping — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

@@ -9,8 +9,8 @@ module.exports = {
     const codeNodes = args[0];
     const ms        = parseTime(args[1]);
     const name      = args[2] !== undefined ? String(args[2]).trim() : String(Date.now());
-    if (!ms) return '[error: $setInterval — invalid duration. Usage: $setInterval[code;30s;myLoop]]';
-    if (!Array.isArray(codeNodes)) return '[error: $setInterval — code block is required]';
+    if (!ms) return '[error: Invalid duration. Usage: $setInterval[code;30s;myLoop!]]';
+    if (!Array.isArray(codeNodes)) return '[error: Code block is required!]';
     if (name && activeIntervals.has(name)) {
       clearInterval(activeIntervals.get(name));
     }

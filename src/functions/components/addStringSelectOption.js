@@ -20,7 +20,7 @@ module.exports = async (context, args) => {
   const menus = context.variables.get('__select_menus__') || {};
   const keys  = Object.keys(menus);
   const key   = menuID && menus[menuID] ? menuID : keys[keys.length - 1];
-  if (!key) return '[error: $addStringSelectOption — no select menu exists yet]';
+  if (!key) return '[error: No select menu exists yet!]';
 
   const opt = { label, value, default: isDefault };
   if (description) opt.description = description;

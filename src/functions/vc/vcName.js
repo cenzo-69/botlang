@@ -4,7 +4,7 @@
 // Returns the name of a voice channel. Defaults to the author's current VC.
 module.exports = async (context, args) => {
   const channelID = String(args[0] !== undefined ? args[0] : '').trim();
-  if (!context.client) return '[error: $vcName — no client]';
+  if (!context.client) return '[error: No client!]';
 
   try {
     let channel;
@@ -14,9 +14,9 @@ module.exports = async (context, args) => {
       const member = context.message?.member;
       channel = member?.voice?.channel;
     }
-    if (!channel) return '[error: $vcName — channel not found]';
+    if (!channel) return '[error: Channel not found!]';
     return channel.name;
   } catch (err) {
-    return `[error: $vcName — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

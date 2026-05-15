@@ -6,9 +6,9 @@ module.exports = async (context, args) => {
     const guild = guildID
       ? await context.client?.guilds.fetch(guildID)
       : context.message?.guild;
-    if (!guild) return '[error: $guildMemberCount — guild not found]';
+    if (!guild) return '[error: Guild not found!]';
     return String(guild.memberCount);
   } catch (err) {
-    return `[error: $guildMemberCount — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

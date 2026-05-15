@@ -6,6 +6,6 @@ module.exports = async (context, args) => {
   const name = String(args[0] !== undefined ? args[0] : '').trim();
   if (!name) return argError(context, 'name', 'string', name);
   const raw = context.variables.get(`__array_${name}__`);
-  if (!raw) return `[error: $arrayLength — array "${name}" does not exist]`;
-  try { return String(JSON.parse(raw).length); } catch { return '[error: $arrayLength — corrupted array data]'; }
+  if (!raw) return `[error: Array "${name}" does not exist!]`;
+  try { return String(JSON.parse(raw).length); } catch { return '[error: Corrupted array data!]'; }
 };

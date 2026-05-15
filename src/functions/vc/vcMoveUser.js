@@ -11,14 +11,14 @@ module.exports = async (context, args) => {
 
   if (!userID)    return argError(context, 'user ID', 'Snowflake', userID);
   if (!channelID) return argError(context, 'channel ID', 'TextChannel', channelID);
-  if (!context.message?.guild) return '[error: $vcMoveUser — not in a guild]';
+  if (!context.message?.guild) return '[error: Not in a guild!]';
 
   try {
     const member = await context.message.guild.members.fetch(userID).catch(() => null);
-    if (!member) return '[error: $vcMoveUser — member not found]';
+    if (!member) return '[error: Member not found!]';
     await member.voice.setChannel(channelID, reason);
     return '';
   } catch (err) {
-    return `[error: $vcMoveUser — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

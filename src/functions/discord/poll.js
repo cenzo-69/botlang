@@ -10,8 +10,8 @@ module.exports = async (context, args) => {
   const options  = args.slice(1).filter(a => String(a).trim() !== '');
 
   if (!question)          return argError(context, 'question', 'string', question);
-  if (options.length < 2) return '[error: $poll requires at least 2 options]';
-  if (options.length > 9) return '[error: $poll supports up to 9 options]';
+  if (options.length < 2) return '[error: $poll requires at least 2 options!]';
+  if (options.length > 9) return '[error: $poll supports up to 9 options!]';
 
   const numberEmojis = ['1️⃣', '2️⃣', '3️⃣', '4️⃣', '5️⃣', '6️⃣', '7️⃣', '8️⃣', '9️⃣'];
 
@@ -19,7 +19,7 @@ module.exports = async (context, args) => {
   options.forEach((opt, i) => lines.push(`${numberEmojis[i]} ${opt}`));
 
   const channel = context.message?.channel;
-  if (!channel) return '[error: $poll — no channel]';
+  if (!channel) return '[error: No channel!]';
 
   try {
     const sent = await channel.send(lines.join('\n'));
@@ -28,6 +28,6 @@ module.exports = async (context, args) => {
     }
     return '';
   } catch (err) {
-    return `[error: $poll — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

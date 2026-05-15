@@ -8,8 +8,8 @@ module.exports = async (context, args) => {
   if (!id) return argError(context, 'id', 'string', id);
   try {
     const ch    = await context.client?.channels.fetch(id);
-    if (!ch)    return '[error: $cloneChannel — channel not found]';
+    if (!ch)    return '[error: Channel not found!]';
     const clone = await ch.clone({ name });
     return clone.id;
-  } catch (err) { return `[error: $cloneChannel — ${err.message}]`; }
+  } catch (err) { return `[error: ${err.message}!]`; }
 };

@@ -10,14 +10,14 @@ module.exports = async (context, args) => {
   const reason = String(args[2] !== undefined ? args[2] : '').trim() || 'No reason provided';
 
   if (!roleID) return argError(context, 'role ID', 'Role', roleID);
-  if (!context.message?.guild) return '[error: $setRoleHoist — not in a guild]';
+  if (!context.message?.guild) return '[error: Not in a guild!]';
 
   try {
     const role = await context.message.guild.roles.fetch(roleID);
-    if (!role) return '[error: $setRoleHoist — role not found]';
+    if (!role) return '[error: Role not found!]';
     await role.setHoist(hoist, reason);
     return '';
   } catch (err) {
-    return `[error: $setRoleHoist — ${err.message}]`;
+    return `[error: ${err.message}!]`;
   }
 };

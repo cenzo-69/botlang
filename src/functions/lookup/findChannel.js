@@ -7,7 +7,7 @@ module.exports = async (context, args) => {
   const query  = String(args[0] !== undefined ? args[0] : '').trim();
   const ret    = String(args[1] !== undefined ? args[1] : 'id').toLowerCase();
   if (!query) return argError(context, 'query', 'string', query);
-  if (!context.client) return '[error: $findChannel — no client available]';
+  if (!context.client) return '[error: No client available!]';
   const ch = context.client.channels.cache.find(c =>
     c.id === query || c.name?.toLowerCase().includes(query.toLowerCase())
   );
