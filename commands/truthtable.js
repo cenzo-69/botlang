@@ -1,20 +1,20 @@
 module.exports = {
-  name: 'truthtable',
+  name:        'truthtable',
   description: 'Showcase $and, $or, $not, $equals logic functions',
-  code: [
-    '⚙️ **Logic / Truth Table Demo**',
-    '```',
-    '$and[true;true]    = $and[true;true]',
-    '$and[true;false]   = $and[true;false]',
-    '$or[false;true]    = $or[false;true]',
-    '$or[false;false]   = $or[false;false]',
-    '$not[true]         = $not[true]',
-    '$not[false]        = $not[false]',
-    '$equals[a;a]       = $equals[a;a]',
-    '$equals[a;b]       = $equals[a;b]',
-    '5>3 (if)           = $if[5>3;true;false]',
-    '5<3 (if)           = $if[5<3;true;false]',
-    'hello==hello       = $if[hello==hello;true;false]',
-    '```',
-  ].join('\n'),
+  code: `
+⚙️ **Logic / Truth Table Demo**
+\`\`\`
+$and[true;true]    = $and[true;true]
+$and[true;false]   = $and[true;false]
+$or[false;true]    = $or[false;true]
+$or[false;false]   = $or[false;false]
+$not[true]         = $not[true]
+$not[false]        = $not[false]
+$equals[a;a]       = $equals[a;a]
+$equals[a;b]       = $equals[a;b]
+5>3 (if)           = $if[5>3;true;false]
+5<3 (if)           = $if[5<3;true;false]
+hello==hello       = $if[hello==hello;true;false]
+\`\`\`
+  `.trim(),
 };

@@ -1,7 +1,4 @@
 module.exports = {
-  name: "avatar",
-  code: `
-
-  $avatar[$mentioned[1;true]]`
-  
-  }
+  name: 'avatar',
+  code: `$avatar[$mentioned[1;true]]`,
+};

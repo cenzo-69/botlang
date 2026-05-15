@@ -1,7 +1,7 @@
-const  { EmbedBuilder } = require('discord.js')
 module.exports = {
-  name: "testembed",
-  description: "test embed",
+  name:        'testembed',
+  description: 'Test embed',
   code: `
-  $description[hi]`
-}
+$description[hi]
+  `,
+};

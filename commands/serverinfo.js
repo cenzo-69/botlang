@@ -1,14 +1,14 @@
 module.exports = {
-  name: 'serverinfo',
+  name:        'serverinfo',
   description: 'Show information about the current server',
-  code: [
-    '🏠 **Server Information**',
-    '```',
-    'Name     : $guildName',
-    'ID       : $guildID',
-    'Members  : $memberCount',
-    'Channel  : #$channelName ($channelID)',
-    'Snapshot : $time[YYYY-MM-DD HH:mm:ss]',
-    '```',
-  ].join('\n'),
+  code: `
+🏠 **Server Information**
+\`\`\`
+Name     : $guildName
+ID       : $guildID
+Members  : $memberCount
+Channel  : #$channelName ($channelID)
+Snapshot : $time[YYYY-MM-DD HH:mm:ss]
+\`\`\`
+  `.trim(),
 };

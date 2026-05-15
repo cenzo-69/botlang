@@ -1,5 +1,6 @@
 module.exports = {
-  name: 'loop',
+  name:        'loop',
   description: 'Demo the $loop function',
-  code: '$loop[5;Item $loopNumber: hello!\n]',
+  code: `$loop[5; Item $loopNumber: hello!
+]`,
 };
