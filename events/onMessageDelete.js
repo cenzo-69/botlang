@@ -14,6 +14,15 @@
 module.exports = {
   name: 'onMessageDelete',
 
-  // Uncomment and edit to activate:
-  // code: `🗑️ A message by <@$get[deletedAuthorID]> was deleted in <#$get[deletedChannelID]>.\nContent: $get[deletedContent]`,
+  // Note: deletedContent is empty for messages not cached by Discord (older messages).
+  code: [
+    '$title[🗑️ Message Deleted]',
+    '$color[ED4245]',
+    '$description[A message by <@$get[deletedAuthorID]> was deleted.]',
+    '$addField[Author ID;`$get[deletedAuthorID]`;true]',
+    '$addField[Channel;<#$get[deletedChannelID]>;true]',
+    '$addField[Content;$if[$get[deletedContent]==;*(not cached)*;$get[deletedContent]);false]',
+    '$footer[onMessageDelete ✓ — CenzoJS]',
+    '$timestamp',
+  ].join('\n'),
 };

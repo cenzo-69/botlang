@@ -17,12 +17,13 @@
 module.exports = {
   name: 'onVoiceStateUpdate',
 
-  // Uncomment and edit to activate:
-  // code: `$if[$get[voiceAction]==joined;true]
-  // 🔊 <@$get[memberID]> joined **$get[newChannelName]**
-  // $elseif[$get[voiceAction]==left]
-  // 🔇 <@$get[memberID]> left **$get[oldChannelName]**
-  // $elseif[$get[voiceAction]==moved]
-  // 🔀 <@$get[memberID]> moved from **$get[oldChannelName]** to **$get[newChannelName]**
-  // $endif`,
+  code: [
+    '$title[$if[$get[voiceAction]==joined;🔊 Joined Voice;$if[$get[voiceAction]==left;🔇 Left Voice;🔀 Moved Voice]]]',
+    '$color[$if[$get[voiceAction]==joined;57F287;$if[$get[voiceAction]==left;ED4245;FEE75C]]]',
+    '$description[<@$get[memberID]> ($get[memberUsername]) $if[$get[voiceAction]==joined;joined **$get[newChannelName]**;$if[$get[voiceAction]==left;left **$get[oldChannelName]**;moved from **$get[oldChannelName]** → **$get[newChannelName]**]]]',
+    '$addField[Server;$get[guildName];true]',
+    '$addField[Action;$get[voiceAction];true]',
+    '$footer[onVoiceStateUpdate ✓ — CenzoJS]',
+    '$timestamp',
+  ].join('\n'),
 };

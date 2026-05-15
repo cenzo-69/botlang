@@ -15,6 +15,14 @@
 module.exports = {
   name: 'onMessageEdit',
 
-  // Uncomment and edit to activate:
-  // code: `✏️ <@$get[editedAuthorID]> edited a message in <#$get[editedChannelID]>.\nBefore: $get[oldContent]\nAfter: $get[newContent]`,
+  // Note: oldContent may be empty if the message was not previously cached by Discord.
+  code: [
+    '$title[✏️ Message Edited]',
+    '$color[FEE75C]',
+    '$description[<@$get[editedAuthorID]> edited a message in <#$get[editedChannelID]>.]',
+    '$addField[Before;$if[$get[oldContent]==;*(not cached)*;$get[oldContent]);false]',
+    '$addField[After;$get[newContent];false]',
+    '$footer[onMessageEdit ✓ — CenzoJS]',
+    '$timestamp',
+  ].join('\n'),
 };

@@ -4,26 +4,32 @@ const { argError } = require('../../core/fnError');
 
 const { ActionRowBuilder } = require('discord.js');
 
-// $addStringSelectOption[label;value;description?;emoji?;default?;menuID?]
-// Adds an option to the most recently created string select menu (or a specific menu by ID).
+// $addStringSelectOption[menuID;value;label;description?;emoji?;default?]
+// Adds an option to the named string select menu.
+// menuID      — custom ID of the select menu created with $addStringSelect
+// value       — the value sent to the handler when this option is selected
+// label       — the visible text shown in the dropdown
+// description — optional short description shown under the label (max 100 chars)
+// emoji       — optional emoji name (e.g. 🏓)
+// default     — "true" to pre-select this option (default: false)
 module.exports = async (context, args) => {
-  const label       = String(args[0] !== undefined ? args[0] : '').trim();
+  const menuID      = String(args[0] !== undefined ? args[0] : '').trim();
   const value       = String(args[1] !== undefined ? args[1] : '').trim();
-  const description = String(args[2] !== undefined ? args[2] : '').trim();
-  const emoji       = String(args[3] !== undefined ? args[3] : '').trim();
-  const isDefault   = String(args[4] !== undefined ? args[4] : '').trim().toLowerCase() === 'true';
-  const menuID      = String(args[5] !== undefined ? args[5] : '').trim();
+  const label       = String(args[2] !== undefined ? args[2] : '').trim() || value;
+  const description = String(args[3] !== undefined ? args[3] : '').trim();
+  const emoji       = String(args[4] !== undefined ? args[4] : '').trim();
+  const isDefault   = String(args[5] !== undefined ? args[5] : '').trim().toLowerCase() === 'true';
 
-  if (!label) return argError(context, 'label', 'string', label);
   if (!value) return argError(context, 'value', 'string', value);
+  if (!label) return argError(context, 'label', 'string', label);
 
   const menus = context.variables.get('__select_menus__') || {};
   const keys  = Object.keys(menus);
-  const key   = menuID && menus[menuID] ? menuID : keys[keys.length - 1];
-  if (!key) return '[error: No select menu exists yet!]';
+  const key   = (menuID && menus[menuID]) ? menuID : keys[keys.length - 1];
+  if (!key || !menus[key]) return '[error: No select menu found — call $addStringSelect first!]';
 
   const opt = { label, value, default: isDefault };
-  if (description) opt.description = description;
+  if (description) opt.description = description.slice(0, 100);
   if (emoji)       opt.emoji = { name: emoji };
   menus[key].builder.addOptions(opt);
 

@@ -197,16 +197,12 @@ class Runtime {
   // ── Component builder ──────────────────────────────────────────────────────
 
   _buildComponents(context) {
-    if (!context.components.length) return [];
-
     const rows        = [];
     let   currentBtns = [];
 
     const flushButtons = () => {
       if (!currentBtns.length) return;
-      rows.push(
-        new ActionRowBuilder().addComponents(currentBtns.map(b => this._buildButton(b)))
-      );
+      rows.push(new ActionRowBuilder().addComponents(currentBtns.map(b => this._buildButton(b))));
       currentBtns = [];
     };
 
@@ -221,32 +217,43 @@ class Runtime {
             .setCustomId(comp.customId || 'menu')
             .setPlaceholder(comp.placeholder || 'Select an option…');
 
-          if (comp.options && comp.options.length) {
-            menu.addOptions(
-              comp.options.map(o =>
-                new StringSelectMenuOptionBuilder()
-                  .setLabel(o.label || 'Option')
-                  .setValue(o.value || o.label || 'option')
-              )
-            );
-          } else {
-            // Discord requires at least 1 option; add a placeholder option
-            menu.addOptions(
+          if (comp.options?.length) {
+            menu.addOptions(comp.options.map(o =>
               new StringSelectMenuOptionBuilder()
-                .setLabel('Option')
-                .setValue('placeholder')
-            );
+                .setLabel(o.label || 'Option')
+                .setValue(o.value || o.label || 'option')
+            ));
+          } else {
+            menu.addOptions(new StringSelectMenuOptionBuilder().setLabel('Option').setValue('placeholder'));
           }
 
           rows.push(new ActionRowBuilder().addComponents(menu));
         } catch (err) {
           console.warn(`[Runtime] Could not build selectMenu: ${err.message}`);
         }
+      } else if (comp.type === 'row_break') {
+        // $actionRow — force-flush current buttons into their own row
+        flushButtons();
+      } else if (comp.builder) {
+        // Pre-built Discord.js component (e.g. $linkButton)
+        flushButtons();
+        if (rows.length < 5) rows.push(new ActionRowBuilder().addComponents(comp.builder));
       }
     }
 
     flushButtons();
-    return rows;
+
+    // Merge pre-built ActionRowBuilder rows stored in __components__ by
+    // $addStringSelect, $addUserSelect, $addRoleSelect, $addChannelSelect, $addMentionableSelect
+    const extraRows = context.variables?.get('__components__');
+    if (Array.isArray(extraRows)) {
+      for (const row of extraRows) {
+        if (rows.length >= 5) break;
+        if (row) rows.push(row);
+      }
+    }
+
+    return rows.slice(0, 5);
   }
 
   _buildButton(comp) {

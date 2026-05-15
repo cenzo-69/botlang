@@ -14,6 +14,12 @@
 module.exports = {
   name: 'onMemberLeave',
 
-  // Uncomment and edit to activate:
-  // code: `**$get[memberTag]** has left **$get[guildName]**. Goodbye!`,
+  code: [
+    '$title[🚪 Member Left]',
+    '$color[ED4245]',
+    '$description[**$get[memberUsername]** has left **$get[guildName]**. Goodbye!]',
+    '$addField[Members remaining;$get[memberCount];true]',
+    '$footer[onMemberLeave ✓ — CenzoJS]',
+    '$timestamp',
+  ].join('\n'),
 };

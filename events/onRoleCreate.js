@@ -14,6 +14,14 @@
 module.exports = {
   name: 'onRoleCreate',
 
-  // Uncomment and edit to activate:
-  // code: `🆕 Role **$get[roleName]** was created in **$get[guildName]**.`,
+  code: [
+    '$title[🎭 New Role Created]',
+    '$color[EB459E]',
+    '$description[Role **$get[roleName]** was created in **$get[guildName]**.]',
+    '$addField[Role ID;`$get[roleID]`;true]',
+    '$addField[Color;$get[roleColor];true]',
+    '$addField[Mentionable;$get[roleMentionable];true]',
+    '$footer[onRoleCreate ✓ — CenzoJS]',
+    '$timestamp',
+  ].join('\n'),
 };

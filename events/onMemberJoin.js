@@ -16,6 +16,14 @@
 module.exports = {
   name: 'onMemberJoin',
 
-  // Uncomment and edit to activate:
-  // code: `Welcome <@$get[memberID]> to **$get[guildName]**! You are member #$get[memberCount].`,
+  code: [
+    '$title[👋 New Member!]',
+    '$color[57F287]',
+    '$thumbnail[$get[memberAvatar]]',
+    '$description[Welcome to **$get[guildName]**, <@$get[memberID]>! 🎉]',
+    '$addField[Username;$get[memberUsername];true]',
+    '$addField[Member Count;#$get[memberCount];true]',
+    '$footer[onMemberJoin ✓ — CenzoJS]',
+    '$timestamp',
+  ].join('\n'),
 };

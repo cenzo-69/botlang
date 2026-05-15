@@ -20,6 +20,14 @@
 module.exports = {
   name: 'onReactionAdd',
 
-  // Uncomment and edit to activate:
-  // code: `<@$get[reactorID]> reacted with $get[reactionEmoji] on a message by <@$get[reactedAuthorID]>`,
+  code: [
+    '$title[⭐ Reaction Added]',
+    '$color[FEE75C]',
+    '$description[<@$get[reactorID]> reacted with **$get[reactionEmoji]** on a message by <@$get[reactedAuthorID]>]',
+    '$addField[Reactor;$get[reactorUsername];true]',
+    '$addField[Emoji;$get[reactionEmoji];true]',
+    '$addField[Count;$get[reactionCount];true]',
+    '$footer[onReactionAdd ✓ — CenzoJS]',
+    '$timestamp',
+  ].join('\n'),
 };

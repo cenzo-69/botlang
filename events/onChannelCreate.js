@@ -12,6 +12,13 @@
 module.exports = {
   name: 'onChannelCreate',
 
-  // Uncomment and edit to activate:
-  // code: `📢 New channel **#$get[channelName]** was created in **$get[guildName]**.`,
+  code: [
+    '$title[📢 New Channel Created]',
+    '$color[57F287]',
+    '$description[Channel **#$get[channelName]** was created in **$get[guildName]**.]',
+    '$addField[Channel;<#$get[channelID]>;true]',
+    '$addField[Type;$get[channelType];true]',
+    '$footer[onChannelCreate ✓ — CenzoJS]',
+    '$timestamp',
+  ].join('\n'),
 };

@@ -15,6 +15,12 @@
 module.exports = {
   name: 'onBanAdd',
 
-  // Uncomment and edit to activate:
-  // code: `🔨 **$get[bannedUserTag]** was banned from **$get[guildName]**.\nReason: $get[banReason]`,
+  code: [
+    '$title[🔨 Member Banned]',
+    '$color[ED4245]',
+    '$description[**$get[bannedUsername]** (`$get[bannedUserID]`) was banned from **$get[guildName]**.]',
+    '$addField[Reason;$get[banReason];false]',
+    '$footer[onBanAdd ✓ — CenzoJS]',
+    '$timestamp',
+  ].join('\n'),
 };
