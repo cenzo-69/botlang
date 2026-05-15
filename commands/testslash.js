@@ -48,10 +48,10 @@ module.exports = {
     '$title[⚡ Slash Command Test]',
     '$color[57F287]',
     '$thumbnail[$userAvatar]',
-    '$description[All slash command options received successfully. Here is a full context snapshot:]',
+    '$description[All slash command options received successfully. Full context snapshot below:]',
 
     '$addField[👤 Triggered by;<@$authorID> (`$authorID`);true]',
-    '$addField[📛 Username;$username#$discriminator;true]',
+    '$addField[📛 Tag;$userTag;true]',
     '$addField[📢 Channel;<#$channelID>;true]',
     '$addField[🏠 Server;$serverName (`$guildID`);true]',
     '$addField[🤖 Bot Latency;$ping ms;true]',

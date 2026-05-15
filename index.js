@@ -7,6 +7,10 @@ const {
   GatewayIntentBits,
   Events,
   Partials,
+  ModalBuilder,
+  TextInputBuilder,
+  TextInputStyle,
+  ActionRowBuilder,
 } = require('discord.js');
 
 const path = require('path');
@@ -140,11 +144,15 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
   // ── Buttons ─────────────────────────────────────────────────────────────────
   if (interaction.isButton()) {
-    const prefix    = interaction.customId.split(':')[0];
+    const prefix     = interaction.customId.split(':')[0];
     const handlerCmd = handlers.get(`button:${prefix}`) ?? handlers.get(`button:${interaction.customId}`);
     if (!handlerCmd) return;
+    const extraArgs  = interaction.customId.split(':').slice(1);
+    // Run code first WITHOUT deferring so $showModal can fire before any reply
+    const showed = await tryShowModal(interaction, handlerCmd, extraArgs);
+    if (showed) return;
     await deferIfNeeded(interaction, handlerCmd.ephemeral ?? false, true);
-    await runInteraction(interaction, handlerCmd, interaction.customId.split(':').slice(1));
+    await runInteraction(interaction, handlerCmd, extraArgs);
     return;
   }
 
@@ -229,6 +237,58 @@ async function deferIfNeeded(interaction, ephemeral = false, update = false) {
       await interaction.deferReply({ ephemeral });
     }
   } catch {}
+}
+
+/**
+ * Runs a button command's code WITHOUT deferring.
+ * If the code called $showModal, builds and shows the Discord modal, returns true.
+ * Returns false if no modal was requested (caller should then defer + run normally).
+ */
+async function tryShowModal(interaction, cmd, extraArgs = []) {
+  const Context = require('./src/core/Context');
+  const fakeMsg = buildFakeMessage(interaction);
+
+  try {
+    const ast = runtime.parse(cmd.code);
+    const ctx = new Context({
+      message:        fakeMsg,
+      interaction,
+      client,
+      variables:      new Map(),
+      depth:          0,
+      runtime,
+      commandName:    interaction.commandName ?? interaction.customId ?? cmd.name,
+      commandInput:   extraArgs.join(' '),
+      commandArgs:    extraArgs,
+      noMentionInput: extraArgs.join(' '),
+    });
+
+    await runtime.executeAST(ast, ctx);
+
+    if (!ctx._modalDef || !ctx._modalDef.inputs?.length) return false;
+
+    const modal = new ModalBuilder()
+      .setCustomId(ctx._modalDef.customId)
+      .setTitle(ctx._modalDef.title.slice(0, 45));
+
+    for (const inp of ctx._modalDef.inputs.slice(0, 5)) {
+      const textInput = new TextInputBuilder()
+        .setCustomId(inp.inputId)
+        .setLabel((inp.label || inp.placeholder || 'Enter text').slice(0, 45))
+        .setStyle(inp.style === 'paragraph' ? TextInputStyle.Paragraph : TextInputStyle.Short)
+        .setRequired(inp.required !== false);
+
+      if (inp.placeholder) textInput.setPlaceholder(inp.placeholder.slice(0, 100));
+
+      modal.addComponents(new ActionRowBuilder().addComponents(textInput));
+    }
+
+    await interaction.showModal(modal);
+    return true;
+  } catch (err) {
+    console.error(`[Modal Error] ${err.message}`);
+    return false;
+  }
 }
 
 function buildSlashArgs(interaction) {

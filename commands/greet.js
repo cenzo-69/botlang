@@ -1,11 +1,17 @@
+'use strict';
+
+/**
+ * Time-based greeting using $time[HH] directly in $if conditions.
+ * Fixed: removed $eval[Number(...)] which was treating JS as CenzoJS syntax.
+ * $time[HH] returns the zero-padded hour (00–23); $if handles numeric comparison.
+ */
 module.exports = {
-  name: 'greet',
+  name:        'greet',
   description: 'Time-based greeting using $time + $if',
+
   code: [
-    '$var[hour;$eval[Number("$time[HH]")]]',
-    '$var[greeting;$if[$getVar[hour]<12;🌅 Good morning;$if[$getVar[hour]<18;☀️ Good afternoon;$if[$getVar[hour]<22;🌆 Good evening;🌙 Good night]]]]',
-    '$getVar[greeting], **$username**!',
-    '_It\'s $time[HH:mm] on $time[YYYY-MM-DD]_',
+    '$if[$time[HH]<12;🌅 Good morning, **$username**!;$if[$time[HH]<18;☀️ Good afternoon, **$username**!;$if[$time[HH]<22;🌆 Good evening, **$username**!;🌙 Good night, **$username**!]]]',
+    "_It's $time[HH:mm] on $time[YYYY-MM-DD]_",
     'You are in **#$channelName** on **$guildName**',
   ].join('\n'),
 };
