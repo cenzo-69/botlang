@@ -1,24 +1,16 @@
 'use strict';
 
-/**
- * onChannelCreate — fires when a channel is created in the server.
- *
- * Available via $get[varName] in your code:
- *   channelID   → the new channel's ID
- *   channelName → the channel's name
- *   channelType → Discord channel type number (0=text, 2=voice, 4=category, etc.)
- *   guildName   → server name
- */
 module.exports = {
   name: 'onChannelCreate',
 
   code: [
-    '$title[📢 New Channel Created]',
+    '$title[📢 Channel Created]',
     '$color[57F287]',
-    '$description[Channel **#$get[channelName]** was created in **$get[guildName]**.]',
-    '$addField[Channel;<#$get[channelID]>;true]',
-    '$addField[Type;$get[channelType];true]',
-    '$footer[onChannelCreate ✓ — CenzoJS]',
+    '$description[Channel **#$getVar[channelName]** was created in **$getVar[guildName]**.]',
+    '$addField[📌 Channel;<#$getVar[channelID]>;true]',
+    '$addField[🔢 Type;$getVar[channelType];true]',
+    '$addField[🆔 Channel ID;`$getVar[channelID]`;false]',
+    '$footer[Channel created · CenzoJS]',
     '$timestamp',
   ].join('\n'),
 };

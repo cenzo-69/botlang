@@ -1,17 +1,16 @@
 'use strict';
 
 module.exports = {
-  name: 'onEmojiCreate',
+  name: 'onEmojiDelete',
 
   code: [
-    '$title[✨ Emoji Added]',
-    '$color[FEE75C]',
-    '$description[A new emoji was added to **$getVar[guildName]**.]',
+    '$title[🗑️ Emoji Deleted]',
+    '$color[ED4245]',
+    '$description[Emoji **:$getVar[emojiName]:** was removed from **$getVar[guildName]**.]',
     '$addField[Name;:$getVar[emojiName]:;true]',
     '$addField[Animated;$getVar[emojiAnimated];true]',
     '$addField[🆔 Emoji ID;`$getVar[emojiID]`;false]',
-    '$thumbnail[$getVar[emojiURL]]',
-    '$footer[Emoji created · CenzoJS]',
+    '$footer[Emoji deleted · CenzoJS]',
     '$timestamp',
   ].join('\n'),
 };

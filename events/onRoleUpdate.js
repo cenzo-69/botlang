@@ -1,21 +1,23 @@
 'use strict';
 
-/**
- * onRoleUpdate — fires when a role is edited (name, color, permissions, etc.)
- *
- * Available via $get[varName] in your code:
- *   roleID        → the role's ID
- *   oldRoleName   → name before the update
- *   newRoleName   → name after the update
- *   oldRoleColor  → hex color before
- *   newRoleColor  → hex color after
- *   guildName     → server name
- */
 module.exports = {
   name: 'onRoleUpdate',
 
-  // Uncomment and edit to activate:
-  // code: `$if[$get[oldRoleName]!=$get[newRoleName];true]
-  // ✏️ Role renamed from **$get[oldRoleName]** to **$get[newRoleName]**
-  // $endif`,
+  code: [
+    '$if[$getVar[oldRoleName]==$getVar[newRoleName]]',
+    '$if[$getVar[oldRoleColor]==$getVar[newRoleColor]]',
+    '$stop',
+    '$endif',
+    '$endif',
+    '$title[✏️ Role Updated]',
+    '$color[$getVar[newRoleColor]]',
+    '$description[Role **$getVar[oldRoleName]** was updated in **$getVar[guildName]**.]',
+    '$addField[Name Before;$getVar[oldRoleName];true]',
+    '$addField[Name After;$getVar[newRoleName];true]',
+    '$addField[Color Before;$getVar[oldRoleColor];true]',
+    '$addField[Color After;$getVar[newRoleColor];true]',
+    '$addField[🆔 Role ID;`$getVar[roleID]`;false]',
+    '$footer[Role updated · CenzoJS]',
+    '$timestamp',
+  ].join('\n'),
 };

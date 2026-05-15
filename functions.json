@@ -1133,6 +1133,30 @@
       ]
     },
     {
+      "name": "$commandargs",
+      "category": "message",
+      "description": "Returns all command arguments joined by a separator. For index-based access use $arg[n] or $message[n].",
+      "args": [
+        {
+          "name": "sep",
+          "type": "string",
+          "optional": true,
+          "description": "Separator between args (default: space)"
+        }
+      ],
+      "returns": "string",
+      "examples": [
+        {
+          "code": "$commandargs",
+          "result": "hello world"
+        },
+        {
+          "code": "$commandargs[-]",
+          "result": "hello-world"
+        }
+      ]
+    },
+    {
       "name": "$arg",
       "key": "arg",
       "category": "message",

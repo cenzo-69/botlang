@@ -34,6 +34,8 @@ const EVENT_ALIASES = {
   onInviteCreate:     'inviteCreate',
   onInviteDelete:     'inviteDelete',
   onEmojiCreate:      'emojiCreate',
+  onEmojiDelete:      'emojiDelete',
+  onEmojiUpdate:      'emojiUpdate',
 };
 
 class EventLoader {
@@ -106,9 +108,10 @@ class EventLoader {
       });
 
       // Inject event-specific variables (accessible via $get[varName])
+      // Use ctx.setVariable so keys are normalized to lowercase, matching $getVar/$var lookups
       if (extraVars) {
         for (const [k, v] of Object.entries(extraVars)) {
-          if (v !== null && v !== undefined) ctx.variables.set(k, String(v));
+          if (v !== null && v !== undefined) ctx.setVariable(k, String(v));
         }
       }
 
@@ -432,6 +435,35 @@ class EventLoader {
             emojiAnimated: String(emoji.animated ?? false),
             emojiURL:      emoji.imageURL?.() ?? '',
             guildName:     emoji.guild?.name ?? '',
+          },
+        };
+      }
+
+      case 'emojiDelete': {
+        const [emoji] = args;
+        return {
+          message: this._fakeGuildMessage(emoji.guild),
+          extraVars: {
+            emojiID:       emoji.id ?? '',
+            emojiName:     emoji.name ?? '',
+            emojiAnimated: String(emoji.animated ?? false),
+            emojiURL:      emoji.imageURL?.() ?? '',
+            guildName:     emoji.guild?.name ?? '',
+          },
+        };
+      }
+
+      case 'emojiUpdate': {
+        const [oldEmoji, newEmoji] = args;
+        return {
+          message: this._fakeGuildMessage(newEmoji.guild),
+          extraVars: {
+            emojiID:       newEmoji.id ?? '',
+            oldEmojiName:  oldEmoji.name ?? '',
+            newEmojiName:  newEmoji.name ?? '',
+            emojiAnimated: String(newEmoji.animated ?? false),
+            emojiURL:      newEmoji.imageURL?.() ?? '',
+            guildName:     newEmoji.guild?.name ?? '',
           },
         };
       }

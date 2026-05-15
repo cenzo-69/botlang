@@ -116,6 +116,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
     const cmd = commands.get(interaction.commandName.toLowerCase());
     if (!cmd) return;
 
+    // Try to show a modal BEFORE deferring — Discord requires showModal() fires
+    // within 3 s of the interaction and you cannot defer first.
+    const showed = await tryShowModal(interaction, cmd, buildSlashArgs(interaction));
+    if (showed) return;
+
     await deferIfNeeded(interaction, cmd.ephemeral ?? false);
     await runInteraction(interaction, cmd, buildSlashArgs(interaction));
     return;
