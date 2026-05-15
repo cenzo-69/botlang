@@ -1,0 +1,382 @@
+{
+  "meta": {
+    "framework": "CenzoJS",
+    "version": "2.0.0",
+    "description": "Complete reference of all supported bot events. Each entry shows the event name, trigger condition, available $get[] variables, and an example code snippet. Intended for documentation generation and developer reference.",
+    "usage_notes": [
+      "Events with a `code` field use the CenzoJS scripting runtime ($function[args] syntax).",
+      "Events with an `execute` field use raw JavaScript (async function).",
+      "To activate a code-based event, set `code: your script` in the corresponding events/*.js file.",
+      "Variables listed under `variables` are accessible via $get[varName] inside the code string.",
+      "The standard Discord context ($userID, $channelID, $guildID, etc.) is also available in most code events."
+    ]
+  },
+  "events": [
+    {
+      "name": "ready",
+      "file": "events/ready.js",
+      "trigger": "Fires once when the bot successfully connects to Discord.",
+      "type": "execute",
+      "once": true,
+      "variables": [],
+      "jsParams": ["client", "runtime", "readyClient"],
+      "example": {
+        "description": "Log startup info and set a custom presence.",
+        "code": "execute: async (client, runtime, readyClient) => {\n  console.log(`${readyClient.user.tag} is online in ${readyClient.guilds.cache.size} server(s).`);\n  readyClient.user.setPresence({\n    activities: [{ name: 'CenzoJS | !help', type: 0 }],\n    status: 'online',\n  });\n}"
+      }
+    },
+    {
+      "name": "guildCreate",
+      "file": "events/guildCreate.js",
+      "trigger": "Fires when the bot joins a new server.",
+      "type": "execute",
+      "once": false,
+      "variables": [],
+      "jsParams": ["client", "runtime", "guild"],
+      "example": {
+        "description": "Send a welcome message to the server's system channel.",
+        "code": "execute: async (client, runtime, guild) => {\n  const channel = guild.systemChannel;\n  if (channel) await channel.send('Thanks for adding me to **' + guild.name + '**! Use !help to get started.').catch(() => {});\n}"
+      }
+    },
+    {
+      "name": "onMessage",
+      "file": "events/onMessage.js",
+      "trigger": "Fires every time a non-bot user sends a message in any channel.",
+      "type": "code",
+      "once": false,
+      "variables": [
+        { "name": "content", "description": "The raw message content (also accessible via $message)." }
+      ],
+      "notes": "Standard message context is fully available — $authorID, $channelID, $guildID, $username, etc.",
+      "example": {
+        "description": "Auto-reply when someone says 'hello'.",
+        "code": "$if[$lower[$message]==hello;true]\nHey there, $userMention! Welcome to $bold[$guildName]!\n$endif"
+      }
+    },
+    {
+      "name": "onMemberJoin",
+      "file": "events/onMemberJoin.js",
+      "trigger": "Fires when a new member joins the server.",
+      "type": "code",
+      "once": false,
+      "variables": [
+        { "name": "memberID",       "description": "The new member's Discord user ID." },
+        { "name": "memberTag",      "description": "The member's tag (User#0000 or display name)." },
+        { "name": "memberUsername", "description": "The member's plain username." },
+        { "name": "memberAvatar",   "description": "URL of the member's avatar image." },
+        { "name": "memberCount",    "description": "Total server member count after this join." },
+        { "name": "guildName",      "description": "The name of the server." }
+      ],
+      "example": {
+        "description": "Send a welcome embed to the system channel.",
+        "code": "$title[Welcome!]\n$color[#57F287]\n$description[Welcome to **$get[guildName]**, $userMention! You are our **#$get[memberCount]** member.]\n$thumbnail[$get[memberAvatar]]\n$footer[We're glad to have you!]\n$timestamp"
+      }
+    },
+    {
+      "name": "onMemberLeave",
+      "file": "events/onMemberLeave.js",
+      "trigger": "Fires when a member leaves or is kicked from the server.",
+      "type": "code",
+      "once": false,
+      "variables": [
+        { "name": "memberID",       "description": "The leaving member's Discord user ID." },
+        { "name": "memberTag",      "description": "The member's tag." },
+        { "name": "memberUsername", "description": "The member's plain username." },
+        { "name": "memberAvatar",   "description": "URL of the member's avatar." },
+        { "name": "memberCount",    "description": "Total server member count after they left." },
+        { "name": "guildName",      "description": "The name of the server." }
+      ],
+      "example": {
+        "description": "Log when a member leaves.",
+        "code": "$title[Goodbye]\n$color[#ED4245]\n$description[$bold[$get[memberTag]] has left **$get[guildName]**. We now have $bold[$get[memberCount]] members.]\n$thumbnail[$get[memberAvatar]]\n$timestamp"
+      }
+    },
+    {
+      "name": "onMemberUpdate",
+      "file": "events/onMemberUpdate.js",
+      "trigger": "Fires when a guild member's profile changes (nickname, roles, timeout, etc.).",
+      "type": "code",
+      "once": false,
+      "variables": [
+        { "name": "memberID",       "description": "The member's Discord user ID." },
+        { "name": "memberTag",      "description": "The member's tag." },
+        { "name": "memberUsername", "description": "The member's plain username." },
+        { "name": "oldNickname",    "description": "Nickname before the change (empty string if none)." },
+        { "name": "newNickname",    "description": "Nickname after the change (empty string if none)." },
+        { "name": "guildName",      "description": "The name of the server." }
+      ],
+      "example": {
+        "description": "Announce nickname changes.",
+        "code": "$if[$get[oldNickname]!=$get[newNickname];true]\n<@$get[memberID]> changed their nickname from $bold[$get[oldNickname]] to $bold[$get[newNickname]].\n$endif"
+      }
+    },
+    {
+      "name": "onBanAdd",
+      "file": "events/onBanAdd.js",
+      "trigger": "Fires when a member is banned from the server.",
+      "type": "code",
+      "once": false,
+      "variables": [
+        { "name": "bannedUserID",   "description": "The banned user's Discord ID." },
+        { "name": "bannedUserTag",  "description": "The banned user's tag." },
+        { "name": "bannedUsername", "description": "The banned user's plain username." },
+        { "name": "banReason",      "description": "The audit log ban reason, or 'No reason provided'." },
+        { "name": "guildName",      "description": "The name of the server." }
+      ],
+      "notes": "The context channel is the server's system channel.",
+      "example": {
+        "description": "Log a ban to a moderation log channel.",
+        "code": "$title[Member Banned]\n$color[#ED4245]\n$addField[User;$bold[$get[bannedUserTag]];true]\n$addField[User ID;$inlineCode[$get[bannedUserID]];true]\n$addField[Reason;$get[banReason];false]\n$footer[$guildName]\n$timestamp"
+      }
+    },
+    {
+      "name": "onBanRemove",
+      "file": "events/onBanRemove.js",
+      "trigger": "Fires when a user is unbanned from the server.",
+      "type": "code",
+      "once": false,
+      "variables": [
+        { "name": "bannedUserID",   "description": "The unbanned user's Discord ID." },
+        { "name": "bannedUserTag",  "description": "The unbanned user's tag." },
+        { "name": "bannedUsername", "description": "The unbanned user's plain username." },
+        { "name": "banReason",      "description": "The original ban reason." },
+        { "name": "guildName",      "description": "The name of the server." }
+      ],
+      "example": {
+        "description": "Announce an unban.",
+        "code": "$title[Member Unbanned]\n$color[#57F287]\n$description[$bold[$get[bannedUserTag]] ($inlineCode[$get[bannedUserID]]) has been unbanned from $bold[$get[guildName]].]\n$timestamp"
+      }
+    },
+    {
+      "name": "onMessageDelete",
+      "file": "events/onMessageDelete.js",
+      "trigger": "Fires when a message is deleted.",
+      "type": "code",
+      "once": false,
+      "variables": [
+        { "name": "deletedContent",   "description": "The deleted message content. Empty if the message was not cached." },
+        { "name": "deletedAuthorID",  "description": "The Discord ID of the message author." },
+        { "name": "deletedChannelID", "description": "The channel the message was deleted from." },
+        { "name": "deletedMessageID", "description": "The Discord ID of the deleted message." }
+      ],
+      "notes": "Discord only provides content for cached messages. Very old or uncached messages will have empty deletedContent.",
+      "example": {
+        "description": "Log deleted messages.",
+        "code": "$title[Message Deleted]\n$color[#FEE75C]\n$addField[Author;<@$get[deletedAuthorID]>;true]\n$addField[Channel;<#$get[deletedChannelID]>;true]\n$addField[Content;$if[$get[deletedContent]==;*(message not cached)*;$get[deletedContent]];false]\n$footer[Message ID: $get[deletedMessageID]]\n$timestamp"
+      }
+    },
+    {
+      "name": "onMessageEdit",
+      "file": "events/onMessageEdit.js",
+      "trigger": "Fires when a message is edited.",
+      "type": "code",
+      "once": false,
+      "variables": [
+        { "name": "oldContent",      "description": "Message content before the edit. Empty if not cached." },
+        { "name": "newContent",      "description": "Message content after the edit." },
+        { "name": "editedAuthorID",  "description": "The Discord ID of the message author." },
+        { "name": "editedChannelID", "description": "The channel the message is in." },
+        { "name": "editedMessageID", "description": "The Discord message ID." }
+      ],
+      "example": {
+        "description": "Log edited messages.",
+        "code": "$title[Message Edited]\n$color[#FEE75C]\n$addField[Author;<@$get[editedAuthorID]>;true]\n$addField[Channel;<#$get[editedChannelID]>;true]\n$addField[Before;$if[$get[oldContent]==;*(not cached)*;$get[oldContent]];false]\n$addField[After;$get[newContent];false]\n$timestamp"
+      }
+    },
+    {
+      "name": "onReactionAdd",
+      "file": "events/onReactionAdd.js",
+      "trigger": "Fires when a user adds a reaction to any message.",
+      "type": "code",
+      "once": false,
+      "variables": [
+        { "name": "reactionEmoji",    "description": "The emoji name (Unicode or custom emoji name)." },
+        { "name": "reactionEmojiID",  "description": "The custom emoji ID. Empty for Unicode emoji." },
+        { "name": "reactionIsCustom", "description": "'true' for custom emojis, 'false' for Unicode." },
+        { "name": "reactorID",        "description": "User ID of who added the reaction." },
+        { "name": "reactorTag",       "description": "User tag of the reactor." },
+        { "name": "reactorUsername",  "description": "Plain username of the reactor." },
+        { "name": "reactedMessageID", "description": "The ID of the message that was reacted to." },
+        { "name": "reactedChannelID", "description": "The channel the message is in." },
+        { "name": "reactedAuthorID",  "description": "The original message author's ID." },
+        { "name": "reactionCount",    "description": "Total count of this reaction on the message." }
+      ],
+      "notes": "Requires MESSAGE_CONTENT and MESSAGE_REACTIONS intents. Useful for reaction-role bots.",
+      "example": {
+        "description": "Log starred messages (starboard trigger when 3+ stars).",
+        "code": "$if[$get[reactionEmoji]==\u2b50;true]\n$if[$get[reactionCount]>=3;true]\n\u2b50 **$get[reactionCount]** | <#$get[reactedChannelID]>\nMessage by <@$get[reactedAuthorID]>\n$endif\n$endif"
+      }
+    },
+    {
+      "name": "onReactionRemove",
+      "file": "events/onReactionRemove.js",
+      "trigger": "Fires when a user removes a reaction from a message.",
+      "type": "code",
+      "once": false,
+      "variables": [
+        { "name": "reactionEmoji",    "description": "The emoji name." },
+        { "name": "reactionEmojiID",  "description": "Custom emoji ID. Empty for Unicode." },
+        { "name": "reactionIsCustom", "description": "'true' for custom emojis, 'false' for Unicode." },
+        { "name": "reactorID",        "description": "User ID of who removed the reaction." },
+        { "name": "reactorTag",       "description": "User tag of the reactor." },
+        { "name": "reactorUsername",  "description": "Plain username of the reactor." },
+        { "name": "reactedMessageID", "description": "The message ID." },
+        { "name": "reactedChannelID", "description": "The channel ID." },
+        { "name": "reactedAuthorID",  "description": "The original message author's ID." },
+        { "name": "reactionCount",    "description": "Remaining count of this reaction on the message." }
+      ],
+      "example": {
+        "description": "Detect when a reaction is removed.",
+        "code": "<@$get[reactorID]> removed their $get[reactionEmoji] reaction from a message by <@$get[reactedAuthorID]>."
+      }
+    },
+    {
+      "name": "onChannelCreate",
+      "file": "events/onChannelCreate.js",
+      "trigger": "Fires when a new channel is created in the server.",
+      "type": "code",
+      "once": false,
+      "variables": [
+        { "name": "channelID",   "description": "The new channel's Discord ID." },
+        { "name": "channelName", "description": "The new channel's name." },
+        { "name": "channelType", "description": "Discord channel type integer (0=text, 2=voice, 4=category, 5=news, 11=thread, 15=forum)." },
+        { "name": "guildName",   "description": "The server's name." }
+      ],
+      "example": {
+        "description": "Announce a new channel creation.",
+        "code": "New channel $bold[#$get[channelName]] was created in $bold[$get[guildName]]."
+      }
+    },
+    {
+      "name": "onChannelDelete",
+      "file": "events/onChannelDelete.js",
+      "trigger": "Fires when a channel is deleted from the server.",
+      "type": "code",
+      "once": false,
+      "variables": [
+        { "name": "channelID",   "description": "The deleted channel's Discord ID." },
+        { "name": "channelName", "description": "The deleted channel's name." },
+        { "name": "channelType", "description": "Discord channel type integer." },
+        { "name": "guildName",   "description": "The server's name." }
+      ],
+      "example": {
+        "description": "Log channel deletion.",
+        "code": "Channel $bold[#$get[channelName]] was deleted from $bold[$get[guildName]]."
+      }
+    },
+    {
+      "name": "onChannelUpdate",
+      "file": "events/onChannelUpdate.js",
+      "trigger": "Fires when a channel is modified (name, topic, permissions, etc.).",
+      "type": "code",
+      "once": false,
+      "variables": [
+        { "name": "channelID",      "description": "The channel's Discord ID." },
+        { "name": "oldChannelName", "description": "The channel name before the update." },
+        { "name": "newChannelName", "description": "The channel name after the update." },
+        { "name": "channelType",    "description": "Discord channel type integer." },
+        { "name": "guildName",      "description": "The server's name." }
+      ],
+      "example": {
+        "description": "Announce channel renames.",
+        "code": "$if[$get[oldChannelName]!=$get[newChannelName];true]\nChannel renamed from $bold[#$get[oldChannelName]] to $bold[#$get[newChannelName]] in $bold[$get[guildName]].\n$endif"
+      }
+    },
+    {
+      "name": "onRoleCreate",
+      "file": "events/onRoleCreate.js",
+      "trigger": "Fires when a new role is created in the server.",
+      "type": "code",
+      "once": false,
+      "variables": [
+        { "name": "roleID",          "description": "The new role's Discord ID." },
+        { "name": "roleName",        "description": "The role's name." },
+        { "name": "roleColor",       "description": "The role's hex color code (e.g. '#FF0000' or '#000000')." },
+        { "name": "rolePosition",    "description": "The role's position in the role list." },
+        { "name": "roleMentionable", "description": "'true' if the role is mentionable, 'false' otherwise." },
+        { "name": "guildName",       "description": "The server's name." }
+      ],
+      "example": {
+        "description": "Log new role creation.",
+        "code": "$title[Role Created]\n$color[$get[roleColor]]\n$addField[Name;$bold[$get[roleName]];true]\n$addField[ID;$inlineCode[$get[roleID]];true]\n$addField[Color;$get[roleColor];true]\n$addField[Mentionable;$get[roleMentionable];true]\n$footer[$get[guildName]]\n$timestamp"
+      }
+    },
+    {
+      "name": "onRoleDelete",
+      "file": "events/onRoleDelete.js",
+      "trigger": "Fires when a role is deleted from the server.",
+      "type": "code",
+      "once": false,
+      "variables": [
+        { "name": "roleID",          "description": "The deleted role's Discord ID." },
+        { "name": "roleName",        "description": "The role's name." },
+        { "name": "roleColor",       "description": "The role's hex color." },
+        { "name": "rolePosition",    "description": "The position the role had." },
+        { "name": "roleMentionable", "description": "'true' or 'false'." },
+        { "name": "guildName",       "description": "The server's name." }
+      ],
+      "example": {
+        "description": "Log role deletion.",
+        "code": "Role $bold[$get[roleName]] was deleted from $bold[$get[guildName]]."
+      }
+    },
+    {
+      "name": "onRoleUpdate",
+      "file": "events/onRoleUpdate.js",
+      "trigger": "Fires when a role is edited (name, color, permissions, etc.).",
+      "type": "code",
+      "once": false,
+      "variables": [
+        { "name": "roleID",       "description": "The role's Discord ID." },
+        { "name": "oldRoleName",  "description": "The role name before the update." },
+        { "name": "newRoleName",  "description": "The role name after the update." },
+        { "name": "oldRoleColor", "description": "The hex color before the update." },
+        { "name": "newRoleColor", "description": "The hex color after the update." },
+        { "name": "guildName",    "description": "The server's name." }
+      ],
+      "example": {
+        "description": "Announce role renames.",
+        "code": "$if[$get[oldRoleName]!=$get[newRoleName];true]\nRole renamed from $bold[$get[oldRoleName]] to $bold[$get[newRoleName]] in $bold[$get[guildName]].\n$endif"
+      }
+    },
+    {
+      "name": "onGuildUpdate",
+      "file": "events/onGuildUpdate.js",
+      "trigger": "Fires when the server's settings change (name, icon, region, etc.).",
+      "type": "code",
+      "once": false,
+      "variables": [
+        { "name": "guildID",      "description": "The server's Discord ID." },
+        { "name": "oldGuildName", "description": "The server name before the change." },
+        { "name": "newGuildName", "description": "The server name after the change." },
+        { "name": "memberCount",  "description": "Total member count at the time of the event." }
+      ],
+      "example": {
+        "description": "Announce server renames.",
+        "code": "$if[$get[oldGuildName]!=$get[newGuildName];true]\nServer renamed from $bold[$get[oldGuildName]] to $bold[$get[newGuildName]]!\n$endif"
+      }
+    },
+    {
+      "name": "onVoiceStateUpdate",
+      "file": "events/onVoiceStateUpdate.js",
+      "trigger": "Fires when a member joins, leaves, or moves between voice channels.",
+      "type": "code",
+      "once": false,
+      "variables": [
+        { "name": "memberID",       "description": "The member's Discord user ID." },
+        { "name": "memberTag",      "description": "The member's tag." },
+        { "name": "memberUsername", "description": "The member's plain username." },
+        { "name": "oldChannelID",   "description": "The channel they were in. Empty if they just joined." },
+        { "name": "newChannelID",   "description": "The channel they moved to. Empty if they just left." },
+        { "name": "oldChannelName", "description": "Name of the channel they were in." },
+        { "name": "newChannelName", "description": "Name of the channel they moved to." },
+        { "name": "voiceAction",    "description": "'joined', 'left', or 'moved'." },
+        { "name": "guildName",      "description": "The server's name." }
+      ],
+      "example": {
+        "description": "Announce voice channel activity.",
+        "code": "$if[$get[voiceAction]==joined;true]\n<@$get[memberID]> joined $bold[$get[newChannelName]]\n$elseif[$get[voiceAction]==left]\n<@$get[memberID]> left $bold[$get[oldChannelName]]\n$elseif[$get[voiceAction]==moved]\n<@$get[memberID]> moved from $bold[$get[oldChannelName]] to $bold[$get[newChannelName]]\n$endif"
+      }
+    }
+  ]
+}
