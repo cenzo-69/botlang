@@ -1,6 +1,9 @@
+'use strict';
+
 /**
  * Select menu handler for "testselect".
- * Fires when a user picks an option from the dropdown in testinteraction.
+ * Fires when a user picks an option from the dropdown in /testinteraction.
+ * $commandArgs[0] contains the selected value (ping / info / stats / random / time).
  */
 module.exports = {
   name:      'testselect',
@@ -9,11 +12,16 @@ module.exports = {
   ephemeral: true,
 
   code: [
-    '$title[📋 Select Menu Works!]',
+    '$title[📋 Select Menu — $commandArgs[0]]',
     '$color[EB459E]',
-    '$description[You picked an option from the select menu!]',
-    '$field[Selected value;$commandArgs[0];true]',
-    '$field[Selected by;<@$authorID>;true]',
-    '$footer[Select menu interactions are working correctly ✓]',
+    '$description[You selected: **$commandArgs[0]**]',
+    '$addField[🎯 Selected value;`$commandArgs[0]`;true]',
+    '$addField[👤 Selected by;<@$authorID>;true]',
+    '$addField[📢 Channel;<#$channelID>;true]',
+    '$addField[⏰ Time;$time[HH:mm:ss];true]',
+    '$addField[🏓 Bot Latency;$ping ms;true]',
+    '$addField[👥 Member Count;$memberCount;true]',
+    '$footer[Select menu interactions ✓ — CenzoJS v2.0]',
+    '$timestamp',
   ].join('\n'),
 };

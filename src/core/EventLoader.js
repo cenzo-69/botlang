@@ -8,6 +8,7 @@ const path = require('path');
  * Event files can use either the friendly name or the raw Discord.js name.
  */
 const EVENT_ALIASES = {
+  // ── Original 18 ───────────────────────────────────────────────────────────
   onMessage:          'messageCreate',
   onMemberJoin:       'guildMemberAdd',
   onMemberLeave:      'guildMemberRemove',
@@ -26,6 +27,13 @@ const EVENT_ALIASES = {
   onChannelUpdate:    'channelUpdate',
   onGuildUpdate:      'guildUpdate',
   onVoiceStateUpdate: 'voiceStateUpdate',
+  // ── New events ────────────────────────────────────────────────────────────
+  onPresenceUpdate:   'presenceUpdate',
+  onThreadCreate:     'threadCreate',
+  onThreadDelete:     'threadDelete',
+  onInviteCreate:     'inviteCreate',
+  onInviteDelete:     'inviteDelete',
+  onEmojiCreate:      'emojiCreate',
 };
 
 class EventLoader {
@@ -331,6 +339,99 @@ class EventLoader {
             newChannelName: newState.channel?.name ?? '',
             voiceAction:    action,
             guildName:      guild?.name ?? '',
+          },
+        };
+      }
+
+      // ── Presence ─────────────────────────────────────────────────────────
+      case 'presenceUpdate': {
+        const [oldPresence, newPresence] = args;
+        const member = newPresence?.member ?? oldPresence?.member;
+        const guild  = newPresence?.guild  ?? oldPresence?.guild;
+        return {
+          message: member ? this._fakeMemberMessage(member, guild) : this._fakeGuildMessage(guild),
+          extraVars: {
+            memberID:       newPresence?.userId ?? oldPresence?.userId ?? '',
+            memberUsername: member?.user?.username ?? '',
+            memberTag:      member?.user?.tag ?? '',
+            oldStatus:      oldPresence?.status ?? 'offline',
+            newStatus:      newPresence?.status ?? 'offline',
+            guildName:      guild?.name ?? '',
+          },
+        };
+      }
+
+      // ── Threads ───────────────────────────────────────────────────────────
+      case 'threadCreate': {
+        const [thread] = args;
+        return {
+          message: this._fakeGuildMessage(thread.guild),
+          extraVars: {
+            threadID:          thread.id,
+            threadName:        thread.name ?? '',
+            threadType:        String(thread.type ?? ''),
+            parentChannelID:   thread.parentId ?? '',
+            parentChannelName: thread.parent?.name ?? '',
+            memberCount:       String(thread.memberCount ?? 0),
+            guildName:         thread.guild?.name ?? '',
+          },
+        };
+      }
+
+      case 'threadDelete': {
+        const [thread] = args;
+        return {
+          message: this._fakeGuildMessage(thread.guild),
+          extraVars: {
+            threadID:          thread.id,
+            threadName:        thread.name ?? '',
+            parentChannelID:   thread.parentId ?? '',
+            parentChannelName: thread.parent?.name ?? '',
+            guildName:         thread.guild?.name ?? '',
+          },
+        };
+      }
+
+      // ── Invites ───────────────────────────────────────────────────────────
+      case 'inviteCreate': {
+        const [invite] = args;
+        return {
+          message: this._fakeGuildMessage(invite.guild),
+          extraVars: {
+            inviteCode:      invite.code ?? '',
+            inviterID:       invite.inviter?.id ?? '',
+            inviterTag:      invite.inviter?.tag ?? '',
+            inviterUsername: invite.inviter?.username ?? '',
+            channelID:       invite.channelId ?? '',
+            maxUses:         String(invite.maxUses ?? 0),
+            guildName:       invite.guild?.name ?? '',
+          },
+        };
+      }
+
+      case 'inviteDelete': {
+        const [invite] = args;
+        return {
+          message: this._fakeGuildMessage(invite.guild),
+          extraVars: {
+            inviteCode: invite.code ?? '',
+            channelID:  invite.channelId ?? '',
+            guildName:  invite.guild?.name ?? '',
+          },
+        };
+      }
+
+      // ── Emojis ────────────────────────────────────────────────────────────
+      case 'emojiCreate': {
+        const [emoji] = args;
+        return {
+          message: this._fakeGuildMessage(emoji.guild),
+          extraVars: {
+            emojiID:       emoji.id ?? '',
+            emojiName:     emoji.name ?? '',
+            emojiAnimated: String(emoji.animated ?? false),
+            emojiURL:      emoji.imageURL?.() ?? '',
+            guildName:     emoji.guild?.name ?? '',
           },
         };
       }

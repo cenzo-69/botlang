@@ -1,12 +1,11 @@
 'use strict';
 
 const fnError = require('../../core/fnError');
+const { pool, init } = require('../../core/pgdb');
 
 // $setServerVar[name;value;guildID?]
-// Sets a persistent server-scoped variable (in-memory, resets on restart).
-// If guildID is omitted, uses the current guild.
-
-const store = new Map(); // key: `guildID:name` → value
+// Sets a persistent server-scoped variable stored in PostgreSQL.
+// Survives bot restarts. If guildID is omitted, uses the current guild.
 
 module.exports = async (context, args) => {
   const name    = String(args[0] !== undefined ? args[0] : '').trim();
@@ -28,8 +27,11 @@ module.exports = async (context, args) => {
     });
   }
 
-  store.set(`${guildID}:${name.toLowerCase()}`, value);
+  await init();
+  await pool.query(
+    `INSERT INTO cenzo_server_vars (guild_id, name, value) VALUES ($1, $2, $3)
+     ON CONFLICT (guild_id, name) DO UPDATE SET value = EXCLUDED.value`,
+    [guildID, name.toLowerCase(), value]
+  );
   return '';
 };
-
-module.exports._store = store;

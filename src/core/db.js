@@ -1,65 +1,53 @@
 'use strict';
 
 /**
- * Lightweight persistent key-value store backed by a JSON file.
- *
- * File location: <project root>/data/db.json
- * Operations are synchronous so they are safe to call from async functions
- * without worrying about concurrent write races within a single process.
+ * Persistent key-value store backed by PostgreSQL (cenzo_db table).
+ * All methods are async — always await them.
  */
 
-const fs   = require('fs');
-const path = require('path');
-
-const DATA_DIR = path.resolve(__dirname, '..', '..', 'data');
-const DB_FILE  = path.join(DATA_DIR, 'db.json');
-
-function ensureDir() {
-  if (!fs.existsSync(DATA_DIR)) {
-    fs.mkdirSync(DATA_DIR, { recursive: true });
-  }
-}
-
-function load() {
-  ensureDir();
-  try {
-    return JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
-  } catch {
-    return {};
-  }
-}
-
-function save(data) {
-  ensureDir();
-  fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf8');
-}
+const { pool, init } = require('./pgdb');
 
 module.exports = {
-  set(key, value) {
-    const d = load();
-    d[String(key)] = value;
-    save(d);
+  async set(key, value) {
+    await init();
+    await pool.query(
+      `INSERT INTO cenzo_db (key, value) VALUES ($1, $2)
+       ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`,
+      [String(key), String(value)]
+    );
   },
 
-  get(key, defaultValue = null) {
-    const d = load();
-    const k = String(key);
-    return Object.prototype.hasOwnProperty.call(d, k) ? d[k] : defaultValue;
+  async get(key, defaultValue = null) {
+    await init();
+    const { rows } = await pool.query(
+      'SELECT value FROM cenzo_db WHERE key = $1',
+      [String(key)]
+    );
+    return rows.length ? rows[0].value : defaultValue;
   },
 
-  delete(key) {
-    const d = load();
-    delete d[String(key)];
-    save(d);
+  async delete(key) {
+    await init();
+    await pool.query(
+      'DELETE FROM cenzo_db WHERE key = $1',
+      [String(key)]
+    );
   },
 
-  has(key) {
-    const d = load();
-    return Object.prototype.hasOwnProperty.call(d, String(key));
+  async has(key) {
+    await init();
+    const { rows } = await pool.query(
+      'SELECT 1 FROM cenzo_db WHERE key = $1',
+      [String(key)]
+    );
+    return rows.length > 0;
   },
 
-  /** Return all stored data as a plain object (read-only snapshot). */
-  all() {
-    return load();
+  async all() {
+    await init();
+    const { rows } = await pool.query(
+      'SELECT key, value FROM cenzo_db ORDER BY key'
+    );
+    return Object.fromEntries(rows.map(r => [r.key, r.value]));
   },
 };

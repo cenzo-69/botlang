@@ -1,11 +1,10 @@
 'use strict';
 
 const fnError = require('../../core/fnError');
+const { pool, init } = require('../../core/pgdb');
 
 // $getServerVar[name;guildID?;default?]
-// Returns a server-scoped variable. Falls back to `default` if not set.
-
-const { _store: store } = require('./setServerVar');
+// Returns a server-scoped variable from PostgreSQL. Falls back to `default` if not set.
 
 module.exports = async (context, args) => {
   const name    = String(args[0] !== undefined ? args[0] : '').trim();
@@ -27,6 +26,10 @@ module.exports = async (context, args) => {
     });
   }
 
-  const key = `${guildID}:${name.toLowerCase()}`;
-  return store.has(key) ? String(store.get(key)) : fallback;
+  await init();
+  const { rows } = await pool.query(
+    'SELECT value FROM cenzo_server_vars WHERE guild_id = $1 AND name = $2',
+    [guildID, name.toLowerCase()]
+  );
+  return rows.length ? rows[0].value : fallback;
 };

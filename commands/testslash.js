@@ -1,43 +1,71 @@
+'use strict';
+
 /**
- * testslash — Tests slash command options (string, user, integer).
+ * /testslash — Comprehensive slash command option showcase.
+ * Tests every option type: string, integer, user, and string with choices.
+ *
  * Run with: /testslash  or  !testslash
  */
 module.exports = {
   name:        'testslash',
-  description: 'Tests slash command options and context functions',
+  description: 'Showcase slash command options — string, integer, user, choice',
   slash:       true,
   ephemeral:   false,
 
   options: [
     {
-      name:        'text',
-      description: 'A string to echo back',
+      name:        'message',
+      description: 'A text message to echo back',
       type:        'string',
       required:    false,
     },
     {
       name:        'number',
-      description: 'A number to display',
+      description: 'An integer to display',
       type:        'integer',
       required:    false,
     },
     {
       name:        'user',
-      description: 'A user to mention',
+      description: 'Mention a user',
       type:        'user',
       required:    false,
+    },
+    {
+      name:        'choice',
+      description: 'Pick a preset value',
+      type:        'string',
+      required:    false,
+      choices: [
+        { name: 'Alpha', value: 'alpha' },
+        { name: 'Beta',  value: 'beta'  },
+        { name: 'Gamma', value: 'gamma' },
+      ],
     },
   ],
 
   code: [
-    '$title[✅ Slash Command Working!]',
+    '$title[⚡ Slash Command Test]',
     '$color[57F287]',
-    '$field[Your ID;$authorID;true]',
-    '$field[Username;$username;true]',
-    '$field[Channel;<#$channelID>;true]',
-    '$field[Server;$serverName;true]',
-    '$field[Bot Latency;$ping ms;true]',
-    '$field[Slash Options Received;text: $commandArgs[0]\nnumber: $commandArgs[1]\nuser: $commandArgs[2];false]',
-    '$footer[Slash commands are fully operational ✓]',
+    '$thumbnail[$userAvatar]',
+    '$description[All slash command options received successfully. Here is a full context snapshot:]',
+
+    '$addField[👤 Triggered by;<@$authorID> (`$authorID`);true]',
+    '$addField[📛 Username;$username#$discriminator;true]',
+    '$addField[📢 Channel;<#$channelID>;true]',
+    '$addField[🏠 Server;$serverName (`$guildID`);true]',
+    '$addField[🤖 Bot Latency;$ping ms;true]',
+    '$addField[👥 Members;$memberCount;true]',
+    '$addField[⏰ Date & Time;$time[YYYY-MM-DD HH:mm:ss];true]',
+
+    '$addField[📝 Option · message;$commandArgs[0];false]',
+    '$addField[🔢 Option · number;`$commandArgs[1]`;true]',
+    '$addField[👤 Option · user;$commandArgs[2];true]',
+    '$addField[🎯 Option · choice;`$commandArgs[3]`;true]',
+
+    '$addField[💡 Next Step;Run `/testinteraction` to test buttons, modals and select menus.$newlineRun `/help` to browse all **718 functions** by category!;false]',
+
+    '$footer[Slash commands ✓ — CenzoJS v2.0]',
+    '$timestamp',
   ].join('\n'),
 };

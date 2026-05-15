@@ -1,11 +1,10 @@
 'use strict';
 
 const fnError = require('../../core/fnError');
+const { pool, init } = require('../../core/pgdb');
 
 // $getUserVar[name;userID?;default?]
-// Returns a user-scoped variable. Falls back to `default` if not set.
-
-const { _store: store } = require('./setUserVar');
+// Returns a user-scoped variable from PostgreSQL. Falls back to `default` if not set.
 
 module.exports = async (context, args) => {
   const name   = String(args[0] !== undefined ? args[0] : '').trim();
@@ -27,6 +26,10 @@ module.exports = async (context, args) => {
     });
   }
 
-  const key = `${userID}:${name.toLowerCase()}`;
-  return store.has(key) ? String(store.get(key)) : fallback;
+  await init();
+  const { rows } = await pool.query(
+    'SELECT value FROM cenzo_user_vars WHERE user_id = $1 AND name = $2',
+    [userID, name.toLowerCase()]
+  );
+  return rows.length ? rows[0].value : fallback;
 };

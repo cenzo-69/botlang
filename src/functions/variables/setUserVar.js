@@ -1,12 +1,11 @@
 'use strict';
 
 const fnError = require('../../core/fnError');
+const { pool, init } = require('../../core/pgdb');
 
 // $setUserVar[name;value;userID?]
-// Sets a persistent user-scoped variable (in-memory, resets on restart).
-// If userID is omitted, uses the current message author.
-
-const store = new Map(); // key: `userID:name` → value
+// Sets a persistent user-scoped variable stored in PostgreSQL.
+// Survives bot restarts. If userID is omitted, uses the current author.
 
 module.exports = async (context, args) => {
   const name   = String(args[0] !== undefined ? args[0] : '').trim();
@@ -28,8 +27,11 @@ module.exports = async (context, args) => {
     });
   }
 
-  store.set(`${userID}:${name.toLowerCase()}`, value);
+  await init();
+  await pool.query(
+    `INSERT INTO cenzo_user_vars (user_id, name, value) VALUES ($1, $2, $3)
+     ON CONFLICT (user_id, name) DO UPDATE SET value = EXCLUDED.value`,
+    [userID, name.toLowerCase(), value]
+  );
   return '';
 };
-
-module.exports._store = store;

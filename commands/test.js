@@ -6,7 +6,7 @@ $db.set[$getVar[visitKey];$add[$db.get[$getVar[visitKey];0];1]]
 $var[visits;$db.get[$getVar[visitKey];1]]
 
 $title[🧪 CenzoJS Feature Test]
-$titleURL[https://github.com]
+$titleURL[https://cenzojs.site/]
 $color[#5865F2]
 $author[$botUsername]
 $authorIcon[$botAvatar]
