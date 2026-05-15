@@ -1,19 +1,21 @@
 'use strict';
 
+/**
+ * onGuildUpdate — fires when the server settings change (name, icon, region, etc.)
+ *
+ * Available via $getVar[varName] in your code:
+ *   guildID      → the server's ID
+ *   oldGuildName → server name before the change
+ *   newGuildName → server name after the change
+ *   memberCount  → total member count
+ */
 module.exports = {
   name: 'onGuildUpdate',
 
-  code: [
-    '$if[$getVar[oldGuildName]==$getVar[newGuildName]]',
-    '$stop',
-    '$endif',
-    '$title[🏠 Server Renamed]',
-    '$color[5865F2]',
-    '$description[The server name was updated.]',
-    '$addField[Before;$getVar[oldGuildName];true]',
-    '$addField[After;$getVar[newGuildName];true]',
-    '$addField[👥 Member Count;$getVar[memberCount];true]',
-    '$footer[Server updated · CenzoJS]',
-    '$timestamp',
-  ].join('\n'),
+  // Uncomment and edit to activate:
+  // code: `
+  //   $if[$getVar[oldGuildName]!=$getVar[newGuildName]]
+  //   🏠 Server renamed from **$getVar[oldGuildName]** to **$getVar[newGuildName]**!
+  //   $endif
+  // `,
 };

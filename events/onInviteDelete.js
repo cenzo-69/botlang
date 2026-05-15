@@ -1,15 +1,16 @@
 'use strict';
 
+/**
+ * onInviteDelete — fires when a guild invite is deleted.
+ *
+ * Available via $getVar[varName] in your code:
+ *   inviteCode  → the deleted invite code
+ *   channelID   → the channel the invite was for
+ *   guildName   → guild name
+ */
 module.exports = {
   name: 'onInviteDelete',
 
-  code: [
-    '$title[🗑️ Invite Deleted]',
-    '$color[ED4245]',
-    '$description[Invite `discord.gg/$getVar[inviteCode]` was deleted in **$getVar[guildName]**.]',
-    '$addField[🔗 Code;$getVar[inviteCode];true]',
-    '$addField[📌 Channel;<#$getVar[channelID]>;true]',
-    '$footer[Invite deleted · CenzoJS]',
-    '$timestamp',
-  ].join('\n'),
+  // Uncomment and edit to activate:
+  // code: `🗑️ Invite \`discord.gg/$getVar[inviteCode]\` has been deleted.`,
 };

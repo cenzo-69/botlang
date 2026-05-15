@@ -1,19 +1,22 @@
 'use strict';
 
+/**
+ * onChannelUpdate — fires when a channel is modified (name, topic, permissions, etc.)
+ *
+ * Available via $getVar[varName] in your code:
+ *   channelID      → the channel's ID
+ *   oldChannelName → name before the update
+ *   newChannelName → name after the update
+ *   channelType    → Discord channel type number
+ *   guildName      → server name
+ */
 module.exports = {
   name: 'onChannelUpdate',
 
-  code: [
-    '$if[$getVar[oldChannelName]==$getVar[newChannelName]]',
-    '$stop',
-    '$endif',
-    '$title[✏️ Channel Renamed]',
-    '$color[FEE75C]',
-    '$description[A channel was renamed in **$getVar[guildName]**.]',
-    '$addField[Before;#$getVar[oldChannelName];true]',
-    '$addField[After;<#$getVar[channelID]>;true]',
-    '$addField[🆔 Channel ID;`$getVar[channelID]`;false]',
-    '$footer[Channel updated · CenzoJS]',
-    '$timestamp',
-  ].join('\n'),
+  // Uncomment and edit to activate:
+  // code: `
+  //   $if[$getVar[oldChannelName]!=$getVar[newChannelName]]
+  //   ✏️ Channel renamed from **#$getVar[oldChannelName]** to **#$getVar[newChannelName]**
+  //   $endif
+  // `,
 };

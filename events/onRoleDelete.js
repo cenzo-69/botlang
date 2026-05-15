@@ -1,17 +1,19 @@
 'use strict';
 
+/**
+ * onRoleDelete — fires when a role is deleted from the server.
+ *
+ * Available via $getVar[varName] in your code:
+ *   roleID          → the deleted role's ID
+ *   roleName        → the role's name
+ *   roleColor       → hex color
+ *   rolePosition    → position it had
+ *   roleMentionable → "true" or "false"
+ *   guildName       → server name
+ */
 module.exports = {
   name: 'onRoleDelete',
 
-  code: [
-    '$title[🗑️ Role Deleted]',
-    '$color[ED4245]',
-    '$description[Role **$getVar[roleName]** was deleted from **$getVar[guildName]**.]',
-    '$addField[🎭 Role Name;$getVar[roleName];true]',
-    '$addField[🎨 Color;$getVar[roleColor];true]',
-    '$addField[🔔 Was Mentionable;$getVar[roleMentionable];true]',
-    '$addField[🆔 Role ID;`$getVar[roleID]`;false]',
-    '$footer[Role deleted · CenzoJS]',
-    '$timestamp',
-  ].join('\n'),
+  // Uncomment and edit to activate:
+  // code: `🗑️ Role **$getVar[roleName]** was deleted from **$getVar[guildName]**.`,
 };

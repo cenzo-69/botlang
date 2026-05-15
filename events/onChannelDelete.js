@@ -1,16 +1,17 @@
 'use strict';
 
+/**
+ * onChannelDelete — fires when a channel is deleted from the server.
+ *
+ * Available via $getVar[varName] in your code:
+ *   channelID   → the deleted channel's ID
+ *   channelName → the channel's name
+ *   channelType → Discord channel type number
+ *   guildName   → server name
+ */
 module.exports = {
   name: 'onChannelDelete',
 
-  code: [
-    '$title[🗑️ Channel Deleted]',
-    '$color[ED4245]',
-    '$description[Channel **#$getVar[channelName]** was deleted from **$getVar[guildName]**.]',
-    '$addField[📌 Channel Name;$getVar[channelName];true]',
-    '$addField[🔢 Type;$getVar[channelType];true]',
-    '$addField[🆔 Channel ID;`$getVar[channelID]`;false]',
-    '$footer[Channel deleted · CenzoJS]',
-    '$timestamp',
-  ].join('\n'),
+  // Uncomment and edit to activate:
+  // code: `🗑️ Channel **#$getVar[channelName]** was deleted from **$getVar[guildName]**.`,
 };

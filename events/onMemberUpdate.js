@@ -1,19 +1,23 @@
 'use strict';
 
+/**
+ * onMemberUpdate — fires when a member's profile changes (roles, nickname, timeout, etc.)
+ *
+ * Available via $getVar[varName] in your code:
+ *   memberID       → the member's user ID
+ *   memberTag      → User#0000
+ *   memberUsername → plain username
+ *   oldNickname    → nickname before the change (empty if none)
+ *   newNickname    → nickname after the change (empty if none)
+ *   guildName      → server name
+ */
 module.exports = {
   name: 'onMemberUpdate',
 
-  code: [
-    '$if[$getVar[oldNickname]==$getVar[newNickname]]',
-    '$stop',
-    '$endif',
-    '$title[✏️ Nickname Changed]',
-    '$color[FEE75C]',
-    '$description[<@$getVar[memberID]> updated their nickname in **$getVar[guildName]**.]',
-    '$addField[Before;$default[$getVar[oldNickname];*(none)*];true]',
-    '$addField[After;$default[$getVar[newNickname];*(none)*];true]',
-    '$addField[🆔 User ID;`$getVar[memberID]`;false]',
-    '$footer[onMemberUpdate · CenzoJS]',
-    '$timestamp',
-  ].join('\n'),
+  // Uncomment and edit to activate:
+  // code: `
+  //   $if[$getVar[oldNickname]!=$getVar[newNickname]]
+  //   <@$getVar[memberID]> changed their nickname from **$getVar[oldNickname]** to **$getVar[newNickname]**
+  //   $endif
+  // `,
 };

@@ -1,18 +1,27 @@
 'use strict';
 
+/**
+ * onMemberJoin — fires when a new member joins the server.
+ *
+ * Available via $getVar[varName] in your code:
+ *   memberID       → the new member's user ID
+ *   memberTag      → User#0000
+ *   memberUsername → plain username
+ *   memberAvatar   → avatar URL
+ *   memberCount    → total server member count after join
+ *   guildName      → server name
+ */
 module.exports = {
   name: 'onMemberJoin',
 
-  code: [
-    '$title[👋 Welcome to $getVar[guildName]!]',
-    '$color[57F287]',
-    '$thumbnail[$getVar[memberAvatar]]',
-    '$description[Hey <@$getVar[memberID]>, welcome aboard! 🎉$newlineMake sure to read the rules and enjoy your stay!]',
-    '$addField[👤 Username;$getVar[memberUsername];true]',
-    '$addField[🏷️ Tag;$getVar[memberTag];true]',
-    '$addField[👥 Member Count;#$getVar[memberCount];true]',
-    '$addField[🆔 User ID;`$getVar[memberID]`;false]',
-    '$footer[Welcome to the server! · CenzoJS]',
-    '$timestamp',
-  ].join('\n'),
+  code: `
+    $title[👋 New Member!]
+    $color[57F287]
+    $thumbnail[$getVar[memberAvatar]]
+    $description[Welcome to **$getVar[guildName]**, <@$getVar[memberID]>! 🎉]
+    $addField[Username;$getVar[memberUsername];true]
+    $addField[Member Count;#$getVar[memberCount];true]
+    $footer[onMemberJoin ✓ — CenzoJS]
+    $timestamp
+  `,
 };
