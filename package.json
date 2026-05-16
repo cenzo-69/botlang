@@ -1,32 +1,44 @@
 {
   "name": "@cenzotz/cenzojs",
-  "version": "1.0.0",
-  "description": "Professional Discord bot scripting language runtime — like BDFD/ForgeScript but fully open, extensible, and npm-publishable.",
+  "version": "1.0.2",
+  "description": "Modern Discord bot scripting framework powered by a custom runtime, parser, and AST execution engine built on discord.js.",
   "main": "src/index.js",
   "files": [
-    "src/",
+    "src",
     "functions.json",
-    "Read.md"
+    "README.md"
   ],
   "scripts": {
     "start": "node index.js",
+    "dev": "node index.js",
     "test": "node test.js"
   },
   "keywords": [
     "discord",
+    "discord.js",
     "discordjs",
-    "bot",
+    "discord-bot",
     "framework",
-    "scripting",
+    "runtime",
+    "parser",
+    "dsl",
+    "scripting-language",
     "bdfd",
     "forgescript",
     "botforge",
-    "runtime"
+    "ast"
   ],
   "author": "Cenzo",
   "license": "MIT",
+  "homepage": "https://cenzojs.site",
+  "bugs": {
+    "url": "https://discord.gg/2uhpTR6CZD"
+  },
   "publishConfig": {
     "access": "public"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "discord.js": "^14.26.4",
