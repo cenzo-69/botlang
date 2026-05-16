@@ -49,6 +49,7 @@ class CenzoClient {
       folders       = {},
       dbUrl,
       autoStart     = true,
+      fakeWindow,
     } = config;
 
     this.token    = token || process.env.DISCORD_TOKEN || process.env.TOKEN;
@@ -91,7 +92,8 @@ class CenzoClient {
     this.handlers = new Map();
 
     // Invite tracker — attach to client so $functions can access it
-    this.inviteTracker = new InviteTracker(this.djsClient);
+    // fakeWindow: ms a member must stay before departure counts as "left" vs "fake" (default 10 min)
+    this.inviteTracker = new InviteTracker(this.djsClient, { fakeWindow });
     this.djsClient._cenzoInviteTracker = this.inviteTracker;
 
     this._loadCommands();

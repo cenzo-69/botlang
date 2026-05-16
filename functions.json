@@ -7637,44 +7637,56 @@
       "name": "$createInvite",
       "key": "createinvite",
       "category": "invites",
-      "description": "Creates an invite link. maxAge in seconds (0=permanent). Returns the full URL.",
-      "syntax": "$createInvite[channelID?;maxAge?;maxUses?;temporary?]",
+      "description": "Creates an invite for a channel and returns the full invite URL.",
+      "syntax": "$createInvite[channelID?;maxAge?;maxUses?;temporary?;reason?;unique?]",
       "args": [
         {
           "name": "channelID",
-          "type": "snowflake",
+          "type": "string",
           "required": false,
-          "lazy": false,
-          "description": "Channel to invite to. Defaults to current."
+          "description": "Target channel ID (default: current channel)"
         },
         {
           "name": "maxAge",
           "type": "number",
           "required": false,
-          "lazy": false,
-          "description": "Seconds until expiry. 0 = permanent. Default: 86400."
+          "description": "Seconds until expiry. 0 = never expire (default: 86400)"
         },
         {
           "name": "maxUses",
           "type": "number",
           "required": false,
-          "lazy": false,
-          "description": "Max uses. 0 = unlimited. Default: 0."
+          "description": "Max uses. 0 = unlimited (default: 0)"
         },
         {
           "name": "temporary",
           "type": "boolean",
           "required": false,
-          "lazy": false,
-          "description": "Kick on disconnect if no role."
+          "description": "Grant temporary membership — true/false (default: false)"
+        },
+        {
+          "name": "reason",
+          "type": "string",
+          "required": false,
+          "description": "Audit log reason (default: \"Created via CenzoJS\")"
+        },
+        {
+          "name": "unique",
+          "type": "boolean",
+          "required": false,
+          "description": "Force a unique invite — true/false (default: true)"
         }
       ],
       "returns": "string (invite URL)",
       "lazy": [],
       "examples": [
         {
-          "code": "$createInvite[;0;0]",
+          "code": "$createInvite[$channelID;0;0;false;Invite created by $username]",
           "output": "https://discord.gg/abc123"
+        },
+        {
+          "code": "$createInvite[;86400;10;true]",
+          "output": "https://discord.gg/xyz789"
         }
       ]
     },
@@ -7737,15 +7749,20 @@
       "name": "$serverInvites",
       "key": "serverinvites",
       "category": "invites",
-      "description": "Returns a separated list of all active invite codes for the current server.",
-      "syntax": "$serverInvites[separator?]",
+      "description": "Returns a list of all active invites in the current server.",
+      "syntax": "$serverInvites[separator?;format?]",
       "args": [
         {
           "name": "separator",
           "type": "string",
           "required": false,
-          "lazy": false,
-          "description": "Default: \", \"."
+          "description": "Separator between entries (default: \", \")"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "required": false,
+          "description": "\"codes\" (default) | \"urls\" | \"count\" | \"detailed\""
         }
       ],
       "returns": "string",
@@ -7754,6 +7771,18 @@
         {
           "code": "$serverInvites[, ]",
           "output": "abc123, def456"
+        },
+        {
+          "code": "$serverInvites[, ;urls]",
+          "output": "https://discord.gg/abc123, https://discord.gg/def456"
+        },
+        {
+          "code": "$serverInvites[;count]",
+          "output": "5"
+        },
+        {
+          "code": "$serverInvites[\n;detailed]",
+          "output": "abc123 (10/∞ uses, by Cenzo)"
         }
       ]
     },
@@ -20706,21 +20735,39 @@
       "name": "$inviteCreator",
       "key": "invitecreator",
       "category": "invites",
-      "description": "Returns the username of the user who created the invite.",
-      "syntax": "$inviteCreator[code]",
+      "description": "Returns information about the user who created the invite. Use the format arg to control what is returned.",
+      "syntax": "$inviteCreator[code;format?]",
       "args": [
         {
           "name": "code",
           "type": "string",
           "required": true,
           "description": "Invite code"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "required": false,
+          "description": "\"username\" (default) | \"tag\" | \"id\" | \"mention\" | \"avatar\""
         }
       ],
       "returns": "string",
       "examples": [
         {
-          "code": "Created by: $inviteCreator[abc123]",
-          "output": "Created by: Cenzo"
+          "code": "Creator: $inviteCreator[abc123]",
+          "output": "Creator: Cenzo"
+        },
+        {
+          "code": "Creator: $inviteCreator[abc123;mention]",
+          "output": "Creator: <@123456789>"
+        },
+        {
+          "code": "Creator ID: $inviteCreator[abc123;id]",
+          "output": "Creator ID: 123456789012345678"
+        },
+        {
+          "code": "Avatar: $inviteCreator[abc123;avatar]",
+          "output": "Avatar: https://cdn.discordapp.com/..."
         }
       ]
     },
@@ -20838,21 +20885,39 @@
       "name": "$inviteExpiresAt",
       "key": "inviteexpiresat",
       "category": "invites",
-      "description": "Returns the expiry timestamp (ISO string) of the invite, or \"never\" if it does not expire.",
-      "syntax": "$inviteExpiresAt[code]",
+      "description": "Returns the expiry time of an invite in the requested format. Returns \"never\" (or 0 for unix/ms) if the invite does not expire.",
+      "syntax": "$inviteExpiresAt[code;format?]",
       "args": [
         {
           "name": "code",
           "type": "string",
           "required": true,
           "description": "Invite code"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "required": false,
+          "description": "\"iso\" (default) | \"unix\" | \"ms\" | \"discord\" | \"discord:F\" | \"discord:D\" | \"discord:T\" | \"discord:R\""
         }
       ],
       "returns": "string",
       "examples": [
         {
-          "code": "Expires: $inviteExpiresAt[abc123]",
-          "output": "Expires: never"
+          "code": "$inviteExpiresAt[abc123]",
+          "output": "2024-06-01T12:00:00.000Z"
+        },
+        {
+          "code": "$inviteExpiresAt[abc123;unix]",
+          "output": "1717243200"
+        },
+        {
+          "code": "$inviteExpiresAt[abc123;discord:R]",
+          "output": "<t:1717243200:R>"
+        },
+        {
+          "code": "$inviteExpiresAt[abc123;discord:F]",
+          "output": "<t:1717243200:F>"
         }
       ]
     },
@@ -20860,14 +20925,20 @@
       "name": "$inviteCreatedAt",
       "key": "invitecreatedat",
       "category": "invites",
-      "description": "Returns the creation timestamp (ISO string) of the invite.",
-      "syntax": "$inviteCreatedAt[code]",
+      "description": "Returns the creation time of an invite in the requested format.",
+      "syntax": "$inviteCreatedAt[code;format?]",
       "args": [
         {
           "name": "code",
           "type": "string",
           "required": true,
           "description": "Invite code"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "required": false,
+          "description": "\"iso\" (default) | \"unix\" | \"ms\" | \"discord\" | \"discord:F\" | \"discord:D\" | \"discord:T\" | \"discord:R\""
         }
       ],
       "returns": "string",
@@ -20875,6 +20946,14 @@
         {
           "code": "$inviteCreatedAt[abc123]",
           "output": "2024-01-01T00:00:00.000Z"
+        },
+        {
+          "code": "$inviteCreatedAt[abc123;unix]",
+          "output": "1704067200"
+        },
+        {
+          "code": "$inviteCreatedAt[abc123;discord:R]",
+          "output": "<t:1704067200:R>"
         }
       ]
     },
@@ -20948,8 +21027,8 @@
       "name": "$userInvites",
       "key": "userinvites",
       "category": "invites",
-      "description": "Returns a separated list of active invite codes created by the specified user in this guild.",
-      "syntax": "$userInvites[userID;separator?]",
+      "description": "Returns a list of active invites created by the specified user in this guild.",
+      "syntax": "$userInvites[userID;separator?;format?]",
       "args": [
         {
           "name": "userID",
@@ -20961,7 +21040,13 @@
           "name": "separator",
           "type": "string",
           "required": false,
-          "description": "Separator string (default: \", \")"
+          "description": "Separator between entries (default: \", \")"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "required": false,
+          "description": "\"codes\" (default) | \"urls\" | \"count\""
         }
       ],
       "returns": "string",
@@ -20969,6 +21054,14 @@
         {
           "code": "$userInvites[$userID]",
           "output": "abc123, def456"
+        },
+        {
+          "code": "$userInvites[$userID;;urls]",
+          "output": "https://discord.gg/abc123, https://discord.gg/def456"
+        },
+        {
+          "code": "$userInvites[$userID;;count]",
+          "output": "2"
         }
       ]
     },
@@ -20976,21 +21069,35 @@
       "name": "$guildInvites",
       "key": "guildinvites",
       "category": "invites",
-      "description": "Returns a separated list of all active invite codes in the current guild.",
-      "syntax": "$guildInvites[separator?]",
+      "description": "Returns a list of all active invites in the current guild. Identical to $serverInvites.",
+      "syntax": "$guildInvites[separator?;format?]",
       "args": [
         {
           "name": "separator",
           "type": "string",
           "required": false,
-          "description": "Separator string (default: \", \")"
+          "description": "Separator between entries (default: \", \")"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "required": false,
+          "description": "\"codes\" (default) | \"urls\" | \"count\" | \"detailed\""
         }
       ],
       "returns": "string",
       "examples": [
         {
-          "code": "Invites: $guildInvites[, ]",
-          "output": "Invites: abc123, def456, ghi789"
+          "code": "$guildInvites[, ]",
+          "output": "abc123, def456"
+        },
+        {
+          "code": "$guildInvites[;count]",
+          "output": "5"
+        },
+        {
+          "code": "$guildInvites[;urls]",
+          "output": "https://discord.gg/abc123, https://discord.gg/def456"
         }
       ]
     },
@@ -20998,21 +21105,35 @@
       "name": "$memberInvite",
       "key": "memberinvite",
       "category": "invites",
-      "description": "Returns the user ID of the person who invited this member (tracked by InviteTracker). Returns empty if unknown.",
-      "syntax": "$memberInvite[userID?]",
+      "description": "Returns info about who invited a member (tracked by InviteTracker). Use format to control the return value.",
+      "syntax": "$memberInvite[userID?;format?]",
       "args": [
         {
           "name": "userID",
           "type": "string",
           "required": false,
-          "description": "Member user ID (defaults to command author)"
+          "description": "Member to look up (default: command author)"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "required": false,
+          "description": "\"id\" (default) | \"mention\" | \"username\" | \"code\" | \"url\""
         }
       ],
       "returns": "string",
       "examples": [
         {
-          "code": "Invited by: <@$memberInvite[$userID]>",
-          "output": "Invited by: @Cenzo"
+          "code": "Invited by: $memberInvite[$userID;mention]",
+          "output": "Invited by: <@123456789>"
+        },
+        {
+          "code": "Via code: $memberInvite[$userID;code]",
+          "output": "Via code: abc123"
+        },
+        {
+          "code": "Via URL: $memberInvite[$userID;url]",
+          "output": "Via URL: https://discord.gg/abc123"
         }
       ]
     },
@@ -21152,21 +21273,31 @@
       "name": "$memberTotalInvites",
       "key": "membertotalinvites",
       "category": "invites",
-      "description": "Returns the effective total invite count: real + bonus - left - fake (minimum 0).",
-      "syntax": "$memberTotalInvites[userID?]",
+      "description": "Returns the effective total invite count: real + bonus - left - fake (min 0). Optionally shows a full breakdown.",
+      "syntax": "$memberTotalInvites[userID?;breakdown?]",
       "args": [
         {
           "name": "userID",
           "type": "string",
           "required": false,
           "description": "User ID (defaults to command author)"
+        },
+        {
+          "name": "breakdown",
+          "type": "boolean",
+          "required": false,
+          "description": "If \"true\", appends breakdown string (default: false)"
         }
       ],
       "returns": "number",
       "examples": [
         {
-          "code": "Total invites: $memberTotalInvites[$userID]",
-          "output": "Total invites: 10"
+          "code": "$memberTotalInvites[$userID]",
+          "output": "10"
+        },
+        {
+          "code": "$memberTotalInvites[$userID;true]",
+          "output": "10 (8 real · 1 left · 2 bonus · 0 fake)"
         }
       ]
     },
@@ -21252,8 +21383,8 @@
       "name": "$inviteLeaderboard",
       "key": "inviteleaderboard",
       "category": "invites",
-      "description": "Returns a formatted invite leaderboard for the current guild. format: \"full\" (default), \"mentions\", or \"ids\".",
-      "syntax": "$inviteLeaderboard[limit?;format?]",
+      "description": "Returns a formatted invite leaderboard for the current guild.",
+      "syntax": "$inviteLeaderboard[limit?;format?;separator?]",
       "args": [
         {
           "name": "limit",
@@ -21265,14 +21396,32 @@
           "name": "format",
           "type": "string",
           "required": false,
-          "description": "\"full\" | \"mentions\" | \"ids\" (default: full)"
+          "description": "\"full\" (default) | \"mentions\" | \"minimal\" | \"ids\""
+        },
+        {
+          "name": "separator",
+          "type": "string",
+          "required": false,
+          "description": "Separator between rows (default: newline)"
         }
       ],
       "returns": "string",
       "examples": [
         {
+          "code": "$inviteLeaderboard[5]",
+          "output": "#1 Cenzo — 20 invites (18 real · 1 left · 2 bonus · 0 fake)"
+        },
+        {
           "code": "$inviteLeaderboard[5;mentions]",
-          "output": "#1 <@123> — 20 invites (18 real · 1 left · 3 bonus)\n#2 ..."
+          "output": "#1 <@123> — 20 invites (18 real · 1 left · 2 bonus · 0 fake)"
+        },
+        {
+          "code": "$inviteLeaderboard[3;minimal; | ]",
+          "output": "#1 Cenzo — 20 invites | #2 User2 — 15 invites | #3 User3 — 8 invites"
+        },
+        {
+          "code": "$inviteLeaderboard[10;ids]",
+          "output": "123456789:20,987654321:15"
         }
       ]
     }

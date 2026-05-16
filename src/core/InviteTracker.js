@@ -8,26 +8,43 @@ const { Events } = require('discord.js');
  * Caches guild invites on startup and after every change, then compares
  * use-counts on guildMemberAdd to detect which invite a new member used.
  *
- * Attach to the Discord.js client so $functions can reach it:
- *   client._cenzoInviteTracker = new InviteTracker(client);
+ * Fake-invite auto-detection:
+ *   If a member leaves within `fakeWindow` ms of joining, the departure is
+ *   counted as a "fake" (inviter.fake++) instead of a normal "left" (inviter.left++).
+ *   Default window: 10 minutes. Override via options or FAKE_INVITE_WINDOW_MS env var.
  *
- * Public helpers used by invite $functions:
+ * Attach to the Discord.js client so $functions can reach it:
+ *   client._cenzoInviteTracker = new InviteTracker(client, { fakeWindow: 5 * 60 * 1000 });
+ *
+ * Public API used by invite $functions:
  *   tracker.getInviterOf(memberID)              → userID | null
- *   tracker.getInviteCodeUsedBy(memberID)       → code   | null
+ *   tracker.getInviteCodeUsedBy(memberID)       → code | null
  *   tracker.getInviterRecord(guildID, userID)   → { real, fake, left, bonus }
+ *   tracker.getTotalInvites(guildID, userID)    → number
  *   tracker.addBonus(guildID, userID, n)
  *   tracker.removeBonus(guildID, userID, n)
+ *   tracker.setFakeWindow(ms)
  *   tracker.resetInvites(guildID, userID)
  *   tracker.getLeaderboard(guildID, limit)      → [{ userID, total, real, left, bonus, fake }]
  */
 class InviteTracker {
-  constructor(client) {
+  /**
+   * @param {import('discord.js').Client} client
+   * @param {{ fakeWindow?: number }} [options]
+   *   fakeWindow — ms a member must stay before their departure is "left" not "fake" (default 10 min)
+   */
+  constructor(client, options = {}) {
     this.client = client;
+
+    // Configurable fake-invite window (default 10 minutes)
+    const _envWindow = parseInt(process.env.FAKE_INVITE_WINDOW_MS);
+    this.fakeWindow  = options.fakeWindow
+      ?? (Number.isFinite(_envWindow) ? _envWindow : 10 * 60 * 1000);
 
     // Map<guildID, Map<code, uses>>
     this._cache = new Map();
 
-    // Map<memberID, { inviterID, inviteCode, guildID, joinedAt }>
+    // Map<memberID, { inviterID, inviteCode, guildID, joinedAt: Date }>
     this._joined = new Map();
 
     // Map<`${guildID}:${userID}`, { real, fake, left, bonus }>
@@ -43,7 +60,7 @@ class InviteTracker {
     for (const [, guild] of this.client.guilds.cache) {
       if (await this._cacheGuild(guild)) cached++;
     }
-    console.log(`[InviteTracker] Cached invites for ${cached}/${this.client.guilds.cache.size} guild(s).`);
+    console.log(`[InviteTracker] Cached invites for ${cached}/${this.client.guilds.cache.size} guild(s). Fake window: ${this.fakeWindow / 1000}s`);
   }
 
   async _cacheGuild(guild) {
@@ -61,7 +78,7 @@ class InviteTracker {
   // ── Internal Discord event wiring ─────────────────────────────────────────
 
   _wire() {
-    // Cache invites when the bot joins a new guild
+    // Cache invites when bot joins a new guild
     this.client.on(Events.GuildCreate, async (guild) => {
       await this._cacheGuild(guild);
     });
@@ -104,7 +121,7 @@ class InviteTracker {
 
       if (!usedCode || !inviterID) return;
 
-      // Record the join
+      // Record the join with timestamp
       this._joined.set(member.id, {
         inviterID,
         inviteCode: usedCode,
@@ -117,13 +134,21 @@ class InviteTracker {
       rec.real += 1;
     });
 
-    // Track left members so inviter's "left" counter grows
+    // ── Fake-invite auto-detection ─────────────────────────────────────────
+    // If the member leaves before fakeWindow elapses → fake++
+    // If the member leaves after  fakeWindow elapses → left++
     this.client.on(Events.GuildMemberRemove, (member) => {
       const joinRec = this._joined.get(member.id);
       if (!joinRec) return;
 
-      const rec = this._getOrCreateRecord(member.guild.id, joinRec.inviterID);
-      rec.left += 1;
+      const rec      = this._getOrCreateRecord(member.guild.id, joinRec.inviterID);
+      const stayedMs = Date.now() - joinRec.joinedAt.getTime();
+
+      if (stayedMs < this.fakeWindow) {
+        rec.fake += 1;
+      } else {
+        rec.left += 1;
+      }
     });
   }
 
@@ -141,6 +166,11 @@ class InviteTracker {
 
   // ── Public API ────────────────────────────────────────────────────────────
 
+  /** Change the fake-invite detection window at runtime. */
+  setFakeWindow(ms) {
+    this.fakeWindow = Number(ms);
+  }
+
   getInviterOf(memberID) {
     return this._joined.get(memberID)?.inviterID ?? null;
   }
@@ -149,11 +179,15 @@ class InviteTracker {
     return this._joined.get(memberID)?.inviteCode ?? null;
   }
 
+  getJoinedAt(memberID) {
+    return this._joined.get(memberID)?.joinedAt ?? null;
+  }
+
   getInviterRecord(guildID, userID) {
     return this._getOrCreateRecord(guildID, userID);
   }
 
-  /** Total = real + bonus - left - fake */
+  /** Effective total = real + bonus - left - fake (min 0) */
   getTotalInvites(guildID, userID) {
     const r = this.getInviterRecord(guildID, userID);
     return Math.max(0, r.real + r.bonus - r.left - r.fake);
@@ -176,8 +210,6 @@ class InviteTracker {
 
   /**
    * Returns a sorted leaderboard array for a guild.
-   * @param {string} guildID
-   * @param {number} limit
    * @returns {{ userID, total, real, bonus, left, fake }[]}
    */
   getLeaderboard(guildID, limit = 10) {

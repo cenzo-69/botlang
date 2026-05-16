@@ -1,13 +1,19 @@
 'use strict';
 
-// $inviteLeaderboard[limit?;format?]
+// $inviteLeaderboard[limit?;format?;separator?]
 // Returns a formatted invite leaderboard for the current guild.
-// format: "full" (default) = "#1 @User — 5 invites"
-//         "ids"            = "userID:total,userID:total,..."
-//         "mentions"       = "#1 <@userID> — 5 invites"
+//
+// limit     — max entries to show (default: 10)
+// format    — "full" (default), "mentions", "ids", "minimal"
+//   full      → #1 Username — 10 invites (8 real · 1 left · 2 bonus · 0 fake)
+//   mentions  → #1 <@userID> — 10 invites (8 real · 1 left · 2 bonus · 0 fake)
+//   minimal   → #1 Username — 10 invites
+//   ids       → userID:total,userID:total,...  (machine-readable)
+// separator — string between each row (default: newline)
 module.exports = async (context, args) => {
   const limit  = parseInt(args[0]) || 10;
-  const format = String(args[1] !== undefined ? args[1] : 'full').toLowerCase().trim();
+  const format = String(args[1] !== undefined ? args[1] : 'full').trim().toLowerCase();
+  const sep    = args[2] !== undefined ? String(args[2]) : '\n';
 
   const guildID = context.message?.guild?.id ?? context.message?.guildId ?? '';
   if (!guildID) return '[error: Not in a guild!]';
@@ -26,10 +32,16 @@ module.exports = async (context, args) => {
 
   return board.map((entry, i) => {
     const pos  = `#${i + 1}`;
-    const user = format === 'mentions'
+    const name = format === 'mentions'
       ? `<@${entry.userID}>`
       : (guild?.members?.cache?.get(entry.userID)?.user?.username ?? entry.userID);
 
-    return `${pos} ${user} — **${entry.total}** invite${entry.total !== 1 ? 's' : ''} (${entry.real} real · ${entry.left} left · ${entry.bonus} bonus)`;
-  }).join('\n');
+    const invWord = entry.total !== 1 ? 'invites' : 'invite';
+
+    if (format === 'minimal') {
+      return `${pos} ${name} — **${entry.total}** ${invWord}`;
+    }
+
+    return `${pos} ${name} — **${entry.total}** ${invWord} (${entry.real} real · ${entry.left} left · ${entry.bonus} bonus · ${entry.fake} fake)`;
+  }).join(sep);
 };
