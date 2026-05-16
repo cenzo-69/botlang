@@ -19,6 +19,7 @@ const fs   = require('fs');
 const { Runtime }               = require('./src');
 const { registerSlashCommands } = require('./src/core/SlashRegistry');
 const EventLoader               = require('./src/core/EventLoader');
+const InviteTracker             = require('./src/core/InviteTracker');
 
 // ─── Client ────────────────────────────────────────────────────────────────────
 
@@ -39,6 +40,11 @@ const client = new Client({
 // ─── Runtime ──────────────────────────────────────────────────────────────────
 
 const runtime = new Runtime();
+
+// ─── Invite tracker ────────────────────────────────────────────────────────────
+
+const inviteTracker = new InviteTracker(client);
+client._cenzoInviteTracker = inviteTracker;
 
 // ─── Command loader ───────────────────────────────────────────────────────────
 
@@ -343,6 +349,8 @@ function buildFakeMessage(interaction) {
 client.once(Events.ClientReady, async (c) => {
   console.log(`✅ Logged in as ${c.user.tag}`);
   console.log(`📦 Loaded ${runtime.loader.list().length} functions`);
+
+  await inviteTracker.init();
 
   const cmdList  = [...commands.keys()];
   const hndList  = [...handlers.keys()].map(k => k.replace(':', ':'));

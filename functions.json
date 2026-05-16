@@ -20635,6 +20635,646 @@
           "output": "HELLO"
         }
       ]
+    },
+    {
+      "name": "$inviteURL",
+      "key": "inviteurl",
+      "category": "invites",
+      "description": "Returns the full Discord invite URL for a given invite code.",
+      "syntax": "$inviteURL[code]",
+      "args": [
+        {
+          "name": "code",
+          "type": "string",
+          "required": true,
+          "description": "Invite code or partial URL"
+        }
+      ],
+      "returns": "string",
+      "examples": [
+        {
+          "code": "Join: $inviteURL[abc123]",
+          "output": "Join: https://discord.gg/abc123"
+        }
+      ]
+    },
+    {
+      "name": "$inviteCode",
+      "key": "invitecode",
+      "category": "invites",
+      "description": "Extracts and returns just the code portion from a full invite URL or bare code.",
+      "syntax": "$inviteCode[codeOrURL]",
+      "args": [
+        {
+          "name": "codeOrURL",
+          "type": "string",
+          "required": true,
+          "description": "Invite code or full URL"
+        }
+      ],
+      "returns": "string",
+      "examples": [
+        {
+          "code": "$inviteCode[https://discord.gg/abc123]",
+          "output": "abc123"
+        }
+      ]
+    },
+    {
+      "name": "$inviteMaxUses",
+      "key": "invitemaxuses",
+      "category": "invites",
+      "description": "Returns the maximum number of times the invite can be used. Returns 0 for unlimited.",
+      "syntax": "$inviteMaxUses[code]",
+      "args": [
+        {
+          "name": "code",
+          "type": "string",
+          "required": true,
+          "description": "Invite code"
+        }
+      ],
+      "returns": "number",
+      "examples": [
+        {
+          "code": "Max uses: $inviteMaxUses[abc123]",
+          "output": "Max uses: 100"
+        }
+      ]
+    },
+    {
+      "name": "$inviteCreator",
+      "key": "invitecreator",
+      "category": "invites",
+      "description": "Returns the username of the user who created the invite.",
+      "syntax": "$inviteCreator[code]",
+      "args": [
+        {
+          "name": "code",
+          "type": "string",
+          "required": true,
+          "description": "Invite code"
+        }
+      ],
+      "returns": "string",
+      "examples": [
+        {
+          "code": "Created by: $inviteCreator[abc123]",
+          "output": "Created by: Cenzo"
+        }
+      ]
+    },
+    {
+      "name": "$inviteCreatorID",
+      "key": "invitecreatorid",
+      "category": "invites",
+      "description": "Returns the user ID of the user who created the invite.",
+      "syntax": "$inviteCreatorID[code]",
+      "args": [
+        {
+          "name": "code",
+          "type": "string",
+          "required": true,
+          "description": "Invite code"
+        }
+      ],
+      "returns": "string",
+      "examples": [
+        {
+          "code": "Creator ID: $inviteCreatorID[abc123]",
+          "output": "Creator ID: 123456789012345678"
+        }
+      ]
+    },
+    {
+      "name": "$inviteChannelID",
+      "key": "invitechannelid",
+      "category": "invites",
+      "description": "Returns the ID of the channel the invite leads to.",
+      "syntax": "$inviteChannelID[code]",
+      "args": [
+        {
+          "name": "code",
+          "type": "string",
+          "required": true,
+          "description": "Invite code"
+        }
+      ],
+      "returns": "string",
+      "examples": [
+        {
+          "code": "Channel: $inviteChannelID[abc123]",
+          "output": "Channel: 987654321098765432"
+        }
+      ]
+    },
+    {
+      "name": "$inviteGuildID",
+      "key": "inviteguildid",
+      "category": "invites",
+      "description": "Returns the guild ID the invite belongs to.",
+      "syntax": "$inviteGuildID[code]",
+      "args": [
+        {
+          "name": "code",
+          "type": "string",
+          "required": true,
+          "description": "Invite code"
+        }
+      ],
+      "returns": "string",
+      "examples": [
+        {
+          "code": "Guild: $inviteGuildID[abc123]",
+          "output": "Guild: 111222333444555666"
+        }
+      ]
+    },
+    {
+      "name": "$inviteTemporary",
+      "key": "invitetemporary",
+      "category": "invites",
+      "description": "Returns \"true\" if the invite grants temporary membership, \"false\" otherwise.",
+      "syntax": "$inviteTemporary[code]",
+      "args": [
+        {
+          "name": "code",
+          "type": "string",
+          "required": true,
+          "description": "Invite code"
+        }
+      ],
+      "returns": "boolean",
+      "examples": [
+        {
+          "code": "Temp: $inviteTemporary[abc123]",
+          "output": "Temp: false"
+        }
+      ]
+    },
+    {
+      "name": "$isInviteTemporary",
+      "key": "isinvitetemporary",
+      "category": "invites",
+      "description": "Returns \"true\" if the invite grants temporary membership. Alias of $inviteTemporary.",
+      "syntax": "$isInviteTemporary[code]",
+      "args": [
+        {
+          "name": "code",
+          "type": "string",
+          "required": true,
+          "description": "Invite code"
+        }
+      ],
+      "returns": "boolean",
+      "examples": [
+        {
+          "code": "$isInviteTemporary[abc123]",
+          "output": "false"
+        }
+      ]
+    },
+    {
+      "name": "$inviteExpiresAt",
+      "key": "inviteexpiresat",
+      "category": "invites",
+      "description": "Returns the expiry timestamp (ISO string) of the invite, or \"never\" if it does not expire.",
+      "syntax": "$inviteExpiresAt[code]",
+      "args": [
+        {
+          "name": "code",
+          "type": "string",
+          "required": true,
+          "description": "Invite code"
+        }
+      ],
+      "returns": "string",
+      "examples": [
+        {
+          "code": "Expires: $inviteExpiresAt[abc123]",
+          "output": "Expires: never"
+        }
+      ]
+    },
+    {
+      "name": "$inviteCreatedAt",
+      "key": "invitecreatedat",
+      "category": "invites",
+      "description": "Returns the creation timestamp (ISO string) of the invite.",
+      "syntax": "$inviteCreatedAt[code]",
+      "args": [
+        {
+          "name": "code",
+          "type": "string",
+          "required": true,
+          "description": "Invite code"
+        }
+      ],
+      "returns": "string",
+      "examples": [
+        {
+          "code": "$inviteCreatedAt[abc123]",
+          "output": "2024-01-01T00:00:00.000Z"
+        }
+      ]
+    },
+    {
+      "name": "$inviteMemberCount",
+      "key": "invitemembercount",
+      "category": "invites",
+      "description": "Returns the approximate total member count of the guild the invite belongs to.",
+      "syntax": "$inviteMemberCount[code]",
+      "args": [
+        {
+          "name": "code",
+          "type": "string",
+          "required": true,
+          "description": "Invite code"
+        }
+      ],
+      "returns": "number",
+      "examples": [
+        {
+          "code": "Members: $inviteMemberCount[abc123]",
+          "output": "Members: 1542"
+        }
+      ]
+    },
+    {
+      "name": "$invitePresenceCount",
+      "key": "invitepresencecount",
+      "category": "invites",
+      "description": "Returns the approximate online member count of the guild the invite belongs to.",
+      "syntax": "$invitePresenceCount[code]",
+      "args": [
+        {
+          "name": "code",
+          "type": "string",
+          "required": true,
+          "description": "Invite code"
+        }
+      ],
+      "returns": "number",
+      "examples": [
+        {
+          "code": "Online: $invitePresenceCount[abc123]",
+          "output": "Online: 87"
+        }
+      ]
+    },
+    {
+      "name": "$inviteExists",
+      "key": "inviteexists",
+      "category": "invites",
+      "description": "Returns \"true\" if the invite code is valid and exists, \"false\" otherwise.",
+      "syntax": "$inviteExists[code]",
+      "args": [
+        {
+          "name": "code",
+          "type": "string",
+          "required": true,
+          "description": "Invite code"
+        }
+      ],
+      "returns": "boolean",
+      "examples": [
+        {
+          "code": "$inviteExists[abc123]",
+          "output": "true"
+        }
+      ]
+    },
+    {
+      "name": "$userInvites",
+      "key": "userinvites",
+      "category": "invites",
+      "description": "Returns a separated list of active invite codes created by the specified user in this guild.",
+      "syntax": "$userInvites[userID;separator?]",
+      "args": [
+        {
+          "name": "userID",
+          "type": "string",
+          "required": true,
+          "description": "User ID to look up"
+        },
+        {
+          "name": "separator",
+          "type": "string",
+          "required": false,
+          "description": "Separator string (default: \", \")"
+        }
+      ],
+      "returns": "string",
+      "examples": [
+        {
+          "code": "$userInvites[$userID]",
+          "output": "abc123, def456"
+        }
+      ]
+    },
+    {
+      "name": "$guildInvites",
+      "key": "guildinvites",
+      "category": "invites",
+      "description": "Returns a separated list of all active invite codes in the current guild.",
+      "syntax": "$guildInvites[separator?]",
+      "args": [
+        {
+          "name": "separator",
+          "type": "string",
+          "required": false,
+          "description": "Separator string (default: \", \")"
+        }
+      ],
+      "returns": "string",
+      "examples": [
+        {
+          "code": "Invites: $guildInvites[, ]",
+          "output": "Invites: abc123, def456, ghi789"
+        }
+      ]
+    },
+    {
+      "name": "$memberInvite",
+      "key": "memberinvite",
+      "category": "invites",
+      "description": "Returns the user ID of the person who invited this member (tracked by InviteTracker). Returns empty if unknown.",
+      "syntax": "$memberInvite[userID?]",
+      "args": [
+        {
+          "name": "userID",
+          "type": "string",
+          "required": false,
+          "description": "Member user ID (defaults to command author)"
+        }
+      ],
+      "returns": "string",
+      "examples": [
+        {
+          "code": "Invited by: <@$memberInvite[$userID]>",
+          "output": "Invited by: @Cenzo"
+        }
+      ]
+    },
+    {
+      "name": "$memberInviteCode",
+      "key": "memberinvitecode",
+      "category": "invites",
+      "description": "Returns the invite code used by a member when they joined (tracked by InviteTracker).",
+      "syntax": "$memberInviteCode[userID?]",
+      "args": [
+        {
+          "name": "userID",
+          "type": "string",
+          "required": false,
+          "description": "Member user ID (defaults to command author)"
+        }
+      ],
+      "returns": "string",
+      "examples": [
+        {
+          "code": "Joined via: $memberInviteCode[$userID]",
+          "output": "Joined via: abc123"
+        }
+      ]
+    },
+    {
+      "name": "$memberInvites",
+      "key": "memberinvites",
+      "category": "invites",
+      "description": "Returns the number of real tracked invites for a user (joins attributed to their invites).",
+      "syntax": "$memberInvites[userID?]",
+      "args": [
+        {
+          "name": "userID",
+          "type": "string",
+          "required": false,
+          "description": "User ID (defaults to command author)"
+        }
+      ],
+      "returns": "number",
+      "examples": [
+        {
+          "code": "$memberInvites[$userID] invites",
+          "output": "12 invites"
+        }
+      ]
+    },
+    {
+      "name": "$memberRealInvites",
+      "key": "memberrealinvites",
+      "category": "invites",
+      "description": "Returns the raw real-invite count for a user (total joins attributed to their invites before subtracting left/fake).",
+      "syntax": "$memberRealInvites[userID?]",
+      "args": [
+        {
+          "name": "userID",
+          "type": "string",
+          "required": false,
+          "description": "User ID (defaults to command author)"
+        }
+      ],
+      "returns": "number",
+      "examples": [
+        {
+          "code": "Real: $memberRealInvites[$userID]",
+          "output": "Real: 15"
+        }
+      ]
+    },
+    {
+      "name": "$memberFakeInvites",
+      "key": "memberfakeinvites",
+      "category": "invites",
+      "description": "Returns the number of fake invites attributed to a user (members who joined then left almost immediately).",
+      "syntax": "$memberFakeInvites[userID?]",
+      "args": [
+        {
+          "name": "userID",
+          "type": "string",
+          "required": false,
+          "description": "User ID (defaults to command author)"
+        }
+      ],
+      "returns": "number",
+      "examples": [
+        {
+          "code": "Fake: $memberFakeInvites[$userID]",
+          "output": "Fake: 2"
+        }
+      ]
+    },
+    {
+      "name": "$memberLeftInvites",
+      "key": "memberleftinvites",
+      "category": "invites",
+      "description": "Returns how many members who joined via this user's invite have since left the server.",
+      "syntax": "$memberLeftInvites[userID?]",
+      "args": [
+        {
+          "name": "userID",
+          "type": "string",
+          "required": false,
+          "description": "User ID (defaults to command author)"
+        }
+      ],
+      "returns": "number",
+      "examples": [
+        {
+          "code": "Left: $memberLeftInvites[$userID]",
+          "output": "Left: 3"
+        }
+      ]
+    },
+    {
+      "name": "$memberBonusInvites",
+      "key": "memberbonusinvites",
+      "category": "invites",
+      "description": "Returns the number of bonus invites manually added to a user.",
+      "syntax": "$memberBonusInvites[userID?]",
+      "args": [
+        {
+          "name": "userID",
+          "type": "string",
+          "required": false,
+          "description": "User ID (defaults to command author)"
+        }
+      ],
+      "returns": "number",
+      "examples": [
+        {
+          "code": "Bonus: $memberBonusInvites[$userID]",
+          "output": "Bonus: 5"
+        }
+      ]
+    },
+    {
+      "name": "$memberTotalInvites",
+      "key": "membertotalinvites",
+      "category": "invites",
+      "description": "Returns the effective total invite count: real + bonus - left - fake (minimum 0).",
+      "syntax": "$memberTotalInvites[userID?]",
+      "args": [
+        {
+          "name": "userID",
+          "type": "string",
+          "required": false,
+          "description": "User ID (defaults to command author)"
+        }
+      ],
+      "returns": "number",
+      "examples": [
+        {
+          "code": "Total invites: $memberTotalInvites[$userID]",
+          "output": "Total invites: 10"
+        }
+      ]
+    },
+    {
+      "name": "$addBonusInvites",
+      "key": "addbonusinvites",
+      "category": "invites",
+      "description": "Adds bonus invites to a user's tracked invite count. Returns the new bonus total.",
+      "syntax": "$addBonusInvites[userID;amount]",
+      "args": [
+        {
+          "name": "userID",
+          "type": "string",
+          "required": true,
+          "description": "User ID"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "Number of bonus invites to add"
+        }
+      ],
+      "returns": "number",
+      "examples": [
+        {
+          "code": "$addBonusInvites[$userID;5]",
+          "output": "5"
+        }
+      ]
+    },
+    {
+      "name": "$removeBonusInvites",
+      "key": "removebonusinvites",
+      "category": "invites",
+      "description": "Removes bonus invites from a user's tracked count (minimum 0). Returns the new bonus total.",
+      "syntax": "$removeBonusInvites[userID;amount]",
+      "args": [
+        {
+          "name": "userID",
+          "type": "string",
+          "required": true,
+          "description": "User ID"
+        },
+        {
+          "name": "amount",
+          "type": "number",
+          "required": true,
+          "description": "Number of bonus invites to remove"
+        }
+      ],
+      "returns": "number",
+      "examples": [
+        {
+          "code": "$removeBonusInvites[$userID;2]",
+          "output": "3"
+        }
+      ]
+    },
+    {
+      "name": "$resetInvites",
+      "key": "resetinvites",
+      "category": "invites",
+      "description": "Resets all tracked invite counters (real, fake, left, bonus) for a user to 0.",
+      "syntax": "$resetInvites[userID]",
+      "args": [
+        {
+          "name": "userID",
+          "type": "string",
+          "required": true,
+          "description": "User ID to reset"
+        }
+      ],
+      "returns": "string",
+      "examples": [
+        {
+          "code": "$resetInvites[$userID]",
+          "output": ""
+        }
+      ]
+    },
+    {
+      "name": "$inviteLeaderboard",
+      "key": "inviteleaderboard",
+      "category": "invites",
+      "description": "Returns a formatted invite leaderboard for the current guild. format: \"full\" (default), \"mentions\", or \"ids\".",
+      "syntax": "$inviteLeaderboard[limit?;format?]",
+      "args": [
+        {
+          "name": "limit",
+          "type": "number",
+          "required": false,
+          "description": "Number of entries to show (default: 10)"
+        },
+        {
+          "name": "format",
+          "type": "string",
+          "required": false,
+          "description": "\"full\" | \"mentions\" | \"ids\" (default: full)"
+        }
+      ],
+      "returns": "string",
+      "examples": [
+        {
+          "code": "$inviteLeaderboard[5;mentions]",
+          "output": "#1 <@123> — 20 invites (18 real · 1 left · 3 bonus)\n#2 ..."
+        }
+      ]
     }
   ]
 }

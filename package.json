@@ -1,36 +1,47 @@
 {
   "name": "@cenzotz/cenzojs",
-  "version": "1.0.2",
-  "description": "Modern Discord bot scripting framework powered by a custom runtime, parser, and AST execution engine built on discord.js.",
+  "version": "1.1.0",
+  "description": "A professional Discord bot scripting framework. Write bots with a clean scripting syntax — no boilerplate, no wiring, just commands and events.",
   "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
   "files": [
-    "src",
+    "src/",
     "functions.json",
+    "events.json",
     "README.md"
   ],
   "scripts": {
     "start": "node index.js",
-    "dev": "node index.js",
-    "test": "node test.js"
+    "dev":   "node index.js"
   },
   "keywords": [
     "discord",
     "discord.js",
     "discordjs",
     "discord-bot",
-    "framework",
+    "bot-framework",
+    "scripting",
+    "scripting-language",
     "runtime",
     "parser",
     "dsl",
-    "scripting-language",
     "bdfd",
     "forgescript",
     "botforge",
-    "ast"
+    "ast",
+    "cenzojs",
+    "invite-tracker",
+    "bot-builder"
   ],
   "author": "Cenzo",
   "license": "MIT",
   "homepage": "https://cenzojs.site",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cenzotz/cenzojs"
+  },
   "bugs": {
     "url": "https://discord.gg/2uhpTR6CZD"
   },

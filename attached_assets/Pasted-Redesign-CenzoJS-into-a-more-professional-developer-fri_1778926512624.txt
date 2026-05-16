@@ -1,0 +1,122 @@
+Redesign CenzoJS into a more professional developer-friendly framework API so users can rely on it like a real ecosystem instead of manually wiring discord.js themselves.
+
+Target usage should feel like this:
+
+js id="m7v2x4" const {   cenzoClient,   cenzojs,   GatewayIntentBits } = require("@cenzotz/cenzojs");  const client = new cenzoClient({   token: process.env.TOKEN,    intents: [     GatewayIntentBits.Guilds,     GatewayIntentBits.GuildMessages,     GatewayIntentBits.MessageContent,     GatewayIntentBits.GuildMembers   ],    prefix: ["!"],    folders: {     commands: "./commands",     events: "./events",     interactions: "./interactions"   } }); 
+
+Goal:
+- users should not manually build loaders
+- users should not manually create runtime
+- framework should auto-load everything
+- framework should handle runtime internally
+
+━━━━━━━━━━━━━━━━━━━━
+PUBLIC API
+━━━━━━━━━━━━━━━━━━━━
+
+Need proper exports from main package:
+
+txt id="q4m8q2" cenzoClient cenzojs Runtime Parser Context FunctionLoader GatewayIntentBits EmbedBuilder ActionRowBuilder ButtonBuilder ButtonStyle 
+
+━━━━━━━━━━━━━━━━━━━━
+AUTO LOADERS
+━━━━━━━━━━━━━━━━━━━━
+
+Framework should automatically load:
+- commands
+- events
+- interactions
+- slash commands
+- custom functions
+
+from folders automatically.
+
+Supported folders:
+
+txt id="v1m7q8" commands/ events/ interactions/ slashCommands/ functions/ 
+
+━━━━━━━━━━━━━━━━━━━━
+PACKAGE.JSON IMPROVEMENTS
+━━━━━━━━━━━━━━━━━━━━
+
+Remake package.json professionally.
+
+Current package publishes unnecessary junk.
+
+Need:
+- cleaner metadata
+- proper exports
+- proper files whitelist
+- cleaner scripts
+- proper keywords
+- proper homepage/support links
+- only publish runtime/package files
+
+Do NOT publish:
+txt id="x8m2q4" tests screenshots docs junk node_modules editor configs random temp files 
+
+Need proper:
+json id="r2m7v1" "files": [] 
+
+configuration.
+
+━━━━━━━━━━━━━━━━━━━━
+INVITE SYSTEM
+━━━━━━━━━━━━━━━━━━━━
+
+Do NOT touch or rewrite the current event system anymore.
+
+Instead, focus on making a COMPLETE invite system so users can build:
+- invite trackers
+- invite leaderboards
+- fake invite detection
+- join analytics
+- reward systems
+- referral systems
+
+Use proper folder structure:
+txt id="n5x8q2" src/functions/invites/ 
+
+━━━━━━━━━━━━━━━━━━━━
+INVITE FUNCTIONS
+━━━━━━━━━━━━━━━━━━━━
+
+Add ALL important invite functions:
+
+txt id="j4m7q9" $createInvite[channelID;maxAge;maxUses;temporary;reason] $deleteInvite[code]  $inviteURL[code] $inviteCode[code] $inviteUses[code] $inviteMaxUses[code] $inviteCreator[code] $inviteChannelID[code] $inviteGuildID[code]  $inviteTemporary[code] $inviteExpiresAt[code] $inviteCreatedAt[code]  $inviteMemberCount[code] $invitePresenceCount[code]  $guildInvites[separator] $userInvites[userID;separator]  $inviteExists[code] $isInviteTemporary[code]  $memberInvite[userID] $memberInviter[userID]  $inviteLeaderboard[separator] $topInviter $topInviteCount 
+
+━━━━━━━━━━━━━━━━━━━━
+INVITE TRACKING
+━━━━━━━━━━━━━━━━━━━━
+
+Need proper invite tracking system internally.
+
+Framework should:
+- cache guild invites
+- compare invite usage on joins
+- detect which invite was used
+- expose inviter data/functions
+
+Need scalable architecture:
+- avoid excessive API spam
+- update cache efficiently
+- support large guilds
+
+━━━━━━━━━━━━━━━━━━━━
+IMPORTANT
+━━━━━━━━━━━━━━━━━━━━
+
+Every new function MUST also be added to:
+txt id="k8v2m5" @function.json 
+
+with:
+- syntax
+- args
+- examples
+- return types
+- descriptions
+- categories
+
+Cross-check all functions before adding duplicates.
+
+Keep everything modular and production-ready.
